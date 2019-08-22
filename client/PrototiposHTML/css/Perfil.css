@@ -1,0 +1,42 @@
+.img-perfil{
+  background: url("../img/Perfil4.jpg") center no-repeat;
+  width: 80vw;
+  height: 80vw;
+  border-radius: 50%;
+  background-size: 80vw;
+}
+
+.btn-floating{
+	float: right;
+	margin-top: 80%;
+	width: 20%;
+	height: 20%;
+	text-align: center;
+}
+div>.input-field{
+	margin-top: 30px !important;
+}
+div>.input-field>input{
+  font-size: 2em !important;
+}
+.material-icons{
+  transition: none;
+  line-height: 170% !important;
+  font-size: 10vw !important;
+}
+@media only screen and (min-width: 500px) {
+  .img-perfil{
+    background-size: 500px;
+    width: 450px;
+    height: 450px;
+    margin: auto;
+  }
+  .material-icons{
+    line-height: 90px !important;
+    font-size: 60px !important;
+  }
+}
+#btn-excluir, #btn-excluir>i{
+  font-size: 1em !important;
+  line-height: 50px !important;
+}

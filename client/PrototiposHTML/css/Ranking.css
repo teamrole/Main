@@ -1,0 +1,17 @@
+.h-center{
+  top: 50%;
+  line-height: 3rem
+}
+@media only screen and (max-width: 600px) {
+  .title {
+    font-size: 2.8em;
+  }
+}
+@media only screen and (max-width: 440px) {
+  .secondary-content>h5{
+    font-size: 1em;
+  }
+  .title {
+    font-size: 1.8em;
+  }
+}

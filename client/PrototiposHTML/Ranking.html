@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--Import materialize.css-->
+        <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+        <link rel="stylesheet" href="font-awesome-4.3.0/css/font-awesome.min.css">
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <link type="text/css" rel="stylesheet" href="css/style.css">
+        <link type="text/css" rel="stylesheet" href="css/Ranking.css">
+        <link rel="shortcut icon" href="favicon (6).ico" type="image/x-icon">
+        <link rel="icon" href="favicon (6).ico" type="image/x-icon">
+    </head>
+
+    <body>
+    <nav class="roxo lighten-2">
+        <div class="nav-wrapper">
+          <a href="#!" class="brand-logo">Role</a>
+          <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+          <ul class="right hide-on-med-and-down">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="lobby.html">Lobby</a></li>
+            <li><a href="ranking.html">Ranking</a></li>
+            <li><a href="cadastro.html">Editar dados</a></li>
+          </ul>
+          <ul class="side-nav" id="mobile-demo">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="lobby.html">Lobby</a></li>
+            <li><a href="ranking.html">Ranking</a></li>
+            <li><a href="cadastro.html">Editar dados</a></li>
+          </ul>
+        </div>
+      </nav>
+
+    <div class="container" style="margin-top:90px;">
+        <div class = "row">
+            <h2 class="title">Ranking de rolezeiros</h2>
+        </div>
+        <div class="row">
+            <ul id="tabs-swipe-demo" class="tabs">
+                <li class="tab col s3"><a class="active" href="#rank-semana">Semana</a></li>
+                <li class="tab col s3"><a href="#rank-mes">Mensal</a></li>
+                <li class="tab col s3"><a href="#rank-total">Total</a></li>
+            </ul>
+            <div id="rank-semana" class="col s12">
+                
+                <ul class="collection">
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil1.jpg" alt="" class="circle">
+                        <span class="h-center title">Izzabely Freitas</span>
+                        <span href="#!" class="secondary-content"><h5>8 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil2.jpg" alt="" class="circle">
+                        <span class="h-center title">Fernanda Sales</span>
+                        <span href="#!" class="secondary-content"><h5>5 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil3.jpg" alt="" class="circle">
+                        <span class="h-center title">Leticia Shikarim</span>
+                        <span href="#!" class="secondary-content"><h5>4 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil4.jpg" alt="" class="circle">
+                        <span class="h-center title">Yuri Kann</span>
+                        <span href="#!" class="secondary-content"><h5>3 Roles</h5></span>
+                    </li>
+                </ul>
+
+            </div>
+            <div id="rank-mes" class="col s12">
+                
+                <ul class="collection">
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil4.jpg" alt="" class="circle">
+                        <span class="h-center title">Yuri Kann</span>
+                        <span href="#!" class="secondary-content"><h5>13 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil1.jpg" alt="" class="circle">
+                        <span class="h-center title">Izzabely Freitas</span>
+                        <span href="#!" class="secondary-content"><h5>12 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil3.jpg" alt="" class="circle">
+                        <span class="h-center title">Leticia Shikarim</span>
+                        <span href="#!" class="secondary-content"><h5>11 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil2.jpg" alt="" class="circle">
+                        <span class="h-center title">Fernanda Sales</span>
+                        <span href="#!" class="secondary-content"><h5>9 Roles</h5></span>
+                    </li>
+                </ul>
+            </div>
+            <div id="rank-total" class="col s12">
+                
+                <ul class="collection">
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil2.jpg" alt="" class="circle">
+                        <span class="h-center title">Fernanda Sales</span>
+                        <span href="#!" class="secondary-content"><h5>98 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil1.jpg" alt="" class="circle">
+                        <span class="h-center title">Izzabely Freitas</span>
+                        <span href="#!" class="secondary-content"><h5>65 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil4.jpg" alt="" class="circle">
+                        <span class="h-center title">Yuri Kann</span>
+                        <span href="#!" class="secondary-content"><h5>63 Roles</h5></span>
+                    </li>
+                    <li class="collection-item avatar">
+                        <img src="img/Perfil3.jpg" alt="" class="circle">
+                        <span class="h-center title">Leticia Shikarim</span>
+                        <span href="#!" class="secondary-content"><h5>50 Roles</h5></span>
+                    </li>
+                </ul>
+            </div>
+      </div>
+
+    </div><!--conatiner-->
+
+
+    <!--Import jQuery before materialize.js-->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="js/materialize.js"></script>
+    <script src="js/init.js"></script>
+  </body>
+</html>
+        
