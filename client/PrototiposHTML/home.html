@@ -1,0 +1,193 @@
+ <!DOCTYPE html>
+  <html>
+    <head>
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+      <link rel="stylesheet" href="font-awesome-4.3.0/css/font-awesome.min.css">
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+      <meta charset="utf-8">
+      <link type="text/css" rel="stylesheet" href="css/style.css">      
+      <link rel="shortcut icon" href="favicon (6).ico" type="image/x-icon">
+      <link rel="icon" href="favicon (6).ico" type="image/x-icon">
+
+      <style>
+        .row .col{
+          padding: 0
+        }
+        .tabs li.tab a{
+          color: #fff
+        }
+        .tabs{
+          background-color: transparent;
+        }
+        .tabs li.tab{
+          background-color: transparent;
+        }
+        .tabs .indicator{
+          color: #fff
+        }
+
+        .tabs .tab a:hover {
+            color:#fff;
+        } /*Text color on hover*/
+
+        .tabs li.tab a:hover{
+          color:#fff;
+        }
+
+        .tabs .tab a.active {
+            background-color:transparent;
+            color:#fff;
+        } /*Background and text color when a tab is active*/
+
+        .tabs .indicator {
+            background-color:#F2B705;
+        }
+        .tab-content{
+          background-color: white;
+          min-height: 90vh;
+          box-sizing: border-box;
+          
+        }
+        .rowtab{
+          margin-bottom: 0;          
+        }
+        .tabpadding{
+          padding: 25px 10px 0 10px;
+        }
+        .card-image iframe{
+          width: 100%
+        }
+        .false-link{
+
+          color: #ffab40 !important;
+          margin-right: 20px;
+          -webkit-transition: color 0.3s ease;
+          -moz-transition: color 0.3s ease;
+          -o-transition: color 0.3s ease;
+          -ms-transition: color 0.3s ease;
+          transition: color 0.3s ease;
+          text-transform: uppercase;
+        }
+        .codigo{
+         
+        }
+        .codigo-submit {
+          background: url(img/send.svg) center center no-repeat; 
+          border : none;
+          height: 36px;
+          width: 24px;
+          color: #999;
+          text-indent: -99px;
+          
+        }
+        .codigo-button-box{
+          line-height: 58px;
+          vertical-align: middle;
+            text-align: center;
+        }
+
+        .no-border{
+          border: none !important;
+          -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+        }
+      </style>
+    </head>
+
+    <body>
+
+        <nav class="roxo lighten-2">
+            <div class="nav-wrapper">
+              <a href="#!" class="brand-logo">Role</a>
+              <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+              <ul class="right hide-on-med-and-down">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="lobby.html">Lobby</a></li>
+                <li><a href="ranking.html">Ranking</a></li>
+                <li><a href="cadastro.html">Editar dados</a></li>
+              </ul>
+              <ul class="side-nav" id="mobile-demo">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="lobby.html">Lobby</a></li>
+                <li><a href="ranking.html">Ranking</a></li>
+                <li><a href="cadastro.html">Editar dados</a></li>
+              </ul>
+            </div>
+          </nav>
+
+  <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col s12 m12 roxo lighten-2">
+        <div class="row rowtab tabpadding">
+          <div class="col s12">
+            <ul class="tabs">
+              <li class="tab col s3"><a class="active" href="#test1">Criar rolê</a></li>
+              <li class="tab col s3"><a href="#test2">Entrar no lobby</a></li>
+            </ul>
+          </div>          
+        </div><!-- rows tabs-->
+        <div class="row rowtab tab-content tabpadding">
+          <div id="test1" class="col s12">
+           
+            <div class="card">
+              <div class="card-image waves-effect waves-block waves-light">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3664.381238050494!2d-51.17445168502718!3d-23.30192268481232!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94eb44b116848607%3A0x4021260731e39c48!2sManhattan+Bar!5e0!3m2!1spt-BR!2sbr!4v1565223296974!5m2!1spt-BR!2sbr" frameborder="0" style="border:0" allowfullscreen></iframe>
+              </div>
+              <div class="card-content">
+                <span class="card-title activator grey-text text-darken-4">Mahhatan Bar
+                  <!--<i class="material-icons right">more_vert</i></span>-->
+                <p><a href="#">Trocar endereço</a></p>
+              </div>
+              <div class="card-reveal">
+                <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
+                <p>Here is some more information about this product that is only revealed once clicked on.</p>
+              </div>
+            </div>           
+            <button class="btn laranja waves-effect waves-laranja center" type="submit" name="action">Criar Sala
+              <i class="fa fa-sign-in right"></i>
+            </button>          
+          </div><!-- Criar role -->
+         
+          <div id="test2" class="col s12 ">
+            <div class="card no-border">
+              <div class="card-image waves-effect waves-block waves-light">
+                <img src="img/bruin_qrcode.png" />
+              </div>
+              <div class="card-content">
+                <span class="card-title activator false-link">
+                  Ou digite o código                   
+                </span>
+                <div class="row">
+                  <div class="input-field col s10 m11">
+                    <input id="codigo" type="text" class="validate codigo">                   
+                    <label for="codigo">Digite aqui o código </label>                   
+                  </div>
+                  <div class="input-field codigo-button-box col s2 m1">    
+                    <form action="lobby.html" method="post">                
+                      <input type="submit" class="codigo-submit">   
+                    </form>                 
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- Entrar no role -->
+        </div>
+      </div>
+    </div>
+      
+  </div><!--conatiner-->
+  
+      
+      <!--Import jQuery before materialize.js-->
+      <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script src="js/materialize.js"></script>
+      <script src="js/init.js"></script>
+    
+      
+    </body>
+  </html>
+        

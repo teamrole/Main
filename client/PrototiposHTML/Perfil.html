@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link rel="stylesheet" href="font-awesome-4.3.0/css/font-awesome.min.css">
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <link type="text/css" rel="stylesheet" href="css/Perfil.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="roxo lighten-2">
+        <div class="nav-wrapper">
+          <a href="#!" class="brand-logo">Role</a>
+          <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+          <ul class="right hide-on-med-and-down">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="lobby.html">Lobby</a></li>
+            <li><a href="ranking.html">Ranking</a></li>
+            <li><a href="cadastro.html">Editar dados</a></li>
+        </ul>
+        <ul class="side-nav" id="mobile-demo">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="lobby.html">Lobby</a></li>
+            <li><a href="ranking.html">Ranking</a></li>
+            <li><a href="cadastro.html">Editar dados</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <h4 class="title">Perfil</h4>
+    </div>
+    <div class="row">
+        <div class="img-perfil">
+                <a class="btn-floating red material-icons">camera_alt</a>
+        </div>
+
+        <div class="input-field col s12">
+            <input id="name" type="text" value="Yuri Kann" class="UserName"></input>
+            <label for="name">Nome</label>
+        </div>
+        <a class="btn-large waves-effect waves-light red" id="btn-excluir">Excluir conta<i class="material-icons">delete</i></a>
+    </div>
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="js/materialize.js"></script>
+<script src="js/init.js"></script>
+</body>
+</html>
+
