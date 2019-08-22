@@ -1,14 +1,20 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <t-menu></t-menu>
     <router-view/>
   </div>
 </template>
 
 <script>
+import menu from './components/Header/Menu.vue'
 export default {
-  name: 'App'
+  name: 'App',
+
+  components: {
+    't-menu': menu
+  }
 }
+
 </script>
 
 <style>
