@@ -38,7 +38,7 @@ module.exports = {
       '@': resolve('src'),
     }
   },
-  module: {
+  module: { 
     rules: [
       ...(config.dev.useEslint ? [createLintingRule()] : []),
       {
