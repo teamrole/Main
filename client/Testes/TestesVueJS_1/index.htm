@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HelooWorld</title>
+	<style type="text/css">
+		.c1{
+			size: 30px;
+			font-style: "Arial";
+			height: 50px;
+		}
+		.c2{
+			size: 60px;
+			font-style: "comic sams";
+			height: 25px;
+		}
+		
+	</style>
+</head>
+<body>
+	<dir id="app">
+		<h1>Testando as propriedades VueJS</h1>
+		<div>
+			<label>Nome:</label>
+			<input type="text" name="" placeholder="Insira seu nome" v-model="nome">
+		</div>
+		<div>
+			<label>Email:</label>
+			<input type="text" name="" placeholder="Insira seu Email" v-model="email">
+		</div>
+		<div>
+			<label>Dividir o valor?</label><br>
+			<input type="radio" value="Sim" name="sn" v-model="split">Sim<br>
+			<input type="radio" value="Não" name="sn" v-model="split">Não<br>
+		</div>
+		<div>
+			<label>Selecione o que consumiu:</label><br>
+			<input type="checkbox" value="Comida" name="sel" v-model="consumo">Comida
+			<input type="checkbox" value="Bebida" name="sel" v-model="consumo">Bebida
+			<input type="checkbox" value="Outros" name="sel" v-model="consumo">Outros
+		</div>
+		<br>
+		<br>
+		<br>
+		<br>
+
+		<div>
+			<h5>Formulário:</h5>
+			<p>Nome: {{nome}}</p>
+			<p>Email: {{email}}</p>
+			<p>Dividir: {{split}}</p>
+			<p>Itens Consumidos: {{consumo}}</p>
+			
+
+		</div>
+	</dir>
+	<script src="https://unpkg.com/vue"></script>
+	<script>
+		let app = new Vue({
+			el: "#app",
+			data: {
+				nome: "",
+				email: "",
+				split: "",
+				consumo: [],
+			}
+		});
+	</script>
+</body>
+</html>
