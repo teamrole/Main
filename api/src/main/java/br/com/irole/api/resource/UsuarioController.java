@@ -1,21 +1,24 @@
 package br.com.irole.api.resource;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import br.com.irole.api.event.RecursoCriadoEvent;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.UsuarioRepository;
 
@@ -26,6 +29,9 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 	
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	
 	@GetMapping
 	public ResponseEntity<?> listarUsuarios(){
 		List<Usuario> usuarios = usuarioRepository.findAll();
@@ -33,12 +39,10 @@ public class UsuarioController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario, HttpServletResponse response){
+	public ResponseEntity<Usuario> cadastrarUsuario(@Valid @RequestBody Usuario usuario, HttpServletResponse response){
 		Usuario novoUsuario = usuarioRepository.save(usuario);
-		
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(novoUsuario.getId()).toUri();
-		response.setHeader("Location", uri.toASCIIString());
-		return ResponseEntity.created(uri).body(novoUsuario);
+		publisher.publishEvent(new RecursoCriadoEvent(this, response, novoUsuario.getId()));
+		return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
 	}
 	
 	@GetMapping("/{id}")
@@ -51,8 +55,11 @@ public class UsuarioController {
 		}
 	}
 	
-	
-	
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removerUsuario(@PathVariable Long id) {
+		usuarioRepository.deleteById(id);
+	}
 	
 	
 	
