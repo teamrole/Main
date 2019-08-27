@@ -1,21 +1,29 @@
 <template>
   <v-app>
-    <v-content>
-      <Home/>
-    </v-content>
+    <t-navbar />
+
+    <RouterView />
+
+    <t-footer />
   </v-app>
 </template>
 
 <script>
-import Home from './components/Home';
+import navbar from "./components/Templates/navbar";
+import footer from "./components/Templates/footer";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    Home,
+    "t-navbar": navbar,
+    "t-footer": footer
   },
-  data: () => ({
-    //
-  }),
+  props: {
+    source: String
+  },
+  components: {
+    "t-navbar": navbar,
+    "t-footer": footer
+  }
 };
 </script>
