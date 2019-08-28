@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-navigation-drawer v-model="drawer" app>
+    <v-navigation-drawer  v-if="['login'].indexOf($route.name) > -1" v-model="drawer" app>
       <v-list dense>
 
         <t-item-navbar  text="Home" icon="home"/>
@@ -11,7 +11,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-app-bar app color="#8c2e86" dark>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"  v-if="['login'].indexOf($route.name) > -1"></v-app-bar-nav-icon>
       <v-toolbar-title>iRole</v-toolbar-title>
     </v-app-bar>
   </div>
