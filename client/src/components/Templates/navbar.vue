@@ -3,10 +3,10 @@
     <v-navigation-drawer v-model="drawer" app>
       <v-list dense>
 
-        <t-item-navbar text="Home" icon="home"/>
-        <t-item-navbar text="Lobby" icon="view_list"/>
-        <t-item-navbar text="Ranking" icon="poll"/>
-        <t-item-navbar text="Perfil" icon="person"/>
+        <t-item-navbar text="Home" icon="home" goto="Home"/>
+        <t-item-navbar text="Lobby" icon="view_list" goto="Lobby"/>
+        <t-item-navbar text="Ranking" icon="poll" goto="Ranking"/>
+        <t-item-navbar text="Perfil" icon="person" goto="Perfil"/>
         
       </v-list>
     </v-navigation-drawer>
