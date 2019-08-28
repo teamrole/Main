@@ -6,7 +6,7 @@
           <v-text-field
             v-mask='mask'
             label="Insira seu número"
-            color="rgb(140, 46, 134)"
+            color="primary"
             outlined="true"
             clearable="true"
             hide-details="true"
@@ -14,7 +14,7 @@
           ></v-text-field>
           <v-btn
             class="btn-marger"
-            color="rgb(140, 46, 134)"
+            color="primary"
             href="#"
             elevation="3"
             width="100%"

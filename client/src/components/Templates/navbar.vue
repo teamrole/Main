@@ -10,13 +10,8 @@
         
       </v-list>
     </v-navigation-drawer>
-<<<<<<< HEAD
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"  v-if="['Login'].indexOf($route.name) <= -1"></v-app-bar-nav-icon>
-=======
-    <v-app-bar app color="#8c2e86" dark>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"  v-if="['Login'].indexOf($route.name) <= -1"></v-app-bar-nav-icon>
->>>>>>> origin/EF-Login
       <v-toolbar-title>iRole</v-toolbar-title>
     </v-app-bar>
   </div>
