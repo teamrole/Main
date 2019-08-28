@@ -1,5 +1,6 @@
 package br.com.irole.api.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Table;
+
 
 @Entity
 @Table(appliesTo = "usuario")
@@ -18,6 +20,15 @@ public class Usuario {
 	@NotNull
 	@Size(min = 10, max = 11)
 	private String celular;
+	@Column(nullable = false, columnDefinition = "boolean default 1")
+	private Boolean ativo = true;
+	
+	public Boolean getAtivo() {
+		return ativo;
+	}
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
+	}
 	public Long getId() {
 		return id;
 	}
