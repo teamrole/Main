@@ -1,5 +1,5 @@
 <template>
-    <v-list-item @click="">
+    <v-list-item @click="" color="primary">
         <v-list-item-action>
         <v-icon>{{icon}}</v-icon>
         </v-list-item-action>

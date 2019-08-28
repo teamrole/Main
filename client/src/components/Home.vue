@@ -1,9 +1,4 @@
 <template>
-  <v-app id="inspire">
-
-    <v-content>
-    </v-content>
-    
-  </v-app>
+  <v-content></v-content>
 </template>
 
