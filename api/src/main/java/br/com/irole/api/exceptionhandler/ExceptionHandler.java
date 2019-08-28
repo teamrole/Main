@@ -41,7 +41,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler{
 		return handleExceptionInternal(ex, erros, headers, HttpStatus.BAD_REQUEST, request);
 	}	
 	
-	@ExceptionHandler({ EmptyResultDataAccessException.class })
+	@org.springframework.web.bind.annotation.ExceptionHandler({ EmptyResultDataAccessException.class })
 	public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request) {
 		String mensagemUsuario = messageSource.getMessage("recurso.nao-encontrado", null, LocaleContextHolder.getLocale());
 		String mensagemDesenvolvedor = ex.toString();
