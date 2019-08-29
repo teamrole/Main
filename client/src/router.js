@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './components/Home'
 import Login from './components/Login'
+import Historico from './components/Historico'
 
 Vue.use(Router)
 
@@ -18,9 +19,9 @@ export default new Router({
       component: Login
     } ,
     {
-      path: '/a',
-      name: 'a',
-      component: Home,
+      path: '/Historico',
+      name: 'Historico',
+      component: Historico,
     } 
   ]
 })
