@@ -19,6 +19,9 @@ export default new Vuetify({
           info: '#2196f3',
           success: '#8bc34a'
       }
-    }
+    },
+    options: {
+      customProperties: true,
+    },
   }
 });
