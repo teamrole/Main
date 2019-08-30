@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import br.com.irole.api.event.RecursoCriadoEvent;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
+import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.UsuarioRepository;
+import br.com.irole.api.service.PerfilService;
 import br.com.irole.api.service.UsuarioService;
 
 @RestController
@@ -33,6 +36,10 @@ public class UsuarioController {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private PerfilService perfilService;
+	
 	
 	@Autowired
 	private ApplicationEventPublisher publisher;
@@ -58,6 +65,11 @@ public class UsuarioController {
 		}else {
 			return ResponseEntity.notFound().build();
 		}
+	}
+	
+	@GetMapping("/{id}/perfil")
+	public ResponseEntity<?> buscaPerfilId(@PathVariable Long id) {
+		return perfilService.buscaPerfilId(id);
 	}
 	
 	@DeleteMapping("/{id}")
