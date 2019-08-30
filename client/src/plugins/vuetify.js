@@ -7,6 +7,7 @@ Vue.use(Vuetify);
 export default new Vuetify({
   icons: {
     iconfont: 'mdi',
+    ico: 'mdiCash' 
   },
   theme:{
     themes:{
@@ -22,3 +23,4 @@ export default new Vuetify({
     }
   }
 });
+
