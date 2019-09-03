@@ -1,18 +1,18 @@
   
 <template>
-  <v-container>
+  <v-container class="c-no-padding">
     <v-list>
-      <v-list-item v-for="item in items" :key="item.nome" @click.stop>
+      <v-list-item v-for="item in items" :key="item.nome" @click.stop dense='true' class="c-no-padding">
         <v-list-item-avatar>
           <v-img :src="item.avatar"></v-img>
         </v-list-item-avatar>
 
-        <v-list-item-content>
+        <v-list-item-content padding:0>
           <v-list-item-title v-text="item.nome"></v-list-item-title>
         </v-list-item-content>
 
         <v-list-item-icon>
-          <span class="qtd-role">{{item.roles}} Roles</span>
+          <span class="c-qtd-role">{{item.roles}} Roles</span>
         </v-list-item-icon>
       </v-list-item>
     </v-list>
@@ -20,8 +20,11 @@
 </template>
 
 <style scoped>
-.qtd-role {
+.c-qtd-role {
   color: var(--v-accent-base);
+}
+.c-no-padding{
+  padding: 0 !important;
 }
 </style>
 
