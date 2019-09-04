@@ -2,7 +2,10 @@
   <v-content>
     <v-container>
       <v-tabs v-model="tab" color="primary" grow>
-        <v-tab v-for="item in items" :key="item.titulo" class="c-tab-header">{{ item.titulo }}</v-tab>
+        <v-tab v-for="item in items" :key="item.titulo" class="c-tab-header">
+          <v-img :src="item.avatar"></v-img>
+          {{ item.titulo }}
+        </v-tab>
       </v-tabs>
       <h2>teste</h2>
     </v-container>
@@ -13,13 +16,14 @@
 <script>
 export default {
   data() {
-    return { 
-        items: [{
-          titulo: "pessoa1",
-          componente: "idpessoa"
-        }]
-        
-    }
+    return {
+      items: [
+        {
+          nome: "pessoa1",
+          avatar: "../assets/Perfil/Perfil1.jpg"
+        }
+      ]
+    };
   }
 };
 </script>
