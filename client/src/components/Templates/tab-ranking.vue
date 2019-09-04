@@ -2,7 +2,7 @@
 <template>
   <v-container class="c-no-padding">
     <v-list>
-      <v-list-item v-for="item in items" :key="item.nome" @click.stop dense='true' class="c-no-padding">
+      <v-list-item v-for="item in items" :key="item.nome" @click.stop :dense="true" class="c-no-padding">
         <v-list-item-avatar>
           <v-img :src="item.avatar"></v-img>
         </v-list-item-avatar>
