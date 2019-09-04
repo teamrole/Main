@@ -4,10 +4,11 @@
       <v-list dense>
 
         <t-item-navbar text="Home" icon="home" goto="Home"/>
-        <t-item-navbar text="Lobby" icon="view_list" goto="Lobby"/>
+        <t-item-navbar text="Lobby" icon="people" goto="Lobby"/>
         <t-item-navbar text="Ranking" icon="poll" goto="Ranking"/>
+        <t-item-navbar text="Historico" icon="view_list" goto="Historico"/>
         <t-item-navbar text="Perfil" icon="person" goto="Perfil"/>
-        
+
       </v-list>
     </v-navigation-drawer>
     <v-app-bar app color="primary" dark>

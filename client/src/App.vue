@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <t-navbar />
+
     <RouterView />
 
     <t-footer />
@@ -21,7 +22,6 @@ export default {
     source: String
   },
   components: {
-    
     "t-navbar": navbar,
     "t-footer": footer
   }
