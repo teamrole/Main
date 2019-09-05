@@ -22,11 +22,11 @@ public class Sala {
 	private Long id;
 
 	@ElementCollection
-	@JoinTable(name = "pedido_usuario_sala", joinColumns = {
+	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "pedido_id", referencedColumnName = "id") })
 	@MapKey(name = "id")
-	private Map<Long, PedidoCliente> pedido = new HashMap<Long, PedidoCliente>();
+	private Map<Long, Pedido> pedido = new HashMap<Long, Pedido>();
 
 	public Long getId() {
 		return id;
@@ -36,11 +36,11 @@ public class Sala {
 		this.id = id;
 	}
 
-	public Map<Long, PedidoCliente> getPedido() {
+	public Map<Long, Pedido> getPedido() {
 		return pedido;
 	}
 
-	public void setPedido(Map<Long, PedidoCliente> pedido) {
+	public void setPedido(Map<Long, Pedido> pedido) {
 		this.pedido = pedido;
 	}
 

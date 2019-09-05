@@ -9,12 +9,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "pedido")
-public class PedidoCliente {
+public class Pedido {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -24,6 +23,8 @@ public class PedidoCliente {
 	
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<Perfil> perfil;
+	
+	private Integer quantidade;
 
 	public Long getId() {
 		return id;
@@ -48,6 +49,14 @@ public class PedidoCliente {
 	public void setPerfil(List<Perfil> perfil) {
 		this.perfil = perfil;
 	}
+	
+	public Integer getQuantidade() {
+		return quantidade;
+	}
+
+	public void setQuantidade(Integer quantidade) {
+		this.quantidade = quantidade;
+	}
 
 	@Override
 	public int hashCode() {
@@ -65,7 +74,7 @@ public class PedidoCliente {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PedidoCliente other = (PedidoCliente) obj;
+		Pedido other = (Pedido) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
