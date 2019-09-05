@@ -3,39 +3,42 @@
   <v-content>
     <v-row>
       <v-col>
-        <p class="text-center headline">Histórico de Rolês</p>
-        <v-expansion-panels
-        :flat='true'>
-          <v-expansion-panel v-for="(item,i) in 15" :key="i">
-            <v-expansion-panel-header>
-              <div class="col-8"><v-icon>where_to_vote</v-icon> Boteco do Ceará </div>   
-              <div class="col-4 grey--text"><v-icon>calendar_today</v-icon> 27/08/2019 </div>            
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <div class="col-12 d-inline-flex">
-                <div class="col-4">
-                  <v-icon>group</v-icon>     
-                  
-                  <!--<v-icon>shopping_cart</v-icon>
-                   <v-icon>store</v-icon>-->
-
-                <span class=' red--text font-weight-bold'> 4</span>
-                </div>
-                <div class="col-4">
-                <span class='text-center red--text font-weight-bold'>
-                  <v-icon>monetization_on</v-icon> 
-                  57,39</span>
-                </div>
-                 <div class="col-4"> 
-                  <span class='text-right red--text font-weight-bold'>               
-                    <v-icon>bar_chart</v-icon>
-                    292,07</span>
-                </div>
-              </div>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+        <p class="text-center headline" @click="headerClick">Histórico de Rolês</p>
+        <v-expansion-panels mobile-breakpoint="400" active-class="c-painelAtivo">
+          <t-expansion-panel :key="item.id" v-for="item in historicos" :historico = "item">
+          </t-expansion-panel>
         </v-expansion-panels>
       </v-col>
     </v-row>
   </v-content>
 </template>
+<script>
+import expansionPanel from "./Templates/expansion-panel";
+export default {
+  data() {
+    return {
+      historicos: [
+        { id: 1, data: "23/09/2019", role: "Boteco do Carlão", quantidadeParticipantes: 4, valorTotal : 244.67, valorParcial : 58.32 },
+        { id: 2, data: "23/09/2019", role: "Dogg's Londrina", quantidadeParticipantes: 2, valorTotal : 224.67, valorParcial : 77.20 },
+        { id: 3, data: "23/09/2019", role: "Bar do Ceará", quantidadeParticipantes: 3, valorTotal : 142.67, valorParcial : 36.28 },
+        { id: 4, data: "23/09/2019", role: "Garden Chopp", quantidadeParticipantes: 2, valorTotal : 177.67, valorParcial : 48.88 },
+        { id: 5, data: "23/09/2019", role: "Egytus Motel", quantidadeParticipantes: 9, valorTotal : 987.67, valorParcial : 133.76 },
+        { id: 6, data: "23/09/2019", role: "New York Louge", quantidadeParticipantes: 5, valorTotal : 344.67, valorParcial : 70.21 },
+        { id: 7, data: "23/09/2019", role: "SantArena", quantidadeParticipantes: 3, valorTotal : 198.67, valorParcial : 26.96 },
+        { id: 8, data: "23/09/2019", role: "Maximus bar", quantidadeParticipantes: 6, valorTotal : 394.67, valorParcial : 92.13 }
+      ]
+    };
+  },
+  components: {
+    "t-expansion-panel": expansionPanel
+  },
+  methods: {
+    headerClick: function(e) {
+      // = "Rolê: 47,51";
+      console.log(this.historico);
+      return null;
+    }
+  }
+};
+</script>
+
