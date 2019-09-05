@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './components/Home'
 import Login from './components/Login'
 import Ranking from './components/Ranking'
+import Historico from './components/Historico'
 
 Vue.use(Router)
 
@@ -13,7 +14,7 @@ export default new Router({
       name: 'home',
       component: Home
     },
-      {
+    {
       path: '/Login',
       name: 'Login',
       component: Login
@@ -21,7 +22,12 @@ export default new Router({
     {
       path: '/Ranking',
       name: 'ranking',
-      component: Ranking,
-    } ,
+      component: Ranking
+    },
+    {
+      path: '/Historico',
+      name: 'Historico',
+      component: Historico
+    }
   ]
 })

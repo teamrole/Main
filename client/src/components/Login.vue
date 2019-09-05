@@ -1,24 +1,24 @@
 <template>
   <v-content>
-    <v-container fill-height="100" .offset-lg-4>
-      <v-row align="center" justify="center">
-        <v-col cols="12" sm="8" md="4" class="text-centered">
+    <v-container fill-height='100' .offset-lg-4>
+      <v-row align='center' justify='center'>
+        <v-col cols='12' sm='8' md='4' class='text-centered'>
           <v-text-field
             v-mask='mask'
-            label="Insira seu número"
-            color="primary"
-            outlined="true"
-            clearable="true"
-            hide-details="true"
+            label='Insira seu número'
+            color='primary'
+            v-bind:outlined='true'
+            v-bind:clearable='true'
+            v-bind:hide-details='true'
             placeholder='+55(99)9 9999-9999'
           ></v-text-field>
           <v-btn
-            class="btn-marger"
-            color="primary"
-            href="#"
-            elevation="3"
-            width="100%"
-            large="true"
+            class='btn-marger'
+            color='primary'
+            href='#'
+            elevation='3'
+            width='100%'
+            v-bind:large='true'
           >Enviar</v-btn>
         </v-col>
       </v-row>
