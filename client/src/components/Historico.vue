@@ -3,47 +3,42 @@
   <v-content>
     <v-row>
       <v-col>
-        <p class="text-center headline">Histórico de Rolês</p>
+        <p class="text-center headline" @click="headerClick">Histórico de Rolês</p>
         <v-expansion-panels mobile-breakpoint="400" active-class="c-painelAtivo">
-          <t-expansionPanel>
-
-          </t-expansionPanel>
+          <t-expansion-panel :key="item.id" v-for="item in historicos" :historico = "item">
+          </t-expansion-panel>
         </v-expansion-panels>
       </v-col>
     </v-row>
   </v-content>
 </template>
 <script>
-  import expansionPanel from "./Templates/expansion-panel"
-  export default {
-  data(){
-    return{
-      mainDate: null
-    }
+import expansionPanel from "./Templates/expansion-panel";
+export default {
+  data() {
+    return {
+      historicos: [
+        { id: 1, data: "23/09/2019", role: "Boteco do Carlão", quantidadeParticipantes: 4, valorTotal : 244.67, valorParcial : 58.32 },
+        { id: 2, data: "23/09/2019", role: "Dogg's Londrina", quantidadeParticipantes: 2, valorTotal : 224.67, valorParcial : 77.20 },
+        { id: 3, data: "23/09/2019", role: "Bar do Ceará", quantidadeParticipantes: 3, valorTotal : 142.67, valorParcial : 36.28 },
+        { id: 4, data: "23/09/2019", role: "Garden Chopp", quantidadeParticipantes: 2, valorTotal : 177.67, valorParcial : 48.88 },
+        { id: 5, data: "23/09/2019", role: "Egytus Motel", quantidadeParticipantes: 9, valorTotal : 987.67, valorParcial : 133.76 },
+        { id: 6, data: "23/09/2019", role: "New York Louge", quantidadeParticipantes: 5, valorTotal : 344.67, valorParcial : 70.21 },
+        { id: 7, data: "23/09/2019", role: "SantArena", quantidadeParticipantes: 3, valorTotal : 198.67, valorParcial : 26.96 },
+        { id: 8, data: "23/09/2019", role: "Maximus bar", quantidadeParticipantes: 6, valorTotal : 394.67, valorParcial : 92.13 }
+      ]
+    };
   },
-  components:{
-    't-extensionPanel' : expansionPanel 
+  components: {
+    "t-expansion-panel": expansionPanel
   },
-  methods:{
-    headerClick:(e)=>{
+  methods: {
+    headerClick: function(e) {
       // = "Rolê: 47,51";
+      console.log(this.historico);
       return null;
     }
-  },
-}
+  }
+};
 </script>
-<style scoped>
-.c-primary {
-  color: gray;
-}
-.c-secondary {
-  color: #9c27b0;
-}
-.c-painelAtivo > .v-expansion-panel-header,
-.c-painelAtivo > .v-expansion-panel-content {
-  background-color: #eee;
-}
-.c-painelAtivo > .v-expansion-panel-header .c-data {
-  display: none;
-}
-</style>
+
