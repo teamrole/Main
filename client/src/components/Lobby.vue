@@ -1,25 +1,50 @@
 <template>
   <v-content>
     <v-container>
-      <v-tabs v-model="tab" color="primary" grow>
-        <v-tab v-for="item in items" :key="item.titulo" class="c-tab-header">
-          <v-img :src="item.avatar"></v-img>
-          {{ item.titulo }}
-        </v-tab>
-      </v-tabs>
-      <h2>teste</h2>
+      <div class="c-participantes">
+        <t-avatar class="c-participante" v-for="item in items" :key="item.nome"/>
+      </div>
     </v-container>
   </v-content>
 </template> 
-
+<style scoped>
+.c-participantes {
+  white-space: nowrap;
+  overflow-x: scroll;
+  overflow-y: visible;
+}
+.c-participante{
+  margin: 6px;
+}
+</style>
 
 <script>
+import avatar from "./Templates/avatar-lobby";
+
 export default {
+  components: {
+    "t-avatar": avatar
+  },
   data() {
     return {
       items: [
         {
           nome: "pessoa1",
+          avatar: "../assets/Perfil/Perfil1.jpg"
+        },{
+          nome: "pessoa2",
+          avatar: "../assets/Perfil/Perfil1.jpg"
+        },{
+          nome: "pessoa3",
+          avatar: "../assets/Perfil/Perfil1.jpg"
+        },{
+          nome: "pessoa4",
+          avatar: "../assets/Perfil/Perfil1.jpg"
+        },{
+          nome: "pessoa5",
+          avatar: "../assets/Perfil/Perfil1.jpg"
+        },{
+          nome: "pessoa6",
           avatar: "../assets/Perfil/Perfil1.jpg"
         }
       ]
