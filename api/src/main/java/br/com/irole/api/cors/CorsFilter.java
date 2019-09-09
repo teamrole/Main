@@ -1,4 +1,4 @@
-package br.com.irole.api.cor;
+package br.com.irole.api.cors;
 
 import java.io.IOException;
 
