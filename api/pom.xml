@@ -12,6 +12,7 @@
 	<artifactId>api_irole</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api_irole</name>
+	<packaging>jar</packaging>
 	<description>Project w Spring Boot</description>
 
 	<properties>
