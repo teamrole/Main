@@ -4,9 +4,9 @@ import Home from './components/Home'
 import Login from './components/Login'
 import Ranking from './components/Ranking'
 import Historico from './components/Historico'
+import Perfil from './components/Perfil'
 
 Vue.use(Router)
-
 export default new Router({
   routes: [
     {
@@ -21,13 +21,18 @@ export default new Router({
     },
     {
       path: '/Ranking',
-      name: 'ranking',
+      name: 'Ranking',
       component: Ranking
     },
     {
       path: '/Historico',
       name: 'Historico',
       component: Historico
-    }
+    },
+    {
+      path: '/Perfil',
+      name: 'Perfil',
+      component: Perfil
+      },
   ]
 })
