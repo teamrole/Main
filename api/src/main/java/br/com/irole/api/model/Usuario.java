@@ -1,6 +1,5 @@
 package br.com.irole.api.model;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -12,11 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.springframework.security.core.GrantedAuthority;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 
 
@@ -36,8 +37,11 @@ public class Usuario {
 	private String senha;
 	@ManyToMany(fetch =FetchType.EAGER)
 	@JoinTable(name="usuario_permissao", joinColumns = @JoinColumn(name="usuario_id"),
-			inverseJoinColumns = @JoinColumn(name="permissao_id"))
+			inverseJoinColumns = @JoinColumn(name="permissao_id"))	
 	private List<Permissao> permissao;
+	@OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+	@JsonProperty(access = Access.READ_ONLY)
+	private Perfil perfil;
 	
 	public Boolean getAtivo() {
 		return ativo;
@@ -69,6 +73,12 @@ public class Usuario {
 	}
 	public void setPermissao(List<Permissao> permissao) {
 		this.permissao = permissao;
+	}	
+	public Perfil getPerfil() {
+		return perfil;
+	}
+	public void setPerfil(Perfil perfil) {
+		this.perfil = perfil;
 	}
 	@Override
 	public int hashCode() {

@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler;
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.PerfilRepository;
