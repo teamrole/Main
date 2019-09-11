@@ -1,20 +1,32 @@
 <template>
   <div class="c-avatar">
-    <v-avatar size="50px">
-      <v-img src="../../assets/Perfil/Perfil1.jpg" />
-    </v-avatar>
-    <span>
-      <b>Esthephany</b>
-    </span>
+    <div class="c-block">
+      <v-avatar size="40px">
+        <v-img :src="require(`@/assets/Perfil/${avatar}`)" />
+      </v-avatar>
+    </div>
+    <div>
+      <span>{{nome}}</span>
+    </div>
   </div>
 </template>
 
+<script>
+export default {
+  
+  props:
+    ['nome', 'avatar']
+}
+
+</script>
+
 <style scoped>
 .c-avatar {
-  font-size: 0.8em;
+  font-size: 0.7em;
   display: inline-block;
-  width: 50px;
   text-align: center;
-   white-space: pre-wrap;
+}
+.c-block {
+  display: block;
 }
 </style>
