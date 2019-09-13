@@ -1,13 +1,23 @@
 package br.com.irole.api.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 
 
@@ -22,6 +32,16 @@ public class Usuario {
 	private String celular;
 	@Column(nullable = false, columnDefinition = "boolean default 1")
 	private Boolean ativo = true;
+	@NotNull
+	@Size(max=150)
+	private String senha;
+	@ManyToMany(fetch =FetchType.EAGER)
+	@JoinTable(name="usuario_permissao", joinColumns = @JoinColumn(name="usuario_id"),
+			inverseJoinColumns = @JoinColumn(name="permissao_id"))	
+	private List<Permissao> permissao;
+	@OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+	@JsonProperty(access = Access.READ_ONLY)
+	private Perfil perfil;
 	
 	public Boolean getAtivo() {
 		return ativo;
@@ -40,6 +60,25 @@ public class Usuario {
 	}
 	public void setCelular(String celular) {
 		this.celular = celular;
+	}
+	public String getSenha() {
+		return senha;
+	}
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+	
+	public List<Permissao> getPermissao() {
+		return permissao;
+	}
+	public void setPermissao(List<Permissao> permissao) {
+		this.permissao = permissao;
+	}	
+	public Perfil getPerfil() {
+		return perfil;
+	}
+	public void setPerfil(Perfil perfil) {
+		this.perfil = perfil;
 	}
 	@Override
 	public int hashCode() {
@@ -64,6 +103,4 @@ public class Usuario {
 			return false;
 		return true;
 	}
-	
-	
 }
