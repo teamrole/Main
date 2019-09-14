@@ -1,7 +1,7 @@
 package br.com.irole.api.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -10,8 +10,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.MapKey;
 import javax.persistence.Table;
+
+
 
 @Entity
 @Table(name = "sala")
@@ -24,9 +25,8 @@ public class Sala {
 	@ElementCollection
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
-					@JoinColumn(name = "pedido_id", referencedColumnName = "id") })
-	@MapKey(name = "id")
-	private Map<Long, Pedido> pedido = new HashMap<Long, Pedido>();
+					@JoinColumn(name = "pedido_id", referencedColumnName = "id") })	
+	private List<Pedido> pedido= new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -36,11 +36,11 @@ public class Sala {
 		this.id = id;
 	}
 
-	public Map<Long, Pedido> getPedido() {
+	public List<Pedido> getPedido() {
 		return pedido;
 	}
 
-	public void setPedido(Map<Long, Pedido> pedido) {
+	public void setPedido(List<Pedido> pedido) {
 		this.pedido = pedido;
 	}
 
