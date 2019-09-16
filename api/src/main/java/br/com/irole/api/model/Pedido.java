@@ -2,6 +2,7 @@ package br.com.irole.api.model;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,7 +22,8 @@ public class Pedido {
 	@ManyToOne
 	private Item item;
 	
-	@OneToMany(fetch = FetchType.LAZY)
+	@Column(name="pedido_cliente_id")
+	@OneToMany(fetch = FetchType.EAGER)
 	private List<Perfil> perfil;
 	
 	private Integer quantidade;

@@ -1,5 +1,7 @@
 package br.com.irole.api.resource;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +29,13 @@ public class PedidoController {
 	private ApplicationEventPublisher publisher;
 	
 	@PostMapping
-	public ResponseEntity<Pedido> cadastrar(@RequestBody Pedido pedido, @RequestBody Sala sala, HttpServletResponse response){	
-		Pedido novoPedido = pedidoService.salvarPedido(sala, pedido);
-		publisher.publishEvent(new RecursoCriadoEvent(this, response, novoPedido.getId()));
+	public ResponseEntity<List<Pedido>> cadastrar(@RequestBody Sala sala, HttpServletResponse response){	
+		List<Pedido> novoPedido = pedidoService.salvarPedido(sala);
+		
+		for(Pedido pedido: novoPedido) {
+			publisher.publishEvent(new RecursoCriadoEvent(this, response, pedido.getId()));
+		}
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(novoPedido);		
-		
 	}
 }

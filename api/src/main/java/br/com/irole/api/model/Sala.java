@@ -1,6 +1,5 @@
 package br.com.irole.api.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.ElementCollection;
@@ -11,8 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
-
-
 
 @Entity
 @Table(name = "sala")
@@ -25,16 +22,16 @@ public class Sala {
 	@ElementCollection
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
-					@JoinColumn(name = "pedido_id", referencedColumnName = "id") })	
-	private List<Pedido> pedido= new ArrayList<>();
-
+					@JoinColumn( name="pedido_id", referencedColumnName = "id") })	
+	private List<Pedido> pedido;
+	
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
+	}	
 
 	public List<Pedido> getPedido() {
 		return pedido;

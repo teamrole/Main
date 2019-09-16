@@ -1,12 +1,14 @@
 package br.com.irole.api.service;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.irole.api.model.Item;
 import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.repository.ItemRepository;
 import br.com.irole.api.repository.PedidoRepository;
 import br.com.irole.api.repository.SalaRepository;
 
@@ -19,18 +21,20 @@ public class PedidoService {
 	@Autowired
 	private PedidoRepository pedidoRepository;
 	
-	public Pedido salvarPedido(Sala sala, Pedido pedido) {
-		//TODO: Spring Transactional: ATOMIC
+	@Autowired
+	private ItemRepository itemRepository;
 	
-		Sala salaSalva = null;		
-		Pedido pedidoSalvo = pedidoRepository.save(pedido);		
+	public List<Pedido> salvarPedido(Sala sala) {
+		//TODO: Spring Transactional
 		
-		if(pedidoSalvo!=null) {
+		for(Pedido pedido: sala.getPedido()) {
+			Item itemSalvo = itemRepository.save(pedido.getItem());
+			pedido.setItem(itemSalvo);
+			pedidoRepository.save(pedido);		
+		}	
 		
-			sala.setPedido(Arrays.asList(pedidoSalvo));
-			salaSalva = salaRepository.save(sala);
-		}
+		Sala salaSalva = salaRepository.save(sala);
 	
-		return (salaSalva != null) ? salaSalva.getPedido().get(0) : null;
+		return (salaSalva != null) ? salaSalva.getPedido() : null;
 	}
 }
