@@ -20,7 +20,7 @@
           <v-list-item-content class="c-list-item-content">
             <v-list-item-title
               class="c-item-lista"
-              v-text="item.descricao ? item.descricao : item.tipo "
+              v-text="item.descricao ? item.descricao : item.tipo"
             ></v-list-item-title>
             <span class="c-item-lista">
               <b>{{item.pessoas.length}}</b>
@@ -28,29 +28,46 @@
             </span>
           </v-list-item-content>
 
-          <v-list-item-icon>
+          <v-list-item-icon style="display:inline-block">
             <v-icon class="c-secundary">monetization_on</v-icon>
-            <span class="c-secundary">&nbsp&nbsp{{item.preco.toFixed(2)}}</span>
+            <span class="c-secundary c-item-preco">{{parseFloat(item.preco).toFixed(2)}}</span>
 
-            <v-btn x-small text @click="editarItem(item.id)">
+            <v-btn class="c-nopadding" :ripple="false" icon small text @click="editarItem(item)">
               <v-icon class="c-secundary">edit</v-icon>
+            </v-btn>
+            <v-btn
+              class="c-nopadding"
+              icon
+              small
+              text
+              :ripple="false"
+              @click="itemSendoEditado = item; dialogExcluir = true"
+            >
+              <v-icon color="red">delete</v-icon>
             </v-btn>
           </v-list-item-icon>
         </v-list-item>
       </v-list>
     </v-container>
 
-    <v-dialog v-model="dialog" persistent max-width="290">
+    <v-footer app fixed color="primary" class="c-footer" :padless="true">
+      <div class="flex-grow-1"></div>
+      <v-btn text icon x-large class="c-nopadding c-btn-add">
+        <v-icon color="white" class="c-btn-add-icon">add</v-icon>
+      </v-btn>
+    </v-footer>
+
+    <v-dialog v-model="dialogEdit" persistent max-width="290">
       <v-card>
         <v-card>
           <v-card-title>
-            <span class="headline">{{itemSendoEditado.descricao}}</span>
+            <span class="headline">{{AcaoItem}} item</span>
           </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
                 <v-col cols="12" sm="6" md="4">
-                  <v-text-field label="Descrição (Opcional)" :value="itemSendoEditado.descricao"></v-text-field>
+                  <v-text-field label="Descrição (Opcional)" v-model="itemSendoEditado.descricao"></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-select
@@ -61,8 +78,14 @@
                   ></v-select>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
-                  <v-text-field label="Preço"></v-text-field>
-                  <span>{{itemSendoEditado.pessoas}}</span>
+                  <v-text-field
+                    :rules="[rules.required, rules.min]"
+                    @change="verificaPreco()"
+                    label="Preço"
+                    type="number"
+                    error
+                    v-model="itemSendoEditado.preco"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-select
@@ -78,14 +101,42 @@
                 </v-col>
               </v-row>
             </v-container>
-            <small>*indicates required field</small>
           </v-card-text>
           <v-card-actions>
+            <v-btn color="blue darken-1" text @click="dialogExcluir = true; dialogEdit = false">
+              <v-icon color="red">delete</v-icon>
+            </v-btn>
             <div class="flex-grow-1"></div>
-            <v-btn color="blue darken-1" text @click="dialog = false">Close</v-btn>
-            <v-btn color="blue darken-1" text @click="dialog = false">Save</v-btn>
+            <v-btn color="blue darken-1" text @click="dialogEdit = false">Cancelar</v-btn>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="salvarItem(itemSendoEditado); dialogEdit = false"
+            >Salvar</v-btn>
           </v-card-actions>
         </v-card>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogExcluir" persistent max-width="290">
+      <v-card>
+        <v-card-title
+          class="headline"
+        >{{itemSendoEditado.descricao ? itemSendoEditado.descricao : itemSendoEditado.tipo}}</v-card-title>
+        <v-card-text>
+          Preço:{{itemSendoEditado.preco}}
+          <br />
+          Pagantes: {{itemSendoEditado.pessoas.length}}
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="red darken-1"
+            text
+            @click.stop="dialogExcluir = false; excluirItem(itemSendoEditado)"
+          >Excluir</v-btn>
+          <div class="flex-grow-1"></div>
+          <v-btn color="red darken-1" text @click="dialogExcluir = false">Cancelar</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-content>
@@ -93,6 +144,12 @@
 
 
 <style scoped>
+.c-footer {
+  height: 50px;
+}
+.c-nopadding {
+  padding: 0px !important;
+}
 .c-list-item {
   border-bottom: 1px solid var(--v-primary-lighten5);
 }
@@ -102,6 +159,10 @@
 }
 .c-list-item-content {
   padding-left: 10px;
+}
+.c-item-preco {
+  padding-left: 6px;
+  vertical-align: middle;
 }
 .c-item-lista {
   font-size: 0.9em;
@@ -126,17 +187,29 @@
 
 <script>
 import avatar from "./Templates/avatar-lobby";
-
+import pessoasJson from "../assets/dados/Lobby-pessoas";
+import itemsJson from "../assets/dados/Lobby-items";
 export default {
   methods: {
-    editarItem: function(idItem) {
-      this.dialog = true;
-      const vm = this;
-      this.itemSendoEditado = this.items.find(x => x.id == idItem)
-      console.log(this.itemSendoEditado)
-      setTimeout(() => {
-        vm.dialog = false;
-      }, 20000);
+    salvarItem(item) {
+      let alteraIndex = this.items.findIndex(x => x.id === item.id);
+      this.items[alteraIndex] = item;
+      console.log("REQUISIÇÃO EDIT PARA BACKEND");
+    },
+    excluirItem(item) {
+      let alteraIndex = this.items.findIndex(x => x.id === item.id);
+      this.items.splice(alteraIndex, 1);
+      console.log("REQUISIÇÃO DELETE PARA BACKEND");
+    },
+    editarItem: function(item) {
+      this.itemSendoEditado = { ...item };
+      this.dialogEdit = true;
+    },
+    verificaPreco() {
+      if (this.itemSendoEditado.preco.length <= 0)
+      console.log("AH");
+      
+      this.itemSendoEditado.preco = parseFloat(this.itemSendoEditado.preco).toFixed(2);
     }
   },
   components: {
@@ -144,117 +217,22 @@ export default {
   },
   data() {
     return {
-      dialog: false,
-      itemSendoEditado: {
-        id: 1,
-        tipo: "bebida",
-        descricao: "Coca-Cola",
-        preco: 20.1,
-        pessoas: [1, 2, 3]
+      rules: {
+        required: value => !!value || 'Necessario.',
       },
-      items: [
-        {
-          id: 1,
-          tipo: "bebida",
-          descricao: "Coca-Cola",
-          preco: 20.1,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 2,
-          tipo: "outros",
-          descricao: "",
-          preco: 20.1,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 3,
-          tipo: "comida",
-          descricao: "Arroz",
-          preco: 20.1,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 4,
-          tipo: "outros",
-          descricao: "Pasta de dentes",
-          preco: 20.1,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 5,
-          tipo: "outros",
-          descricao: "Pasta de dentes",
-          preco: 20.1,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 6,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 7,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 8,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 9,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 10,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 11,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 12,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        },
-        {
-          id: 13,
-          tipo: "comida",
-          descricao: "Macarronada",
-          preco: 20,
-          pessoas: [1, 2, 3]
-        }
-      ],
-      pessoas: [
-        { id: 1, nome: "izabelly", avatar: "Perfil1.jpg" },
-        { id: 2, nome: "Amanda", avatar: "Perfil2.jpg" },
-        { id: 3, nome: "ana", avatar: "Perfil3.jpg" },
-        { id: 4, nome: "Yuri", avatar: "Perfil4.jpg" },
-        { id: 5, nome: "Yuri", avatar: "Perfil4.jpg" },
-        { id: 6, nome: "Yuri", avatar: "Perfil4.jpg" },
-        { id: 7, nome: "Yuri", avatar: "Perfil4.jpg" },
-        { id: 8, nome: "Yuri", avatar: "Perfil4.jpg" }
-      ]
+      dialogEdit: false,
+      dialogExcluir: false,
+      dialogMsg: "",
+      AcaoItem: "Editar",
+      itemSendoEditado: {
+        id: null,
+        tipo: null,
+        descricao: null,
+        preco: null,
+        pessoas: []
+      },
+      items: [...itemsJson],
+      pessoas: [...pessoasJson]
     };
   }
 };
