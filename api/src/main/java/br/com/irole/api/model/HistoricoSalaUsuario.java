@@ -1,32 +1,36 @@
 package br.com.irole.api.model;
 
-import java.util.List;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
-@Table(name = "pedido")
-public class Pedido {
+@Table(name = "historico_sala_usuario")
+public class HistoricoSalaUsuario {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@ManyToOne
-	private Item item;
+	private Sala sala;
 	
-	@Column(name="pedido_cliente_id")
-	@OneToMany(fetch = FetchType.EAGER)
-	private List<Perfil> perfil;
+	@ManyToOne
+	private Usuario usuario;
 	
-	private Integer quantidade;
+	@Column(name = "data_hora_entrada")
+	@CreationTimestamp
+	private Timestamp data_entrada; 
+	
+	@Column(name = "data_hora_saida")
+	private Timestamp data_saida;
 
 	public Long getId() {
 		return id;
@@ -36,28 +40,36 @@ public class Pedido {
 		this.id = id;
 	}
 
-	public Item getItem() {
-		return item;
+	public Sala getSala() {
+		return sala;
 	}
 
-	public void setItem(Item item) {
-		this.item = item;
+	public void setSala(Sala sala) {
+		this.sala = sala;
 	}
 
-	public List<Perfil> getPerfil() {
-		return perfil;
+	public Usuario getUsuario() {
+		return usuario;
 	}
 
-	public void setPerfil(List<Perfil> perfil) {
-		this.perfil = perfil;
-	}
-	
-	public Integer getQuantidade() {
-		return quantidade;
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 
-	public void setQuantidade(Integer quantidade) {
-		this.quantidade = quantidade;
+	public Timestamp getData_entrada() {
+		return data_entrada;
+	}
+
+	public void setData_entrada(Timestamp data_entrada) {
+		this.data_entrada = data_entrada;
+	}
+
+	public Timestamp getData_saida() {
+		return data_saida;
+	}
+
+	public void setData_saida(Timestamp data_saida) {
+		this.data_saida = data_saida;
 	}
 
 	@Override
@@ -76,7 +88,7 @@ public class Pedido {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Pedido other = (Pedido) obj;
+		HistoricoSalaUsuario other = (HistoricoSalaUsuario) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -84,4 +96,5 @@ public class Pedido {
 			return false;
 		return true;
 	}
+	
 }
