@@ -35,16 +35,6 @@
             <v-btn class="c-nopadding" :ripple="false" icon small text @click="editarItem(item)">
               <v-icon class="c-secundary">edit</v-icon>
             </v-btn>
-            <v-btn
-              class="c-nopadding"
-              icon
-              small
-              text
-              :ripple="false"
-              @click="itemSendoEditado = item; dialogExcluir = true"
-            >
-              <v-icon color="red">delete</v-icon>
-            </v-btn>
           </v-list-item-icon>
         </v-list-item>
       </v-list>
@@ -79,12 +69,11 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <v-text-field
-                    :rules="[rules.required, rules.min]"
+                    :error="precoErro"
                     @change="verificaPreco()"
                     label="Preço"
-                    type="number"
-                    error
                     v-model="itemSendoEditado.preco"
+                    prefix="$"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
@@ -94,10 +83,12 @@
                     item-value="id"
                     label="Pagantes"
                     v-model="itemSendoEditado.pessoas"
-                    chips
+                    small-chips
                     multiple
                     required
-                  ></v-select>
+                  >
+                    <v-btn slot="prepend-item" color="primary" block @click="toggleSelect">Todos</v-btn>
+                  </v-select>
                 </v-col>
               </v-row>
             </v-container>
@@ -111,7 +102,7 @@
             <v-btn
               color="blue darken-1"
               text
-              @click="salvarItem(itemSendoEditado); dialogEdit = false"
+              @click="salvarItem(itemSendoEditado) ? dialogEdit = false:null"
             >Salvar</v-btn>
           </v-card-actions>
         </v-card>
@@ -144,6 +135,9 @@
 
 
 <style scoped>
+.c-invalid {
+  background-color: rebeccapurple;
+}
 .c-footer {
   height: 50px;
 }
@@ -192,34 +186,49 @@ import itemsJson from "../assets/dados/Lobby-items";
 export default {
   methods: {
     salvarItem(item) {
-      let alteraIndex = this.items.findIndex(x => x.id === item.id);
-      this.items[alteraIndex] = item;
-      console.log("REQUISIÇÃO EDIT PARA BACKEND");
+      item.preco = parseFloat(item.preco) || null;
+
+      if (item.preco) {
+        let alteraIndex = this.items.findIndex(x => x.id === item.id);
+        this.items[alteraIndex] = item;
+        console.log("REQUISIÇÃO EDIT PARA BACKEND");
+        return true;
+      } else {
+        alert("Erro no preço informado, favor informe um preço valido.");
+        return false;
+      }
     },
     excluirItem(item) {
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
       this.items.splice(alteraIndex, 1);
       console.log("REQUISIÇÃO DELETE PARA BACKEND");
     },
-    editarItem: function(item) {
+    editarItem(item) {
       this.itemSendoEditado = { ...item };
       this.dialogEdit = true;
     },
     verificaPreco() {
-      if (this.itemSendoEditado.preco.length <= 0)
-      console.log("AH");
-      
-      this.itemSendoEditado.preco = parseFloat(this.itemSendoEditado.preco).toFixed(2);
-    }
+      if (this.itemSendoEditado.preco.length <= 0) this.precoErro = true;
+      else {
+        let preco = (this.itemSendoEditado.preco + "").replace(/\,/g, ".");
+        preco = preco.includes(".") ? preco : preco + ".00";
+        preco = preco.replace(/[^0-9.]/g, "");
+        preco = preco.split(".");
+        preco = preco.slice(0, -1).join("") + "." + preco.slice(-1);
+
+        this.itemSendoEditado.preco = parseFloat(preco).toFixed(2);
+      }
+    },
+      toggleSelect(){
+        this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
+      }
   },
   components: {
     "t-avatar": avatar
   },
   data() {
     return {
-      rules: {
-        required: value => !!value || 'Necessario.',
-      },
+      precoErro: false,
       dialogEdit: false,
       dialogExcluir: false,
       dialogMsg: "",
