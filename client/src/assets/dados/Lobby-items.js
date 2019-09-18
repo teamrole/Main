@@ -47,48 +47,6 @@ const items = [
         descricao: "Macarronada",
         preco: 20,
         pessoas: [1, 2, 3]
-    },
-    {
-        id: 8,
-        tipo: "comida",
-        descricao: "Macarronada",
-        preco: 20,
-        pessoas: [1, 2, 3]
-    },
-    {
-        id: 9,
-        tipo: "comida",
-        descricao: "Macarronada",
-        preco: 20,
-        pessoas: [1, 2, 3]
-    },
-    {
-        id: 10,
-        tipo: "comida",
-        descricao: "Macarronada",
-        preco: 20,
-        pessoas: [1, 2, 3]
-    },
-    {
-        id: 11,
-        tipo: "comida",
-        descricao: "Macarronada",
-        preco: 20,
-        pessoas: [1, 2, 3]
-    },
-    {
-        id: 12,
-        tipo: "comida",
-        descricao: "Macarronada",
-        preco: 20,
-        pessoas: [1, 2, 3]
-    },
-    {
-        id: 13,
-        tipo: "comida",
-        descricao: "Macarronada",
-        preco: 20,
-        pessoas: [1, 2, 3]
     }
 ];
 

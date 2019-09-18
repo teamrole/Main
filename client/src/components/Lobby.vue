@@ -42,7 +42,7 @@
 
     <v-footer app fixed color="primary" class="c-footer" :padless="true">
       <div class="flex-grow-1"></div>
-      <v-btn text icon x-large class="c-nopadding c-btn-add">
+      <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem()">
         <v-icon color="white" class="c-btn-add-icon">add</v-icon>
       </v-btn>
     </v-footer>
@@ -78,6 +78,7 @@
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-select
+                    :error="selectErro"
                     :items="this.pessoas"
                     item-text="nome"
                     item-value="id"
@@ -130,6 +131,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
   </v-content>
 </template> 
 
@@ -185,16 +187,43 @@ import pessoasJson from "../assets/dados/Lobby-pessoas";
 import itemsJson from "../assets/dados/Lobby-items";
 export default {
   methods: {
+    novoItem(){
+      this.AcaoItem = "Novo";
+      this.itemSendoEditado = {
+        id: null,
+        tipo: "outros",
+        descricao: null,
+        preco: null,
+        pessoas: [] };
+      this.dialogEdit = true;
+    },
     salvarItem(item) {
-      item.preco = parseFloat(item.preco) || null;
+      
+      //valida preco
+      item.preco = parseFloat(item.preco) || 0;
+      this.precoErro = item.preco <= 0;
 
-      if (item.preco) {
+      //valida pagantes
+      this.selectErro = item.pessoas.length <= 0;
+
+      if (!this.precoErro && !this.selectErro) {
+
+        this.precoErro = false
+        if(this.AcaoItem == "Novo"){
+          this.items.push(item);
+          console.log("REQUISIÇÃO POST PARA BACKEND");
+          //No response Atualizar itens
+          return true
+        }else if((this.AcaoItem == "Editar")){
+
         let alteraIndex = this.items.findIndex(x => x.id === item.id);
         this.items[alteraIndex] = item;
         console.log("REQUISIÇÃO EDIT PARA BACKEND");
+        //no response atualizar itens
         return true;
+        }
       } else {
-        alert("Erro no preço informado, favor informe um preço valido.");
+        this.precoErro = true
         return false;
       }
     },
@@ -202,8 +231,10 @@ export default {
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
       this.items.splice(alteraIndex, 1);
       console.log("REQUISIÇÃO DELETE PARA BACKEND");
+      //no response atualizar itens
     },
     editarItem(item) {
+      this.AcaoItem = "Editar";
       this.itemSendoEditado = { ...item };
       this.dialogEdit = true;
     },
@@ -215,13 +246,12 @@ export default {
         preco = preco.replace(/[^0-9.]/g, "");
         preco = preco.split(".");
         preco = preco.slice(0, -1).join("") + "." + preco.slice(-1);
-
         this.itemSendoEditado.preco = parseFloat(preco).toFixed(2);
       }
     },
-      toggleSelect(){
-        this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
-      }
+    toggleSelect() {
+      this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
+    }
   },
   components: {
     "t-avatar": avatar
@@ -229,6 +259,7 @@ export default {
   data() {
     return {
       precoErro: false,
+      selectErro: false,
       dialogEdit: false,
       dialogExcluir: false,
       dialogMsg: "",
