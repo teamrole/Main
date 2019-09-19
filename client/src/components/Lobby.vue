@@ -41,8 +41,18 @@
     </v-container>
 
     <v-footer app fixed color="primary" class="c-footer" :padless="true">
+      <div class="c-total">
+        <span>Total: </span>
+        <span class="c-valor">{{totalDoRole.toFixed(2)}} R$</span>
+        <br />
+        <span>Meu total: </span>
+        <span class="c-valor">{{totalPessoal.toFixed(2)}} R$</span>
+      </div>
+      <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem(); selectErro=false">
+        <v-icon color="white" class="c-btn-add-icon">add</v-icon>
+      </v-btn>
       <div class="flex-grow-1"></div>
-      <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem()">
+      <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem(); selectErro=false">
         <v-icon color="white" class="c-btn-add-icon">add</v-icon>
       </v-btn>
     </v-footer>
@@ -87,6 +97,7 @@
                     small-chips
                     multiple
                     required
+                    @blur="selectErro = itemSendoEditado.pessoas.length <= 0"
                   >
                     <v-btn slot="prepend-item" color="primary" block @click="toggleSelect">Todos</v-btn>
                   </v-select>
@@ -131,12 +142,20 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </v-content>
 </template> 
 
 
 <style scoped>
+.c-valor{
+  font-weight: bold;
+  float: right;
+  font-size: 1em;
+  padding-left: 10px; 
+}
+.c-total{
+  font-size: .9em
+}
 .c-invalid {
   background-color: rebeccapurple;
 }
@@ -187,43 +206,53 @@ import pessoasJson from "../assets/dados/Lobby-pessoas";
 import itemsJson from "../assets/dados/Lobby-items";
 export default {
   methods: {
-    novoItem(){
+    recalculaTotal() {
+
+      //calcula total do role
+      let vm = this;
+      vm.totalDoRole = 0;
+      this.items.map(a => (vm.totalDoRole += a.preco));
+
+      //calcula parcial do role
+      vm.totalPessoal = 0;
+      this.items.map(a => (vm.totalPessoal += a.pessoas.includes(vm.idPessoa)?a.preco:0    ));
+    },
+    novoItem() {
       this.AcaoItem = "Novo";
       this.itemSendoEditado = {
         id: null,
         tipo: "outros",
         descricao: null,
         preco: null,
-        pessoas: [] };
+        pessoas: []
+      };
       this.dialogEdit = true;
     },
     salvarItem(item) {
-      
       //valida preco
       item.preco = parseFloat(item.preco) || 0;
       this.precoErro = item.preco <= 0;
-
+      console.log(this.precoErro);
       //valida pagantes
       this.selectErro = item.pessoas.length <= 0;
 
       if (!this.precoErro && !this.selectErro) {
-
-        this.precoErro = false
-        if(this.AcaoItem == "Novo"){
+        this.precoErro = false;
+        if (this.AcaoItem == "Novo") {
           this.items.push(item);
           console.log("REQUISIÇÃO POST PARA BACKEND");
           //No response Atualizar itens
-          return true
-        }else if((this.AcaoItem == "Editar")){
-
-        let alteraIndex = this.items.findIndex(x => x.id === item.id);
-        this.items[alteraIndex] = item;
-        console.log("REQUISIÇÃO EDIT PARA BACKEND");
-        //no response atualizar itens
-        return true;
+          this.recalculaTotal();
+          return true;
+        } else if (this.AcaoItem == "Editar") {
+          let alteraIndex = this.items.findIndex(x => x.id === item.id);
+          this.items[alteraIndex] = item;
+          console.log("REQUISIÇÃO EDIT PARA BACKEND");
+          //no response atualizar itens
+          this.recalculaTotal();
+          return true;
         }
       } else {
-        this.precoErro = true
         return false;
       }
     },
@@ -232,6 +261,7 @@ export default {
       this.items.splice(alteraIndex, 1);
       console.log("REQUISIÇÃO DELETE PARA BACKEND");
       //no response atualizar itens
+      this.recalculaTotal();
     },
     editarItem(item) {
       this.AcaoItem = "Editar";
@@ -247,6 +277,7 @@ export default {
         preco = preco.split(".");
         preco = preco.slice(0, -1).join("") + "." + preco.slice(-1);
         this.itemSendoEditado.preco = parseFloat(preco).toFixed(2);
+        this.precoErro = false;
       }
     },
     toggleSelect() {
@@ -258,6 +289,8 @@ export default {
   },
   data() {
     return {
+      totalPessoal: 0,
+      totalDoRole: 0,
       precoErro: false,
       selectErro: false,
       dialogEdit: false,
@@ -272,8 +305,12 @@ export default {
         pessoas: []
       },
       items: [...itemsJson],
-      pessoas: [...pessoasJson]
+      pessoas: [...pessoasJson],
+      idPessoa : 1
     };
+  },
+  mounted() {
+    this.recalculaTotal();
   }
 };
 </script>
