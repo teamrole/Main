@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,12 +19,16 @@ public class Sala {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	private Boolean aberta = true;
 
 	@ElementCollection
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn( name="pedido_id", referencedColumnName = "id") })	
 	private List<Pedido> pedido;
+	
+	private String codigo;
 	
 	public Long getId() {
 		return id;
@@ -32,6 +37,22 @@ public class Sala {
 	public void setId(Long id) {
 		this.id = id;
 	}	
+
+	public String getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
+
+	public Boolean getAberta() {
+		return aberta;
+	}
+
+	public void setAberta(Boolean status) {
+		this.aberta = status;
+	}
 
 	public List<Pedido> getPedido() {
 		return pedido;
