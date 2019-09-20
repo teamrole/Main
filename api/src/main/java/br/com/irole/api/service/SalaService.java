@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.repository.UsuarioRepository;
 
@@ -24,6 +26,9 @@ public class SalaService {
 	private UsuarioRepository usuarioRepository;
 	
 	@Autowired
+	private PerfilRepository perfilRepository;
+	
+	@Autowired
 	private EntityManagerFactory entityManagerFactory;
 			
 			
@@ -31,6 +36,17 @@ public class SalaService {
 		Sala buscaSala = buscaSala(id);
 		buscaSala.setAberta(false);
 		salaRepository.save(buscaSala);
+		
+	}
+	
+	public void entraSala(Long id, String codigo) {
+		String sql = "INSERT INTO historico_sala_usuario(sala_id, perfil_id, data_hora_entrada, data_hora_saida) "
+				+ "SELECT sala.id, perfil.id, GETDATE(), null FROM sala, perfil WHERE sala.codigo = :codigo AND  perfil.id_usuario_fk = :id";
+		Query query = entityManagerFactory.createEntityManager().createQuery(sql);
+		query.setParameter("id", id);
+		query.setParameter("codigo", codigo);
+		int result = query.executeUpdate();
+		
 		
 	}
 	

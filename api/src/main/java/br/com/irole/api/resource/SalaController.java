@@ -51,6 +51,12 @@ public class SalaController {
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novaSala.getId()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
 	}
+	
+	@PutMapping("/entrar/{idU}/{codigo}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void entrarSala(@PathVariable String codigo, @PathVariable Long idU) {
+		salaService.entraSala(idU,codigo);
+	}
 		
 	
 	@PutMapping("/{id}/fechar/{idU}")

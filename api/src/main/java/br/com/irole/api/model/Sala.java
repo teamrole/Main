@@ -1,6 +1,7 @@
 package br.com.irole.api.model;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -20,16 +21,17 @@ public class Sala {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private Boolean aberta = true;
+	private Boolean aberta = true;	
+	
+	private String codigo;
 
 	@ElementCollection
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn( name="pedido_id", referencedColumnName = "id") })	
 	private List<Pedido> pedido;
-	
-	private String codigo;
-	
+
+
 	public Long getId() {
 		return id;
 	}
