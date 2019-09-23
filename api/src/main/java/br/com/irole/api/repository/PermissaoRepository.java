@@ -7,5 +7,5 @@ import br.com.irole.api.model.Permissao;
 
 @Service
 public interface PermissaoRepository extends JpaRepository<Permissao, Long>{
-
+		
 }
