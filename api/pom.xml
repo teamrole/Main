@@ -14,7 +14,6 @@
 	<name>api_irole</name>
 	<packaging>jar</packaging>
 	<description>Project w Spring Boot</description>
-
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -44,20 +43,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -77,6 +67,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+   			 <groupId>org.apache.commons</groupId>
+    		<artifactId>commons-lang3</artifactId>
+    		<version>3.4</version>
 		</dependency>
 	</dependencies>
 	<build>
