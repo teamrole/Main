@@ -8,29 +8,28 @@
         :nome="pessoa.nome"
         :avatar="pessoa.avatar"
       />
-    </div>
-
-    <v-container class="c-list-container" fluid>
+    </div> 
+  <v-container class="c-list-container" fluid>
       <v-list class="c-list">
-        <v-list-item v-for="item in items" :key="item.id" :dense="true" class="c-list-item">
+        <v-list-item v-for="item in daniel_pedidos" :key="item.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
-            <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img>
+            <v-img :src="require(`@/assets/Icon/comida.png`)"></v-img>
           </v-avatar>
 
           <v-list-item-content class="c-list-item-content">
             <v-list-item-title
               class="c-item-lista"
-              v-text="item.descricao ? item.descricao : item.tipo"
+              v-text="item.item.nome"
             ></v-list-item-title>
             <span class="c-item-lista">
-              <b>{{item.pessoas.length}}</b>
+              <b>1</b>
               <v-icon class="c-icon-item-lista" color="black">people</v-icon>
             </span>
           </v-list-item-content>
 
           <v-list-item-icon style="display:inline-block">
             <v-icon class="c-secundary">monetization_on</v-icon>
-            <span class="c-secundary c-item-preco">{{parseFloat(item.preco).toFixed(2)}}</span>
+            <span class="c-secundary c-item-preco">{{parseFloat(item.item.valor).toFixed(2)}}</span>
 
             <v-btn class="c-nopadding" :ripple="false" icon small text @click="editarItem(item)">
               <v-icon class="c-secundary">edit</v-icon>
@@ -39,7 +38,6 @@
         </v-list-item>
       </v-list>
     </v-container>
-
     <v-footer app fixed color="primary" class="c-footer" :padless="true">
       <div class="c-total">
         <span>Total: </span>
@@ -204,6 +202,8 @@
 import avatar from "./Templates/avatar-lobby";
 import pessoasJson from "../assets/dados/Lobby-pessoas";
 import itemsJson from "../assets/dados/Lobby-items";
+import axios from 'axios';
+
 export default {
   methods: {
     recalculaTotal() {
@@ -289,6 +289,7 @@ export default {
   },
   data() {
     return {
+      daniel_pedidos: null,
       totalPessoal: 0,
       totalDoRole: 0,
       precoErro: false,
@@ -311,6 +312,9 @@ export default {
   },
   mounted() {
     this.recalculaTotal();
+    axios
+      .get('http://localhost:6969/pedidos/salas/1')
+      .then(response => (this.daniel_pedidos = response.data));
   }
 };
 </script>
