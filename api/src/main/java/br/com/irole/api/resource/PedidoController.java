@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.irole.api.event.RecursoCriadoEvent;
 import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.model.Usuario;
-import br.com.irole.api.repository.PedidoRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.PedidoService;
 
