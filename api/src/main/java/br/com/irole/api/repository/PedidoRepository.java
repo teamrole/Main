@@ -6,4 +6,5 @@ import br.com.irole.api.model.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long>{
 
+	
 }
