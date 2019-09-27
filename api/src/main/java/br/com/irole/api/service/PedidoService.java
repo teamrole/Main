@@ -24,6 +24,7 @@ public class PedidoService {
 	@Autowired
 	private ItemRepository itemRepository;
 	
+	//FIXME Em vez de cadastrar novo pedido este método está atualizando os que já existem (merge)
 	public List<Pedido> salvarPedido(Sala sala) {
 		//TODO: Spring Transactional
 		
