@@ -49,7 +49,7 @@ public class SalaController {
 	
 	@PutMapping("/entrar/{idU}/{codigo}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void entrarSala(@PathVariable String codigo, @PathVariable Long idU) {
+	public void entrarSala(@PathVariable Long idU, @PathVariable String codigo) {
 		salaService.entraSala(idU,codigo);
 	}
 		

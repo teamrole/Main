@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import br.com.irole.api.model.HistoricoSalaUsuario;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.repository.UsuarioRepository;
@@ -22,11 +24,16 @@ public class SalaService {
 	@Autowired
 	private SalaRepository salaRepository;
 	
+	private UsuarioService usuarioService;
+	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 	
 	@Autowired
 	private PerfilRepository perfilRepository;
+	
+	@Autowired
+	private HistoricoSalaUsuarioRepository historicoRepository;
 	
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
@@ -40,12 +47,14 @@ public class SalaService {
 	}
 	
 	public void entraSala(Long id, String codigo) {
-		String sql = "INSERT INTO historico_sala_usuario(sala_id, perfil_id, data_hora_entrada, data_hora_saida) "
-				+ "SELECT sala.id, perfil.id, GETDATE(), null FROM sala, perfil WHERE sala.codigo = :codigo AND  perfil.id_usuario_fk = :id";
-		Query query = entityManagerFactory.createEntityManager().createQuery(sql);
-		query.setParameter("id", id);
-		query.setParameter("codigo", codigo);
-		int result = query.executeUpdate();
+		if (buscaSalaCodigo(codigo).getAberta()) {
+			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();
+			historicoSalaUsuario.setSala(buscaSalaCodigo(codigo));
+			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
+			historicoRepository.save(historicoSalaUsuario);	
+		}else {
+			
+		}
 		
 		
 	}
@@ -58,15 +67,18 @@ public class SalaService {
 			throw new EmptyResultDataAccessException(1);
 		}
 	}
+	
+	public Sala buscaSalaCodigo(String codigo) {
+		Optional<Sala> sala = salaRepository.findByCodigo(codigo);		
+		if (sala.isPresent()) {
+			return sala.get();
+		}else {
+			throw new EmptyResultDataAccessException(1);
+		}
+	}
 
 	public Sala fecharContaUsuario(Long id, Long idU) {
-		String sql = "SELECT SUM(sala.pedido.item.valor) * sala.pedido.quantidade) / COUNT(sala.pedido.perfil) "
-				+ "FROM sala "
-				+ "WHERE sala.id = :id AND sala.pedido.perfil.usuario.id = :idU";
-		Query query = entityManagerFactory.createEntityManager().createQuery(sql);
-		query.setParameter("id", id);
-		query.setParameter("idU", idU);
-		BigDecimal total = (BigDecimal) query.getSingleResult();
+		float total =  salaRepository.fecharContaUsuario(id, idU);
 		System.out.println(total);
 		/*
 		 * Optional<Usuario> usuario = usuarioRepository.findById(idU); Sala buscaSala =
