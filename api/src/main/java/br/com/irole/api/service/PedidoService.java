@@ -24,9 +24,7 @@ public class PedidoService {
 	@Autowired
 	private ItemRepository itemRepository;
 	
-	public List<Pedido> salvarPedido(Sala sala) {
-		//TODO: Spring Transactional
-		
+	public List<Pedido> salvarPedido(Sala sala) {		
 		for(Pedido pedido: sala.getPedido()) {
 			Item itemSalvo = itemRepository.save(pedido.getItem());
 			pedido.setItem(itemSalvo);

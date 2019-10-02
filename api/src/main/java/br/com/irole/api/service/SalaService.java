@@ -1,22 +1,20 @@
 package br.com.irole.api.service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
-import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.SalaRepository;
-import br.com.irole.api.repository.UsuarioRepository;
 
 @Service
 public class SalaService {
@@ -24,19 +22,11 @@ public class SalaService {
 	@Autowired
 	private SalaRepository salaRepository;
 	
-	private UsuarioService usuarioService;
-	
 	@Autowired
-	private UsuarioRepository usuarioRepository;
-	
-	@Autowired
-	private PerfilRepository perfilRepository;
+	private UsuarioService usuarioService;	
 	
 	@Autowired
 	private HistoricoSalaUsuarioRepository historicoRepository;
-	
-	@Autowired
-	private EntityManagerFactory entityManagerFactory;
 			
 			
 	public void fecharSala(Long id) {
@@ -52,11 +42,7 @@ public class SalaService {
 			historicoSalaUsuario.setSala(buscaSalaCodigo(codigo));
 			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
 			historicoRepository.save(historicoSalaUsuario);	
-		}else {
-			
-		}
-		
-		
+		}		
 	}
 	
 	public Sala buscaSala(Long id) {
@@ -76,15 +62,27 @@ public class SalaService {
 			throw new EmptyResultDataAccessException(1);
 		}
 	}
+	
+	public BigDecimal fecharParcial(Long id, Long idU) {
+		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, idU);
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		historicoSalaUsuario.setData_saida(timestamp);
+		BigDecimal total = BigDecimal.ZERO;
+		BigDecimal totalPedido = BigDecimal.ZERO;
+		List<Pedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);		
+		for (Pedido pedido : pedidoUsuario) {
+			totalPedido = pedido.getItem().getValor().multiply(new BigDecimal(pedido.getQuantidade()));
+	        total = total.add(totalPedido);
+		}
+		return total;
+		
+	}
 
-	public Sala fecharContaUsuario(Long id, Long idU) {
-		float total =  salaRepository.fecharContaUsuario(id, idU);
-		System.out.println(total);
+	public void contaUsuario(Long id, Long idU) {
 		/*
 		 * Optional<Usuario> usuario = usuarioRepository.findById(idU); Sala buscaSala =
 		 * buscaSala(id); List<Pedido> pedido = buscaSala.getPedido();
 		 */
-		return null;
 	}
 	
 }
