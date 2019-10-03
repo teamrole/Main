@@ -6,11 +6,11 @@
       </v-tabs>
 
       <v-tabs-items v-model="tab">
-        <v-tab-item v-for="item in items" v-bind:key="item.titulo" >
+        <v-tab-item v-for="item in items" v-bind:key="item.titulo">
           <v-card flat>
-            <v-card-text> 
-                <t-tab-ranking :ordenar="item.componente"/>
-                </v-card-text>
+            <v-card-text>
+              <t-tab-ranking :ordenar="item.componente" />
+            </v-card-text>
           </v-card>
         </v-tab-item>
       </v-tabs-items>
@@ -19,7 +19,7 @@
 </template>
 
 <style scoped>
-.c-tab-header{
+.c-tab-header {
   margin: 0 !important;
 }
 </style>
@@ -29,7 +29,7 @@ import tabranking from "./Templates/tab-ranking";
 
 export default {
   components: {
-      "t-tab-ranking": tabranking
+    "t-tab-ranking": tabranking
   },
   data() {
     return {
