@@ -5,6 +5,7 @@ import Login from './components/Login'
 import Ranking from './components/Ranking'
 import Historico from './components/Historico'
 import Lobby from './components/Lobby'
+import notfound from './components/NotFound'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/Lobby',
       name: 'Lobby',
       component: Lobby,
+    },
+    {
+      path: '*',
+      name: 'notfound',
+      component: notfound
     },
 
   ]
