@@ -29,7 +29,7 @@ public class UsuarioService {
 		
 	}
 	
-	private Usuario buscaUsuario(Long id) {
+	public Usuario buscaUsuario(Long id) {
 		Optional<Usuario> usuarioSalvo = usuarioRepository.findById(id);		
 		if (usuarioSalvo.isPresent()) {
 			return usuarioSalvo.get();

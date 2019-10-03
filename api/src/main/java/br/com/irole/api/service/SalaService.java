@@ -1,20 +1,21 @@
 package br.com.irole.api.service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.repository.PerfilRepository;
+import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
-import br.com.irole.api.repository.UsuarioRepository;
+import br.com.irole.api.repository.SalaRepository.TotalPedido;
 
 @Service
 public class SalaService {
@@ -23,13 +24,10 @@ public class SalaService {
 	private SalaRepository salaRepository;
 	
 	@Autowired
-	private UsuarioRepository usuarioRepository;
+	private UsuarioService usuarioService;	
 	
 	@Autowired
-	private PerfilRepository perfilRepository;
-	
-	@Autowired
-	private EntityManagerFactory entityManagerFactory;
+	private HistoricoSalaUsuarioRepository historicoRepository;
 			
 			
 	public void fecharSala(Long id) {
@@ -40,14 +38,12 @@ public class SalaService {
 	}
 	
 	public void entraSala(Long id, String codigo) {
-		String sql = "INSERT INTO historico_sala_usuario(sala_id, perfil_id, data_hora_entrada, data_hora_saida) "
-				+ "SELECT sala.id, perfil.id, GETDATE(), null FROM sala, perfil WHERE sala.codigo = :codigo AND  perfil.id_usuario_fk = :id";
-		Query query = entityManagerFactory.createEntityManager().createQuery(sql);
-		query.setParameter("id", id);
-		query.setParameter("codigo", codigo);
-		int result = query.executeUpdate();
-		
-		
+		if (buscaSalaCodigo(codigo).getAberta()) {
+			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();
+			historicoSalaUsuario.setSala(buscaSalaCodigo(codigo));
+			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
+			historicoRepository.save(historicoSalaUsuario);	
+		}		
 	}
 	
 	public Sala buscaSala(Long id) {
@@ -58,21 +54,37 @@ public class SalaService {
 			throw new EmptyResultDataAccessException(1);
 		}
 	}
+	
+	public Sala buscaSalaCodigo(String codigo) {
+		Optional<Sala> sala = salaRepository.findByCodigoEquals(codigo);		
+		return sala.get();
+	}
+	
+	public BigDecimal fecharParcial(Long id, Long idU) {
+		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, idU);
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		historicoSalaUsuario.setData_saida(timestamp);
+		historicoRepository.save(historicoSalaUsuario);
+		return contaParcial(id, idU);
+		
+	}
 
-	public Sala fecharContaUsuario(Long id, Long idU) {
-		String sql = "SELECT SUM(sala.pedido.item.valor) * sala.pedido.quantidade) / COUNT(sala.pedido.perfil) "
-				+ "FROM sala "
-				+ "WHERE sala.id = :id AND sala.pedido.perfil.usuario.id = :idU";
-		Query query = entityManagerFactory.createEntityManager().createQuery(sql);
-		query.setParameter("id", id);
-		query.setParameter("idU", idU);
-		BigDecimal total = (BigDecimal) query.getSingleResult();
-		System.out.println(total);
+	public BigDecimal contaParcial(Long id, Long idU) {
+		BigDecimal total = BigDecimal.ZERO;
+		BigDecimal totalPedido = BigDecimal.ZERO;
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);
+		Long usuarioPorPedido;
+		for (TotalPedido pedido : pedidoUsuario) {
+			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));
+			usuarioPorPedido = salaRepository.usuariosPorPedido(pedido.getPedido_id());
+			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido));
+	        total = total.add(totalPedido);
+		}
+		return total;
 		/*
 		 * Optional<Usuario> usuario = usuarioRepository.findById(idU); Sala buscaSala =
 		 * buscaSala(id); List<Pedido> pedido = buscaSala.getPedido();
 		 */
-		return null;
 	}
 	
 }

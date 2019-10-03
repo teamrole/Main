@@ -1,5 +1,7 @@
 package br.com.irole.api.resource;
 
+import java.math.BigDecimal;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -48,19 +50,26 @@ public class SalaController {
 	}
 	
 	@PutMapping("/entrar/{idU}/{codigo}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void entrarSala(@PathVariable String codigo, @PathVariable Long idU) {
+	@ResponseStatus(HttpStatus.OK)
+	public void entrarSala(@PathVariable Long idU, @PathVariable String codigo) {
 		salaService.entraSala(idU,codigo);
 	}
+	
+	@GetMapping("/{id}/{idU}/fecharConta")
+	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idU) {
+		 BigDecimal totalParcial = salaService.fecharParcial(id, idU);		 
+		 return totalParcial;
+	}	
 		
 	
-	@PutMapping("/{id}/fechar/{idU}")
-	public Sala buscaSalaId(@PathVariable Long id, @PathVariable Long idU) {
-		return salaService.fecharContaUsuario(id, idU);
+	@GetMapping("/{id}/{idU}/contaUsuario")
+	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
+		BigDecimal totalParcial = salaService.contaParcial(id, idU);
+		return totalParcial;
 	}	
 		
 	@PutMapping("/{id}/fechar")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ResponseStatus(HttpStatus.OK)
 	public void fechaSala(@PathVariable Long id) {
 		salaService.fecharSala(id);
 	}
