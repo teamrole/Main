@@ -55,16 +55,17 @@ public class SalaController {
 		salaService.entraSala(idU,codigo);
 	}
 	
-	@PutMapping("/{id}/{idU}/fecharConta")
+	@GetMapping("/{id}/{idU}/fecharConta")
 	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idU) {
 		 BigDecimal totalParcial = salaService.fecharParcial(id, idU);		 
 		 return totalParcial;
 	}	
 		
 	
-	@PutMapping("/{id}/{idU}/contaUsuario")
-	public void contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		 
+	@GetMapping("/{id}/{idU}/contaUsuario")
+	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
+		BigDecimal totalParcial = salaService.contaParcial(id, idU);
+		return totalParcial;
 	}	
 		
 	@PutMapping("/{id}/fechar")

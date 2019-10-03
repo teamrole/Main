@@ -15,6 +15,7 @@ import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
+import br.com.irole.api.repository.SalaRepository.TotalPedido;
 
 @Service
 public class SalaService {
@@ -55,30 +56,28 @@ public class SalaService {
 	}
 	
 	public Sala buscaSalaCodigo(String codigo) {
-		Optional<Sala> sala = salaRepository.findByCodigo(codigo);		
-		if (sala.isPresent()) {
-			return sala.get();
-		}else {
-			throw new EmptyResultDataAccessException(1);
-		}
+		Optional<Sala> sala = salaRepository.findByCodigoEquals(codigo);		
+		return sala.get();
 	}
 	
 	public BigDecimal fecharParcial(Long id, Long idU) {
 		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, idU);
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		historicoSalaUsuario.setData_saida(timestamp);
-		BigDecimal total = BigDecimal.ZERO;
-		BigDecimal totalPedido = BigDecimal.ZERO;
-		List<Pedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);		
-		for (Pedido pedido : pedidoUsuario) {
-			totalPedido = pedido.getItem().getValor().multiply(new BigDecimal(pedido.getQuantidade()));
-	        total = total.add(totalPedido);
-		}
-		return total;
+		return contaParcial(id, idU);
 		
 	}
 
-	public void contaUsuario(Long id, Long idU) {
+	public BigDecimal contaParcial(Long id, Long idU) {
+		BigDecimal total = BigDecimal.ZERO;
+		BigDecimal totalPedido = BigDecimal.ZERO;
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);		
+		for (TotalPedido pedido : pedidoUsuario) {
+			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));
+			totalPedido = totalPedido.divide(new BigDecimal(pedido.getConsumidores()));
+	        total = total.add(totalPedido);
+		}
+		return total;
 		/*
 		 * Optional<Usuario> usuario = usuarioRepository.findById(idU); Sala buscaSala =
 		 * buscaSala(id); List<Pedido> pedido = buscaSala.getPedido();
