@@ -64,6 +64,7 @@ public class SalaService {
 		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, idU);
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		historicoSalaUsuario.setData_saida(timestamp);
+		historicoRepository.save(historicoSalaUsuario);
 		return contaParcial(id, idU);
 		
 	}
@@ -71,10 +72,12 @@ public class SalaService {
 	public BigDecimal contaParcial(Long id, Long idU) {
 		BigDecimal total = BigDecimal.ZERO;
 		BigDecimal totalPedido = BigDecimal.ZERO;
-		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);		
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);
+		Long usuarioPorPedido;
 		for (TotalPedido pedido : pedidoUsuario) {
 			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));
-			totalPedido = totalPedido.divide(new BigDecimal(pedido.getConsumidores()));
+			usuarioPorPedido = salaRepository.usuariosPorPedido(pedido.getPedido_id());
+			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido));
 	        total = total.add(totalPedido);
 		}
 		return total;

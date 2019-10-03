@@ -1,6 +1,8 @@
 package br.com.irole.api.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,14 +26,18 @@ public class PedidoService {
 	@Autowired
 	private ItemRepository itemRepository;
 	
-	public List<Pedido> salvarPedido(Sala sala) {		
+	public List<Pedido> salvarPedido(Sala sala) {	
+		Optional<Sala> s = salaRepository.findById(sala.getId());
+		List<Pedido> pedidoSala = new ArrayList<Pedido>();
 		for(Pedido pedido: sala.getPedido()) {
 			Item itemSalvo = itemRepository.save(pedido.getItem());
 			pedido.setItem(itemSalvo);
 			pedidoRepository.save(pedido);		
+			pedidoSala = s.get().getPedido();
+			pedidoSala.add(pedido);
 		}	
-		
-		Sala salaSalva = salaRepository.save(sala);
+		s.get().setPedido(pedidoSala);
+		Sala salaSalva = salaRepository.save(s.get());
 	
 		return (salaSalva != null) ? salaSalva.getPedido() : null;
 	}
