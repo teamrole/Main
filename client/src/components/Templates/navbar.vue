@@ -13,8 +13,9 @@
     </v-navigation-drawer>
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"  v-if="['Login'].indexOf($route.name) <= -1"></v-app-bar-nav-icon>
-      <v-toolbar-title>iRole</v-toolbar-title>
+        <v-toolbar-title>iRole</v-toolbar-title>
     </v-app-bar>
+    
   </div>
 </template>
 

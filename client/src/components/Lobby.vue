@@ -1,5 +1,27 @@
 <template>
   <v-content>
+    <div class="c-options">
+      <v-menu bottom left>
+        <template v-slot:activator="{ on }">
+          <v-btn dark icon v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item @click="dialogFechaParcial = true; selectErro=false">
+            <v-list-item-title>Sair do Role</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click.stop>   
+            <v-list-item-title>Fechar Sala</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="dialogCodSala = true">
+            <v-list-item-title>Código da Sala</v-list-item-title>
+          </v-list-item>
+
+        </v-list>
+      </v-menu>
+    </div>
     <div class="c-participantes">
       <t-avatar
         class="c-participante"
@@ -8,28 +30,28 @@
         :nome="pessoa.nome"
         :avatar="pessoa.avatar"
       />
-    </div> 
-  <v-container class="c-list-container" fluid>
+    </div>
+    <v-container class="c-list-container" fluid>
       <v-list class="c-list">
-        <v-list-item v-for="item in daniel_pedidos" :key="item.id" :dense="true" class="c-list-item">
+        <v-list-item v-for="item in items" :key="item.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
-            <v-img :src="require(`@/assets/Icon/comida.png`)"></v-img>
+            <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img>
           </v-avatar>
 
           <v-list-item-content class="c-list-item-content">
             <v-list-item-title
               class="c-item-lista"
-              v-text="item.item.nome"
+              v-text="item.descricao ? item.descricao : item.tipo"
             ></v-list-item-title>
             <span class="c-item-lista">
-              <b>1</b>
+              <b>{{item.pessoas.length}}</b>
               <v-icon class="c-icon-item-lista" color="black">people</v-icon>
             </span>
           </v-list-item-content>
 
           <v-list-item-icon style="display:inline-block">
             <v-icon class="c-secundary">monetization_on</v-icon>
-            <span class="c-secundary c-item-preco">{{parseFloat(item.item.valor).toFixed(2)}}</span>
+            <span class="c-secundary c-item-preco">{{parseFloat(item.preco).toFixed(2)}}</span>
 
             <v-btn class="c-nopadding" :ripple="false" icon small text @click="editarItem(item)">
               <v-icon class="c-secundary">edit</v-icon>
@@ -40,15 +62,12 @@
     </v-container>
     <v-footer app fixed color="primary" class="c-footer" :padless="true">
       <div class="c-total">
-        <span>Total: </span>
+        <span>Total:</span>
         <span class="c-valor">{{totalDoRole.toFixed(2)}} R$</span>
         <br />
-        <span>Meu total: </span>
+        <span>Meu total:</span>
         <span class="c-valor">{{totalPessoal.toFixed(2)}} R$</span>
       </div>
-      <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem(); selectErro=false">
-        <v-icon color="white" class="c-btn-add-icon">add</v-icon>
-      </v-btn>
       <div class="flex-grow-1"></div>
       <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem(); selectErro=false">
         <v-icon color="white" class="c-btn-add-icon">add</v-icon>
@@ -140,19 +159,61 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogFechaParcial" persistent max-width="290">
+      <v-card>
+        <v-card-title>Sair do role</v-card-title>
+        <v-card-text>
+          Deseja Realmente fechar o role parcial?
+          Você não podera retornar ao role.
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="red darken-1"
+            text
+            @click.stop="dialogFechaParcial = false; fecharRoleParcial()"
+          >Sair</v-btn>
+          <div class="flex-grow-1"></div>
+          <v-btn color="red darken-1" text @click="dialogFechaParcial = false">Cancelar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogCodSala" persistent max-width="290">
+      <v-card>
+        <v-card-title>Código da sala</v-card-title>
+        <v-card-text>
+          <h1 style="text-align: center">177013</h1>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="black" text @click="dialogCodSala = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-content>
 </template> 
 
 
 <style scoped>
-.c-valor{
+.c-options {
+  display: inline-block;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 30;
+  font-size: 2em;
+  padding-right: 20px;
+}
+.c-valor {
   font-weight: bold;
   float: right;
   font-size: 1em;
-  padding-left: 10px; 
+  padding-left: 10px;
 }
-.c-total{
-  font-size: .9em
+.c-total {
+  font-size: 0.9em;
 }
 .c-invalid {
   background-color: rebeccapurple;
@@ -202,12 +263,11 @@
 import avatar from "./Templates/avatar-lobby";
 import pessoasJson from "../assets/dados/Lobby-pessoas";
 import itemsJson from "../assets/dados/Lobby-items";
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   methods: {
     recalculaTotal() {
-
       //calcula total do role
       let vm = this;
       vm.totalDoRole = 0;
@@ -215,7 +275,9 @@ export default {
 
       //calcula parcial do role
       vm.totalPessoal = 0;
-      this.items.map(a => (vm.totalPessoal += a.pessoas.includes(vm.idPessoa)?a.preco:0    ));
+      this.items.map(
+        a => (vm.totalPessoal += a.pessoas.includes(vm.idPessoa) ? a.preco : 0)
+      );
     },
     novoItem() {
       this.AcaoItem = "Novo";
@@ -280,6 +342,11 @@ export default {
         this.precoErro = false;
       }
     },
+    fecharRoleParcial() {
+      console.log("REQUISIÇÃO POST PARA BACKEND (FECHAR ROLE)");
+      //no response exibir o total
+    },
+    opcoesSala() {},
     toggleSelect() {
       this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
     }
@@ -289,13 +356,14 @@ export default {
   },
   data() {
     return {
-      daniel_pedidos: null,
       totalPessoal: 0,
       totalDoRole: 0,
       precoErro: false,
       selectErro: false,
       dialogEdit: false,
       dialogExcluir: false,
+      dialogFechaParcial: false,
+      dialogCodSala: false,
       dialogMsg: "",
       AcaoItem: "Editar",
       itemSendoEditado: {
@@ -307,14 +375,14 @@ export default {
       },
       items: [...itemsJson],
       pessoas: [...pessoasJson],
-      idPessoa : 1
+      idPessoa: 1
     };
   },
   mounted() {
-    this.recalculaTotal();
-    axios
-      .get('http://localhost:6969/pedidos/salas/1')
-      .then(response => (this.daniel_pedidos = response.data));
+    // this.recalculaTotal();
+    // axios
+    //   .get('http://localhost:6969/pedidos/salas/1')
+    //   .then(response => (this.daniel_pedidos = response.data));
   }
 };
 </script>

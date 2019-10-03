@@ -8,4 +8,5 @@ const pessoas = [
     { id: 7, nome: "Yuri", avatar: "Perfil4.jpg" },
     { id: 8, nome: "Yuri", avatar: "Perfil4.jpg" }
 ]
+
 export default pessoas;
