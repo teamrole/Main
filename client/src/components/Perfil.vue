@@ -13,10 +13,10 @@
       <v-col col="12" class="c-col">
         <v-row>
           <v-col cols="col-6" class="c-col1">
-            <span class="headline" id='rTotal'>12</span>
+            <span class="headline" id='rTotal'>{{usuario.totalRoles}}</span>
           </v-col>
           <v-col cols="col-6" class="c-col1">
-            <span class="headline" id='vTotal'>R$ 534,27</span>
+            <span class="headline" id='vTotal'>R$ {{usuario.totalPago}}</span>
           </v-col>
         </v-row>
         <v-row>
@@ -37,12 +37,12 @@
           label="Nome"
           :disabled="nameCheck"
           @blur="nameFocusOut"
-          v-model="userName"
+          v-model=usuario.user
           color="#033"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="nameCheck = false">
+        <v-btn text icon color="gray" height="100%" @click="nameCheck = false; oldName = usuario.user">
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
@@ -53,7 +53,7 @@
       <v-col cols="9">
         <v-text-field
           label="Celular"
-          v-model="phoneNumber"
+            v-model=usuario.tel
           class="c-text-field"
           :disabled="numberCheck"
           @blur="numberFocusOut"
@@ -61,11 +61,37 @@
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="numberCheck = false">
+        <v-btn text icon color="gray" height="100%" @click="numberCheck=false; oldPhone = usuario.tel">
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
     </v-row>
+
+
+  <v-dialog v-model="dialogErro" persistent max-width="350  ">
+      <v-card>
+        <v-card-title style="color: red">Número Inválido</v-card-title>
+        <v-card-text>
+          <h3 style=" color:black">Insira um número de telefone válido!</h3>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="black" text @click="dialogErro = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+      <v-dialog v-model="dialogErro2" persistent max-width="350  ">
+      <v-card>
+        <v-card-title style="color: red">Nome Inválido</v-card-title>
+        <v-card-text>
+          <h3 style=" color:black">Insira o nome que será apresentado nos rolês</h3>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="black" text @click="dialogErro2 = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-row class="btn-align">
       <v-col cols="6" class="c-margin-auto">
@@ -76,6 +102,7 @@
       </v-col>
     </v-row>
   </v-content>
+
 </template>
 <script>
 import { mask } from "vue-the-mask";
@@ -85,24 +112,33 @@ export default {
     },
   data() {
     return {
+     oldPhone : "",
+     oldName : "",
+     dialogErro : false,
+     dialogErro2: false,
+        usuario: 
+        { id: 1, totalRoles: "15", totalPago: "589,88", user: "Ana Banana", tel: "43996150002"}
+        ,  
       nameCheck: true,
       numberCheck: true,
-      userName: "Ana Banana",
-      phoneNumber: "+55 (43) 99615-0002",
       mask: "+55 (##) #####-####"
     };
   },
   methods: {
     nameFocusOut() {
       this.nameCheck = true;
+     if( this.usuario.user.length < 3){
+        this.dialogErro2 = true;
+        this.usuario.user = this.oldName;
+      }
     },
     numberFocusOut() {
       this.numberCheck = true;
-      if( this.phoneNumber.length < 19){
-        alert("Número inválido, tente novamente");
-
+      if( this.usuario.tel.length < 19){
+        this.dialogErro = true;
+        this.usuario.tel = this.oldPhone;
       }
-    }
+    },
   }
 };
 </script>
