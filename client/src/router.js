@@ -6,9 +6,9 @@ import Ranking from './components/Ranking'
 import Historico from './components/Historico'
 import Lobby from './components/Lobby'
 import notfound from './components/NotFound'
+import Perfil from './components/Perfil'
 
 Vue.use(Router)
-
 export default new Router({
   routes: [
     {
@@ -23,7 +23,7 @@ export default new Router({
     },
     {
       path: '/Ranking',
-      name: 'ranking',
+      name: 'Ranking',
       component: Ranking
     },
     {
@@ -41,6 +41,10 @@ export default new Router({
       name: 'notfound',
       component: notfound
     },
-
+    {
+      path: '/Perfil',
+      name: 'Perfil',
+      component: Perfil
+    }
   ]
 })
