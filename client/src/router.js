@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './components/Home'
 import Login from './components/Login'
 import Ranking from './components/Ranking'
 import Historico from './components/Historico'
 import Lobby from './components/Lobby'
-import notfound from './components/NotFound'
+import Notfound from './components/NotFound'
+import Home from './components/Home'
 
 Vue.use(Router)
 
@@ -13,7 +13,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'Home',
       component: Home
     },
     {
@@ -38,8 +38,8 @@ export default new Router({
     },
     {
       path: '*',
-      name: 'notfound',
-      component: notfound
+      name: 'Notfound',
+      component: Notfound
     },
 
   ]
