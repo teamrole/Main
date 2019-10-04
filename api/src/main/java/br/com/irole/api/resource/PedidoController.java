@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -47,7 +48,7 @@ public class PedidoController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<List<Pedido>> cadastrar(@RequestBody Sala sala, HttpServletResponse response){	
+	public ResponseEntity<List<Pedido>> cadastrar(@Valid @RequestBody Sala sala, HttpServletResponse response){	
 		List<Pedido> novoPedido = pedidoService.salvarPedido(sala);
 		
 		for(Pedido pedido: novoPedido) {

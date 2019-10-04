@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "sala")
@@ -23,6 +25,8 @@ public class Sala {
 	
 	private Boolean aberta = true;	
 	
+	@NotNull
+	@Size(min = 4, max = 4)
 	private String codigo;
 
 	@ElementCollection

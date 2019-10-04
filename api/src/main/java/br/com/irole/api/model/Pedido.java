@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "pedido")
@@ -26,6 +27,7 @@ public class Pedido {
 	@OneToMany(fetch = FetchType.EAGER)
 	private List<Perfil> perfil;
 	
+	@NotNull
 	private Integer quantidade;
 
 	public Long getId() {

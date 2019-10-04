@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="permissao")
@@ -13,6 +14,7 @@ public class Permissao {
 	private Long id;
 	
 	@NotNull
+	@Size(min = 5)
 	private String descricao;
 
 	public Long getId() {

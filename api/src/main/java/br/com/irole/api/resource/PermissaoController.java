@@ -76,7 +76,6 @@ public class PermissaoController {
 	public ResponseEntity<Permissao> salvarPermissao(@Valid @RequestBody Permissao permissao, 
 			HttpServletResponse httpServletResponse){
 		
-		@Valid
 		Permissao permissaoSalva = permissaoRepository.save(permissao);
 		publisher.publishEvent(new RecursoCriadoEvent(this, httpServletResponse, permissaoSalva.getId()));
 		

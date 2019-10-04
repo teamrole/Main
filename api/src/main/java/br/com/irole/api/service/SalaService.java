@@ -37,13 +37,24 @@ public class SalaService {
 		
 	}
 	
-	public void entraSala(Long id, String codigo) {
+	public Sala entraSala(Long id, String codigo) {
+		//TODO Terminar 
 		if (buscaSalaCodigo(codigo).getAberta()) {
 			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();
+			
+			Sala sala = buscaSalaCodigo(codigo);
+			
+			if(sala == null) {
+				return null;
+			}
+			
 			historicoSalaUsuario.setSala(buscaSalaCodigo(codigo));
 			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
 			historicoRepository.save(historicoSalaUsuario);	
-		}		
+		}else {
+			//sala ta fechada
+		}
+		return null;
 	}
 	
 	public Sala buscaSala(Long id) {
@@ -56,8 +67,12 @@ public class SalaService {
 	}
 	
 	public Sala buscaSalaCodigo(String codigo) {
-		Optional<Sala> sala = salaRepository.findByCodigoEquals(codigo);		
-		return sala.get();
+		Optional<Sala> sala = salaRepository.findByCodigoEquals(codigo);	
+		if(sala.isPresent()) {			
+			return sala.get();
+		}else {
+			return null;
+		}
 	}
 	
 	public BigDecimal fecharParcial(Long id, Long idU) {
