@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="goto" class="decoration-none">
+  <router-link :to="goto" class="c-decoration-none">
     <v-list-item @click.stop color="primary">
       <v-list-item-action>
         <v-icon>{{icon}}</v-icon>
@@ -31,7 +31,7 @@ export default {
 </script>
 
 <style scoped>
-.decoration-none{
+.c-decoration-none{
   text-decoration: none;
 }
 </style>
