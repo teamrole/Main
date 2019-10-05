@@ -36,8 +36,14 @@ public class SalaController {
 	private ApplicationEventPublisher publisher;
 	
 	@GetMapping("/{id}")
-	public Sala buscaSalaId(@PathVariable Long id) {
-		return salaService.buscaSala(id);
+	public ResponseEntity<Sala> buscaSalaId(@PathVariable Long id) {
+		Sala sala = salaService.buscaSala(id);
+		
+		if(sala == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok().body(sala);
 	}
 	
 	@PostMapping
@@ -50,9 +56,10 @@ public class SalaController {
 	}
 	
 	@PutMapping("/entrar/{idU}/{codigo}")
-	@ResponseStatus(HttpStatus.OK)
-	public void entrarSala(@PathVariable Long idU, @PathVariable String codigo) {
-		salaService.entraSala(idU,codigo);
+	public ResponseEntity<?> entrarSala(@PathVariable Long idU, @PathVariable String codigo,
+			HttpServletResponse response) {
+		
+		return salaService.entraSala(idU,codigo);
 	}
 	
 	@GetMapping("/{id}/{idU}/fecharConta")

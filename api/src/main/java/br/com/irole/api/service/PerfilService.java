@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.PerfilRepository;
@@ -56,29 +57,12 @@ public class PerfilService {
 				}
 			}else {
 				String mensagemUsuario = messageSource.getMessage("recurso.usuario-inativo", null, LocaleContextHolder.getLocale());
-				List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario));
+				List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 			}
 		}else {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	
-	public static class Erro{
 		
-		private String mensagemUsuario;
-		private String mensagemDesenvolvedor;
-		
-		public Erro(String mensagemUsuario) {
-			this.mensagemUsuario = mensagemUsuario;
-		}
-		public String getMensagemUsuario() {
-			return mensagemUsuario;
-		}
-		public String getMensagemDesenvolvedor() {
-			return mensagemDesenvolvedor;
-		}
-		
-		
-	}
 }

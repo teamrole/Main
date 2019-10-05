@@ -2,16 +2,20 @@ package br.com.irole.api.service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.HistoricoSalaUsuario;
-import br.com.irole.api.model.Pedido;
-import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
@@ -28,6 +32,9 @@ public class SalaService {
 	
 	@Autowired
 	private HistoricoSalaUsuarioRepository historicoRepository;
+	
+	@Autowired
+	private MessageSource messageSource;
 			
 			
 	public void fecharSala(Long id) {
@@ -37,24 +44,29 @@ public class SalaService {
 		
 	}
 	
-	public Sala entraSala(Long id, String codigo) {
-		//TODO Terminar 
-		if (buscaSalaCodigo(codigo).getAberta()) {
-			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();
-			
-			Sala sala = buscaSalaCodigo(codigo);
-			
-			if(sala == null) {
-				return null;
-			}
-			
-			historicoSalaUsuario.setSala(buscaSalaCodigo(codigo));
+	public ResponseEntity<?> entraSala(Long id, String codigo) {
+
+		Optional<Sala> sala = buscaSalaCodigo(codigo);	
+		
+		if(!sala.isPresent()) 
+			throw new EmptyResultDataAccessException(1);
+	
+		
+		if (sala.get().getAberta()) {
+			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
+			historicoSalaUsuario.setSala(sala.get());
 			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
 			historicoRepository.save(historicoSalaUsuario);	
+			
+			return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);
+			
 		}else {
-			//sala ta fechada
+			String mensagemUsuario = messageSource.getMessage("recurso.nao-criado", null, LocaleContextHolder.getLocale());
+			List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);			
 		}
-		return null;
+		
+		
 	}
 	
 	public Sala buscaSala(Long id) {
@@ -66,17 +78,16 @@ public class SalaService {
 		}
 	}
 	
-	public Sala buscaSalaCodigo(String codigo) {
+	public Optional<Sala> buscaSalaCodigo(String codigo) {
 		Optional<Sala> sala = salaRepository.findByCodigoEquals(codigo);	
-		if(sala.isPresent()) {			
-			return sala.get();
-		}else {
-			return null;
-		}
+		return sala;
 	}
 	
 	public BigDecimal fecharParcial(Long id, Long idU) {
 		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, idU);
+		if(historicoSalaUsuario == null)
+			throw new EmptyResultDataAccessException(1);
+		
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		historicoSalaUsuario.setData_saida(timestamp);
 		historicoRepository.save(historicoSalaUsuario);
@@ -86,8 +97,12 @@ public class SalaService {
 
 	public BigDecimal contaParcial(Long id, Long idU) {
 		BigDecimal total = BigDecimal.ZERO;
-		BigDecimal totalPedido = BigDecimal.ZERO;
-		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);
+		BigDecimal totalPedido = BigDecimal.ZERO;		
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);	
+		
+		if(pedidoUsuario.isEmpty())
+			return new BigDecimal(0);
+		
 		Long usuarioPorPedido;
 		for (TotalPedido pedido : pedidoUsuario) {
 			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));

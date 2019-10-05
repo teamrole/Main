@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("irole")
 public class ApiIroleProperty {
 
-	private String originPermitida = "*";
+	private String originPermitida = "http://localhost:8080";
 
 	private final Seguranca seguranca = new Seguranca();
 
