@@ -43,7 +43,7 @@ public class SalaController {
 	@PostMapping
 	public ResponseEntity<Sala> criarSala(HttpServletResponse response){
 		Sala novaSala = new Sala();
-		novaSala.setCodigo(RandomStringUtils.randomAlphanumeric(5));
+		novaSala.setCodigo(RandomStringUtils.randomAlphanumeric(4));
 		salaRepository.save(novaSala);
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novaSala.getId()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
