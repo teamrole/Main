@@ -55,7 +55,11 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="red darken1" text @click="dialogSala = false;inputDialog='';Erros.fieldMsg=''">Cancelar</v-btn>
+          <v-btn
+            color="red darken1"
+            text
+            @click="dialogSala = false;inputDialog='';Erros.fieldMsg=''"
+          >Cancelar</v-btn>
           <div class="flex-grow-1"></div>
           <v-btn color="green darken1" text @click="confirmaSala()">Confirmar</v-btn>
         </v-card-actions>
@@ -73,26 +77,23 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-
   </v-content>
 </template>
 
 <script>
 export default {
   methods: {
-    alertaErro(msg){
+    alertaErro(msg) {
       this.alertaErroMsg = msg;
       this.dialogErro = true;
     },
     verificaCampoKeyUp() {
-
       if (this.dialogType.includes("Novo Role")) {
         if (!(this.inputDialog.length < 4 || this.inputDialog.length > 20)) {
           this.Erros.fieldMsg = "";
         }
       } else if (this.dialogType.includes("Entrar em um Role")) {
-        this.inputDialog = this.inputDialog.replace(/ /g, '')
+        this.inputDialog = this.inputDialog.replace(/ /g, "");
         if (this.inputDialog.length > 4) {
           this.inputDialog = this.inputDialog.substr(0, 4);
           this.Erros.fieldMsg = "";
@@ -102,29 +103,28 @@ export default {
     confirmaSala() {
       if (this.dialogType.includes("Novo Role")) {
         if (this.inputDialog.length < 4 || this.inputDialog.length > 20) {
-          this.Erros.fieldMsg = "O nome do role deve possuir entre 4 e 20 letras";
+          this.Erros.fieldMsg =
+            "O nome do role deve possuir entre 4 e 20 letras";
           return;
         }
         this.Erros.fieldMsg = "";
-        
+
         let reqJSON = {
           usuario: JSON.parse(localStorage.getItem("USER")),
           nomeDoRole: this.inputDialog
-        }
+        };
 
         console.log("REQUISICAO BACK PARA CRIAR A SALA");
         console.log("REQJSON: " + JSON.stringify(reqJSON));
 
         //IF RETORNO É OK, REDIRECIONA PARA A TELA DE ROLE
 
-        if(this.inputDialog == "ROLE"){
-          this.$router.push('Lobby')
-        }else{
+        if (this.inputDialog == "ROLE") {
+          this.$router.push("Lobby");
+        } else {
           this.alertaErro("Erro Ao criar o Role");
         }
-
       } else if (this.dialogType.includes("Entrar em um Role")) {
-        
         if (this.inputDialog.length != 4) {
           this.Erros.fieldMsg = "O codigo do role deve possuir 4 digitos";
           return;
@@ -134,15 +134,15 @@ export default {
         let reqJSON = {
           usuario: JSON.parse(localStorage.getItem("USER")),
           codigoDoRole: this.inputDialog
-        }
-        
+        };
+
         console.log("REQUISICAO BACK PARA ENTRAR NA SALA");
         console.log("REQJSON: " + JSON.stringify(reqJSON));
 
         //IF RETORNO É OK, REDIRECIONA PARA A TELA DE ROLE
-        if(this.inputDialog == "6669"){
-          this.$router.push('Lobby')
-        }else{
+        if (this.inputDialog == "6669") {
+          this.$router.push("Lobby");
+        } else {
           this.Erros.fieldMsg = "O codigo do role é invalido";
         }
       }
@@ -156,8 +156,8 @@ export default {
       dialogType: "",
       alertaErroMsg: "Erro",
       classePopup: "",
-      Erros:{
-        fieldMsg:""
+      Erros: {
+        fieldMsg: ""
       }
     };
   }
@@ -172,7 +172,7 @@ export default {
 .c-right {
   justify-content: right;
 }
-.c-decoration-none{
+.c-decoration-none {
   text-decoration: none;
 }
 </style>
