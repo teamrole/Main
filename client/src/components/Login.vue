@@ -71,7 +71,7 @@ import { mask } from "vue-the-mask";
 export default {
   methods: {
     verificaCodKeyUp() {
-      this.codigoAut = this.codigoAut.replace(/ /g, '')
+      this.codigoAut = this.codigoAut.replace(/ /g, "");
       if (this.codigoAut.length > 6) {
         this.codigoAut = this.codigoAut.substr(0, 6);
         this.Erros.fieldCodMsg = "";
@@ -82,23 +82,22 @@ export default {
         this.Erros.fieldCodMsg = "O Código deve possuir 6 Digitos";
       } else {
         this.Erros.fieldCodMsg = "";
-        console.log('REQUISIÇÃO GET PARA O BACKEND VALIDANDO CODIGO');
+        console.log("REQUISIÇÃO GET PARA O BACKEND VALIDANDO CODIGO");
 
         //Caso codigo for validado pelo backend
-        if(this.codigoAut == '666969'){
+        if (this.codigoAut == "666969") {
           let user = {
             telefone: this.userTel,
             codigo: this.codigoAut
           };
           localStorage.setItem("USER", JSON.stringify(user));
           //Redireciona para a home
-          this.$router.push('Home');
+          this.$router.push("Home");
         }
         //Caso codigo nao for validado pelo backend
-        else{
+        else {
           this.Erros.fieldCodMsg = "Código inserido inválido";
         }
-
       }
     },
     verificaTel() {
@@ -107,7 +106,7 @@ export default {
       } else {
         this.Erros.fieldTelMsg = "";
         this.dialogCod = true;
-        console.log("REQUISIÇÃO POST PARA BACKEND ENVIAR SMS")
+        console.log("REQUISIÇÃO POST PARA BACKEND ENVIAR SMS");
       }
     }
   },
@@ -124,14 +123,16 @@ export default {
       fieldCodMsg: ""
     }
   }),
-  created(){
-    if(localStorage.getItem("USER")){
+  created() {
+    if (localStorage.getItem("USER")) {
       let user = JSON.parse(localStorage.getItem("USER"));
-      console.log(user.telefone + " É O USUARIO LOGADO, GET PARA VALIDAR BACKEND");
+      console.log(
+        user.telefone + " É O USUARIO LOGADO, GET PARA VALIDAR BACKEND"
+      );
       //Revalida autenticação com backend
       //Caso revalidação OK redireciona para Home
       //Caso não, segue fluxo como novo usuario
-    } else{
+    } else {
       console.log("NOVO USUARIO");
     }
   }
