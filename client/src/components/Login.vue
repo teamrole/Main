@@ -92,6 +92,7 @@ export default {
           };
           localStorage.setItem("USER", JSON.stringify(user));
           //Redireciona para a home
+          this.$router.push('Home');
         }
         //Caso codigo nao for validado pelo backend
         else{
