@@ -1,3 +1,13 @@
 .c-login-cod input {
     text-align: center !important;
 }
+
+@media only screen and (max-width: 450px) {
+    .historico> .caption.c-data {
+      font-size: .7em !important;
+    }
+    .c-painelHeader> .title{
+        font-size: 1em !important; 
+    }
+
+  }

@@ -1,13 +1,13 @@
 <template>
   <v-expansion-panel>
-    <v-expansion-panel-header class="c-painelHeader" @click.stop>
-      <div class="col-9">
+    <v-expansion-panel-header @click.stop>
+      <div class="col-7 c-painelHeader">
         <span class="title">
           <v-icon color="#9c27b0">where_to_vote</v-icon>
           {{historico.role}}
         </span>
       </div>
-      <div class="col-3">
+      <div class="col-5 historico">
         <span class="caption c-data">
           <v-icon color="#9c27b0">calendar_today</v-icon>
           {{ historico.data }}
@@ -57,4 +57,10 @@ export default {
 .c-painelAtivo > .v-expansion-panel-content {
   background-color: #eee;
 }
+.c-painelHeader{
+  padding-left: 0;
+  padding-right: 0;
+}
+
+
 </style>
