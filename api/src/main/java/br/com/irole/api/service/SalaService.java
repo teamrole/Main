@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Item;
+import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
@@ -38,9 +40,9 @@ public class SalaService {
 			
 			
 	public void fecharSala(Long id) {
-		Sala buscaSala = buscaSala(id);
-		buscaSala.setAberta(false);
-		salaRepository.save(buscaSala);
+		Optional<Sala> buscaSala = salaRepository.findById(id);
+		buscaSala.get().setAberta(false);
+		salaRepository.save(buscaSala.get());
 		
 	}
 	
@@ -90,6 +92,7 @@ public class SalaService {
 		
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		historicoSalaUsuario.setData_saida(timestamp);
+		historicoSalaUsuario.setTotalParcial(contaParcial(id, idU));
 		historicoRepository.save(historicoSalaUsuario);
 		return contaParcial(id, idU);
 		
@@ -115,6 +118,15 @@ public class SalaService {
 		 * Optional<Usuario> usuario = usuarioRepository.findById(idU); Sala buscaSala =
 		 * buscaSala(id); List<Pedido> pedido = buscaSala.getPedido();
 		 */
+	}
+	
+	public BigDecimal totalSala(Long id) {
+		BigDecimal total = BigDecimal.ZERO;
+		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
+		for(HistoricoSalaUsuario sala : salas) {
+			total = total.add(sala.getTotalParcial());
+		}		
+		return total;
 	}
 	
 }

@@ -25,7 +25,6 @@ public class Sala {
 	
 	private Boolean aberta = true;	
 	
-	@NotNull
 	@Size(min = 4, max = 4)
 	private String codigo;
 

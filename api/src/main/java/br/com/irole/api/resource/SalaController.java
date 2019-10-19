@@ -1,6 +1,8 @@
 package br.com.irole.api.resource;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,7 +20,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.event.RecursoCriadoEvent;
+import br.com.irole.api.model.HistoricoSalaUsuario;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.model.Usuario;
+import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.SalaService;
 
@@ -28,6 +33,9 @@ public class SalaController {
 	
 	@Autowired
 	private SalaRepository salaRepository;
+	
+	@Autowired
+	private HistoricoSalaUsuarioRepository historicoRepository;
 	
 	@Autowired
 	private SalaService salaService;
@@ -67,9 +75,19 @@ public class SalaController {
 		 BigDecimal totalParcial = salaService.fecharParcial(id, idU);		 
 		 return totalParcial;
 	}	
+	
+	@GetMapping("/{id}/usuarios")
+	public ResponseEntity<List<Usuario>> usuariosSala(@PathVariable Long id){
+		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
+		List<Usuario> usuarios = new ArrayList<Usuario>();
+		for(HistoricoSalaUsuario historico : salas ) {
+			usuarios.add(historico.getUsuario());
+		}
+		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
+	}
 		
 	
-	@GetMapping("/{id}/{idU}/contaUsuario")
+	@PostMapping("/{id}/{idU}/contaUsuario")
 	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
 		BigDecimal totalParcial = salaService.contaParcial(id, idU);
 		return totalParcial;
