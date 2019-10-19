@@ -1,5 +1,6 @@
 package br.com.irole.api.model;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -31,6 +33,38 @@ public class HistoricoSalaUsuario {
 	
 	@Column(name = "data_hora_saida")
 	private Timestamp data_saida;
+	
+	private BigDecimal totalParcial; 
+	
+	@Transient
+	private BigDecimal totalSala; 
+	
+	@Transient
+	private Long totalUsuarios; 
+
+	public Long getTotalUsuarios() {
+		return totalUsuarios;
+	}
+
+	public void setTotalUsuarios(Long totalUsuarios) {
+		this.totalUsuarios = totalUsuarios;
+	}
+
+	public BigDecimal getTotalSala() {
+		return totalSala;
+	}
+
+	public void setTotalSala(BigDecimal totalSala) {
+		this.totalSala = totalSala;
+	}
+
+	public BigDecimal getTotalParcial() {
+		return totalParcial;
+	}
+
+	public void setTotalParcial(BigDecimal totalParcial) {
+		this.totalParcial = totalParcial;
+	}
 
 	public Long getId() {
 		return id;

@@ -1,0 +1,1 @@
+alter table historico_sala_usuario add column total_parcial decimal(10,2) NULL;
