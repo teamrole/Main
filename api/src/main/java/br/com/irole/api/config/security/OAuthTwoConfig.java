@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +19,7 @@ import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecur
 @EnableResourceServer
 @EnableGlobalMethodSecurity(prePostEnabled=true)
 public class OAuthTwoConfig extends  ResourceServerConfigurerAdapter{
-	
-	//configuração de autenticação (usuário e senha) definidos em WebSecurityConfigurerAdpaterCustom
-		
-	//configuração de autorizações (bloquear / liberar recursos)
-		
+			
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()

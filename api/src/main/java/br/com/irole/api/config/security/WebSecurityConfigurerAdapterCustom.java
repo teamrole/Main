@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,12 +34,7 @@ public class WebSecurityConfigurerAdapterCustom extends WebSecurityConfigurerAda
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     } 
-    /*
-    @Bean
-    public static NoOpPasswordEncoder passwordEncoder() {
-     return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
-    }    
-	*/
+    
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 	    return new BCryptPasswordEncoder();

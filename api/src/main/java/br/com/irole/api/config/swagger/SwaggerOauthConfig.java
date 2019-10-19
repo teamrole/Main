@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.swagger;
 
 import java.util.List;
 
@@ -38,6 +38,7 @@ public class SwaggerOauthConfig extends SwaggerConfig{
           .apis(RequestHandlerSelectors.basePackage("br.com.irole.api.resource"))
           .paths(PathSelectors.any())
           .build()
+          .apiInfo(apiInfo())
           .securityContexts(Lists.newArrayList(securityContext()))
           .securitySchemes(Lists.newArrayList(apiKey()));
     }

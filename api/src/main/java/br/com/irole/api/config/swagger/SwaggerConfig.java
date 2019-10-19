@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.swagger;
 
 import java.util.List;
 

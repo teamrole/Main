@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.security;
 
 import java.util.Arrays;
 

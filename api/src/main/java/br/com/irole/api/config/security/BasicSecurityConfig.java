@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +29,7 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
+			.antMatchers("/swagger-ui.html","/swagger-resources/**", "/webjars/**", "/v2/api-docs").permitAll()
 			.anyRequest().authenticated()
 			.and()
 			.httpBasic()

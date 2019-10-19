@@ -1,4 +1,4 @@
-package br.com.irole.api.config;
+package br.com.irole.api.config.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,6 @@ public class SwaggerBasicConfig extends SwaggerConfig {
 		          .apis(RequestHandlerSelectors.basePackage("br.com.irole.api.resource"))
 		          .build()
 		          .apiInfo(apiInfo());
-
 	}
 
 }
