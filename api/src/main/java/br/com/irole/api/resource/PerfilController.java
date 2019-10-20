@@ -18,6 +18,7 @@ import br.com.irole.api.event.RecursoCriadoEvent;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.PerfilRepository;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/perfis")
@@ -33,6 +34,7 @@ public class PerfilController {
 	private ApplicationEventPublisher publisher;
 	
 	@PostMapping
+	@ApiOperation(notes = "Cadastra perfil passando um objeto Perfil no corpo", value = "Registra Perfil")
 	public ResponseEntity<Perfil> cadastrarPerfil(@Valid @RequestBody Perfil perfil, HttpServletResponse response){
 		Perfil novoPerfil = perfilRepository.save(perfil);
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novoPerfil.getId()));
@@ -40,6 +42,7 @@ public class PerfilController {
 	}
 	
 	@PutMapping("/{id}")
+	@ApiOperation(notes = "Edita dados do perfil, passando um objeto Perfil no corpo e o ID do perfil à ser alterado via URI", value = "Edita Perfil")
 	public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @Valid @RequestBody Perfil perfil){
 			ResponseEntity<Usuario> usuarioSalvo = perfilService.atualizar(id, perfil);
 			return usuarioSalvo;    

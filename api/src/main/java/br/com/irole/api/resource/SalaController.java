@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,8 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.SalaService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/salas")
@@ -44,6 +47,7 @@ public class SalaController {
 	private ApplicationEventPublisher publisher;
 	
 	@GetMapping("/{id}")
+	@ApiOperation(notes = "Busca sala pelo ID", value = "Busca sala")
 	public ResponseEntity<Sala> buscaSalaId(@PathVariable Long id) {
 		Sala sala = salaService.buscaSala(id);
 		
@@ -55,6 +59,7 @@ public class SalaController {
 	}
 	
 	@PostMapping
+	@ApiOperation(notes = "Cria uma nova sala e gera um código. Nenhum parâmetro é necessário", value = "Criar Sala")
 	public ResponseEntity<Sala> criarSala(HttpServletResponse response){
 		Sala novaSala = new Sala();
 		novaSala.setCodigo(RandomStringUtils.randomAlphanumeric(4));
@@ -64,19 +69,24 @@ public class SalaController {
 	}
 	
 	@PutMapping("/entrar/{idU}/{codigo}")
-	public ResponseEntity<?> entrarSala(@PathVariable Long idU, @PathVariable String codigo,
+	@ApiOperation(notes = "Entra numa sala usando o código/QR Code como parâmetro URI", value = "Entrar na sala")
+	public ResponseEntity<?> entrarSala(
+			@PathVariable @ApiParam(name = "ID do usuário", required = true) Long idU, 
+			@PathVariable @ApiParam(name = "Código", value = "Código criado quando a sala é gerada", required = true)  String codigo,
 			HttpServletResponse response) {
 		
 		return salaService.entraSala(idU,codigo);
 	}
 	
-	@GetMapping("/{id}/{idU}/fecharConta")
+	@PostMapping("/{id}/{idU}/fecharConta")
+	@ApiOperation(notes = "Fecha a conta de um usuário específico; ID da sala; ID do usuário na URI", value = "Fechar conta de um usuário")
 	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idU) {
 		 BigDecimal totalParcial = salaService.fecharParcial(id, idU);		 
 		 return totalParcial;
 	}	
 	
 	@GetMapping("/{id}/usuarios")
+	@ApiOperation(notes = "Mostra todos os usários cadastrados numa sala, ID da Sala na URI", value = "Lista usuários da sala")
 	public ResponseEntity<List<Usuario>> usuariosSala(@PathVariable Long id){
 		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
 		List<Usuario> usuarios = new ArrayList<Usuario>();
@@ -87,14 +97,16 @@ public class SalaController {
 	}
 		
 	
-	@PostMapping("/{id}/{idU}/contaUsuario")
+	@GetMapping("/{id}/{idU}/contaUsuario")
+	@ApiOperation(notes = "Retorna os gastos de um usuário específico dentro de uma sala", value = "Retorna Conta do usuário")
 	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
 		BigDecimal totalParcial = salaService.contaParcial(id, idU);
 		return totalParcial;
 	}	
 		
-	@PutMapping("/{id}/fechar")
+	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(notes = "Troca a flag da sala para fechada", value = "Fechar sala")
 	public void fechaSala(@PathVariable Long id) {
 		salaService.fecharSala(id);
 	}

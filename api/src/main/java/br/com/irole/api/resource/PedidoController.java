@@ -22,6 +22,7 @@ import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.PedidoService;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -37,6 +38,7 @@ public class PedidoController {
 	private ApplicationEventPublisher publisher;
 	
 	@GetMapping("salas/{id}")
+	@ApiOperation(notes = "Retorna uma lista de pedidos pelo ID da sala (URI)", value = "Capturar pedidos")
 	public ResponseEntity<List<Pedido>> listarPedido(@PathVariable Long id){
 		Optional<Sala> salaOP = SalaRepository.findById(id);
 		if(!salaOP.isPresent())
@@ -48,7 +50,9 @@ public class PedidoController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<List<Pedido>> cadastrar(@Valid @RequestBody Sala sala, HttpServletResponse response){	
+	@ApiOperation(notes = "Cadastra um ou mais pedidos, passando um objeto Sala no corpo, contendo os pedidos", value = "Registrar pedidos")
+	public ResponseEntity<List<Pedido>> cadastrar(	@Valid @RequestBody Sala sala, HttpServletResponse response){	
+		
 		List<Pedido> novoPedido = pedidoService.salvarPedido(sala);
 		
 		for(Pedido pedido: novoPedido) {

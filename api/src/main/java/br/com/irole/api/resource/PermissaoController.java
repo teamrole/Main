@@ -29,6 +29,7 @@ import br.com.irole.api.repository.UsuarioRepository;
 import br.com.irole.api.repository.carga.CargaPeloId;
 import br.com.irole.api.repository.customizado.IUsuarioPermissao;
 import br.com.irole.api.repository.customizado.IUsuarioPermissao.UsuarioPermissao;
+import io.swagger.annotations.ApiOperation;
 
 @RequestMapping("permissoes")
 @RestController
@@ -47,6 +48,7 @@ public class PermissaoController {
 	private IUsuarioPermissao iUsuarioPermissao;
 	
 	@GetMapping
+	@ApiOperation(notes = "Lista todas as permissões cadastrada no sistema", value = "Lista Permissões")
 	public ResponseEntity<List<Permissao>> listarPermissoes() {
 			
 		List<Permissao> permissoes = permissaoRepository.findAll();
@@ -55,6 +57,7 @@ public class PermissaoController {
 	}
 	
 	@GetMapping("/{id}")
+	@ApiOperation(notes = "Busca permissão usando ID Permissão na URI", value = "Busca Permissões")
 	public ResponseEntity<Permissao> buscarPermissao(@PathVariable Long id){
 		Optional<Permissao> permissaoOP = permissaoRepository.findById(id);
 		if(permissaoOP.isPresent()) {
@@ -64,6 +67,7 @@ public class PermissaoController {
 	}
 
 	@GetMapping("usuarios/{id}")
+	@ApiOperation(notes = "Lista todas as permissões de um usuário (ID do usuário na URI)", value = "Lista Permissões do usuário")
 	public ResponseEntity<List<Permissao>> permissaoDoUsuario(@PathVariable Long id){
 		List<Permissao> permissoesDoUsuario = iUsuarioPermissao.findPermissaoByUsuarioID(id);
 		
@@ -73,6 +77,7 @@ public class PermissaoController {
 	
 	
 	@PostMapping
+	@ApiOperation(notes = "Cria uma nova permissão", value = "Registra uma Permissão")
 	public ResponseEntity<Permissao> salvarPermissao(@Valid @RequestBody Permissao permissao, 
 			HttpServletResponse httpServletResponse){
 		
@@ -84,6 +89,7 @@ public class PermissaoController {
 	
 	//FIXME: Tratar exceção para quando o usuário já possui a permissão (Duplicate entry for key 'primary')
 	@PostMapping("usuarios/{id}")
+	@ApiOperation(notes = "Cadastra várias permissões para um usuário de uma vez, no corpo é recebido uma lista de ID de permissão", value = "Carga Permissão Usuário")
 	public ResponseEntity<List<Permissao>> cargaPermissaoParaUsuario(@PathVariable Long id,
 			@RequestBody CargaPeloId carga, HttpServletResponse response){
 		
@@ -117,6 +123,7 @@ public class PermissaoController {
 	
 	//FIXME: Tratar exceção para quando o usuário já possui a permissão (Duplicate entry for key 'primary')
 	@PostMapping("{id}/usuarios/{u}")
+	@ApiOperation(notes = "Insere UMA permissão para um usuário, ID da permissão e ID do usuário na URI", value = "Atribuí uma permissão ao usuário")
 	public ResponseEntity<UsuarioPermissao> usuarioRecebeUmaPermissao(@PathVariable Long id,
 			@PathVariable Long u , HttpServletResponse response){
 		
@@ -145,6 +152,7 @@ public class PermissaoController {
 	@Transactional
 	@DeleteMapping("{id}/usuarios/{user_id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ApiOperation(notes = "Remove uma permissão do usuário,  ID da permissão e ID do usuário na URI", value = "Remove  Permissão do usuário")
 	public void remove(@PathVariable Long id, @PathVariable Long user_id) {
 				
 		iUsuarioPermissao.deleteByUserAndPermissao(user_id, id);

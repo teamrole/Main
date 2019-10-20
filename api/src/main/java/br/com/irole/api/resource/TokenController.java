@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.config.property.ApiIroleProperty;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/tokens")
@@ -21,6 +22,7 @@ public class TokenController {
 	
 	//logout, removendo token do cookie
 	@DeleteMapping("/revoke")
+	@ApiOperation(notes = "Logout do Oauth2", value = "Logout")
 	public void revoke(HttpServletRequest req, HttpServletResponse res) {
 		Cookie cookie = new Cookie("refreshToken", null);
 		cookie.setHttpOnly(true);
