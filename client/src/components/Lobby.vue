@@ -36,7 +36,6 @@
           <v-avatar tile size="20px">
             <!-- <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img> -->
             <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img>
-
           </v-avatar>
 
           <v-list-item-content class="c-list-item-content">
@@ -52,7 +51,9 @@
 
           <v-list-item-icon style="display:inline-block">
             <v-icon class="c-secundary">monetization_on</v-icon>
-            <span class="c-secundary c-item-preco">{{parseFloat(pedido.item.valor * pedido.quantidade).toFixed(2)}}</span>
+            <span
+              class="c-secundary c-item-preco"
+            >{{parseFloat(pedido.item.valor * pedido.quantidade).toFixed(2)}}</span>
 
             <v-btn class="c-nopadding" :ripple="false" icon small text @click="editarItem(pedido)">
               <v-icon class="c-secundary">edit</v-icon>
@@ -114,11 +115,11 @@
                     item-text="nome"
                     item-value="id"
                     label="Pagantes"
-                    v-model="itemSendoEditado.pessoas"
+                    v-model="itemSendoEditado.perfil"
                     small-chips
                     multiple
                     required
-                    @blur="selectErro = itemSendoEditado.pessoas.length <= 0"
+                    @blur="selectErro = itemSendoEditado.perfil.length <= 0"
                   >
                     <v-btn slot="prepend-item" color="primary" block @click="toggleSelect">Todos</v-btn>
                   </v-select>
@@ -152,7 +153,7 @@
           <br />
           Preço:{{itemSendoEditado.preco}}
           <br />
-          Pagantes: {{itemSendoEditado.pessoas.length}}
+          Pagantes: {{itemSendoEditado.perfil.length}}
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -302,12 +303,14 @@ export default {
       //calcula total do role
       let vm = this;
       vm.totalDoRole = 0;
-      this.items.map(a => (vm.totalDoRole += (a.preco * a.quantidade)));
+      this.items.map(a => (vm.totalDoRole += a.preco * a.quantidade));
 
       //calcula parcial do role
       vm.totalPessoal = 0;
       this.items.map(
-        a => (vm.totalPessoal += a.pessoas.includes(vm.idPessoa) ? (a.preco * a.quantidade) : 0)
+        a =>
+          (vm.totalPessoal +=
+            a.perfil.id == vm.idPessoa ? a.preco * a.quantidade : 0)
       );
     },
     novoItem() {
@@ -317,7 +320,7 @@ export default {
         tipo: "outros",
         descricao: null,
         preco: null,
-        pessoas: []
+        perfil: []
       };
       this.dialog.Edit = true;
     },
@@ -327,7 +330,7 @@ export default {
       this.precoErro = item.preco <= 0;
       console.log(this.precoErro);
       //valida pagantes
-      this.selectErro = item.pessoas.length <= 0;
+      this.selectErro = item.perfil.length <= 0;
 
       if (!this.precoErro && !this.selectErro) {
         this.precoErro = false;
@@ -336,6 +339,36 @@ export default {
           console.log("REQUISIÇÃO POST PARA BACKEND");
           //No response Atualizar itens
           this.recalculaTotal();
+
+          axios
+            .post("http://54.159.203.154/pedidos", {
+              id: 1,
+              pedido: [
+                {
+                  item: {
+                    nome: "teste",
+                    valor: 12.2
+                  },
+                  quantidade: 2,
+                  perfil: [
+                    {
+                      id: 1
+                    }
+                  ]
+                }
+              ]
+            },{
+              auth: { username: "43999032081", password: "admin" }
+            })
+            .then(
+              response => {
+                this.items = response.data;
+              },
+              error => {
+                console.log(error);
+              }
+            );
+
           return true;
         } else if (this.AcaoItem == "Editar") {
           let alteraIndex = this.items.findIndex(x => x.id === item.id);
@@ -384,16 +417,50 @@ export default {
       this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
-       axios
-         .get('http://10.64.41.72:6969/pedidos/salas/1', {auth:{username:'43999032081', password:'admin'}})
-         .then(
-           (response) => {this.items =  response.data},
-           (error) => {console.log(error.data)}
-           )
-         
+      //Carrega itens da sala
+      axios
+        .get(`http://54.159.203.154/pedidos/salas/${this.idSala}`, {
+          auth: { username: "43999032081", password: "admin" }
+        })
+        .then(
+          response => {
+            this.items = response.data;
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
 
       console.log("Requisição backend para atualizar os itens");
+
       this.recalculaTotal();
+
+      axios
+        .post(`http://54.159.203.154/salas/${this.idSala}/usuarios`, {
+          auth: { username: "43999032081", password: "admin" }
+        })
+        .then(
+          response => {
+            // this.items =  response.data;
+            console.log(JSON.stringify(response.data));
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
+
+      /*axios
+        .put(`http://54.159.203.154/salas/entrar/1/ZXg9`, {
+          auth: { username: "43999032081", password: "admin" }
+        })
+        .then(
+          response => {
+            console.log(response);
+          },
+          error => {
+            console.log(error);
+          }
+        );*/
     }
   },
   components: {
@@ -403,7 +470,8 @@ export default {
     return {
       totalPessoal: 0,
       totalDoRole: 0,
-      codigoDaSala: "177013",
+      codigoDaSala: "",
+      idSala: 1,
       precoErro: false,
       selectErro: false,
       dialog: {
@@ -422,14 +490,14 @@ export default {
         descricao: null,
         preco: null,
         quantidade: null,
-        pessoas: []
+        perfil: [1]
       },
       items: [...itemsJson],
       pessoas: [...pessoasJson],
       idPessoa: 1,
       intervaloAtualiza: setInterval(() => {
         this.atualizaJson();
-      }, 200000)
+      }, 100000000000)
     };
   },
   mounted() {
