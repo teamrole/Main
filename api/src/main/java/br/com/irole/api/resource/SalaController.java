@@ -71,8 +71,8 @@ public class SalaController {
 	@PutMapping("/entrar/{idU}/{codigo}")
 	@ApiOperation(notes = "Entra numa sala usando o código/QR Code como parâmetro URI", value = "Entrar na sala")
 	public ResponseEntity<?> entrarSala(
-			@PathVariable @ApiParam(name = "ID do usuário", required = true) Long idU, 
-			@PathVariable @ApiParam(name = "Código", value = "Código criado quando a sala é gerada", required = true)  String codigo,
+			@ApiParam(name = "ID do usuário", required = true) @PathVariable Long idU, 
+			@ApiParam(name = "Código", value = "Código criado quando a sala é gerada", required = true) @PathVariable String codigo,
 			HttpServletResponse response) {
 		
 		return salaService.entraSala(idU,codigo);
