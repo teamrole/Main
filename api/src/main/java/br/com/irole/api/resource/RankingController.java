@@ -1,47 +1,46 @@
 package br.com.irole.api.resource;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.irole.api.model.HistoricoSalaUsuario;
-import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
+import br.com.irole.api.repository.HistoricoSalaUsuarioRepository.Ranking;
+import br.com.irole.api.service.RankingService;
 
-@RestController("/rankings")
+@RestController
+@RequestMapping("rankings")
 public class RankingController {
 	
 	@Autowired
-	HistoricoSalaUsuarioRepository historicoRepository;
+	private RankingService rankingService;
 	
-	@RequestMapping("/usuarios/{id}/query")
-	public ResponseEntity<List<HistoricoSalaUsuario>> getRanking(@PathVariable Long user_id, @PathVariable String query) {
+	@GetMapping
+	public ResponseEntity<List<Ranking>> getRanking() {
 		
-		String filter_query = "";		
-		Timestamp hoje = new Timestamp(System.currentTimeMillis());
+		List<Ranking> ranking  = rankingService.rankingTodos();
 		
-		switch (query) {
-		case "dia":
-			filter_query = "and h.data_entrada <= "+ hoje +" and "+hoje+" <= h.data_saida" ; 
-			break;
-			
-		case "mes":
-			
-			break;		
-
-		default:
-			//todos os roles
-			
-			break;
-		}
+		return (!ranking.isEmpty()) ? ResponseEntity.ok(ranking) : ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping("/dia")
+	public ResponseEntity<List<Ranking>> getRankingDia() {
 		
-		List<HistoricoSalaUsuario> historico = historicoRepository.buscaComFiltro(user_id, filter_query);
+		//Pega o rankings de pessoas que participaram em mais roles hoje, contabiliza somente as salas já fechadas		
+		List<Ranking> ranking  = rankingService.rankingDia();
 		
-		return ResponseEntity.ok(historico);
+		return (!ranking.isEmpty()) ? ResponseEntity.ok(ranking) : ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping("/mes")
+	public ResponseEntity<List<Ranking>> getRankingMes() {
+		
+		List<Ranking> ranking = rankingService.rankingMes();
+		
+		return (!ranking.isEmpty()) ? ResponseEntity.ok(ranking) : ResponseEntity.noContent().build();
 	}
 
 }
