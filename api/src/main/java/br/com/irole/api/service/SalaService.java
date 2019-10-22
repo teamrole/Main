@@ -121,10 +121,11 @@ public class SalaService {
 	}
 	
 	public BigDecimal totalSala(Long id) {
-		BigDecimal total = BigDecimal.ZERO;
+		BigDecimal total = new BigDecimal(0);
 		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
 		for(HistoricoSalaUsuario sala : salas) {
-			total = total.add(sala.getTotalParcial());
+			
+			total.add(sala.getTotalParcial());
 		}		
 		return total;
 	}

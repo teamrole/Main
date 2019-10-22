@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +45,9 @@ public class UsuarioController {
 	@Autowired
 	private ApplicationEventPublisher publisher;
 	
+	@Autowired
+	private BCryptPasswordEncoder codifica;
+	
 	@GetMapping
 	@ApiOperation(notes = "Lista todos os usuários cadastrados no sistema", value = "Listar usuários")
 	public ResponseEntity<?> listarUsuarios(){
@@ -54,6 +58,7 @@ public class UsuarioController {
 	@PostMapping
 	@ApiOperation(notes = "Cadastrar um novo usuário passando o objeto Usuário no corpo da requisição", value = "Registra usuário")
 	public ResponseEntity<Usuario> cadastrarUsuario(@Valid @RequestBody Usuario usuario, HttpServletResponse response){
+		usuario.setSenha(codifica.encode(usuario.getSenha()));
 		Usuario novoUsuario = usuarioRepository.save(usuario);
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novoUsuario.getId()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
