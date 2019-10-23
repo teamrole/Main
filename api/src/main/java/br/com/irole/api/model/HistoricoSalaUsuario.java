@@ -34,7 +34,7 @@ public class HistoricoSalaUsuario {
 	@Column(name = "data_hora_saida")
 	private Timestamp data_saida;
 	
-	private BigDecimal totalParcial; 
+	private BigDecimal totalParcial = new BigDecimal(0); 
 	
 	@Transient
 	private BigDecimal totalSala; 
