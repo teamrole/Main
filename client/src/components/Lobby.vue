@@ -41,7 +41,7 @@
           <v-list-item-content class="c-list-item-content">
             <v-list-item-title
               class="c-item-lista"
-              v-text="pedido.quantidade + 'x ' + (pedido.item.nome ? pedido.item.nome : 'pedido.item.tipo')"
+              v-text="pedido.quantidade + 'x ' + (pedido.item.nome ? pedido.item.nome : pedido.item.tipo)"
             ></v-list-item-title>
             <span class="c-item-lista">
               <b>{{pedido.perfil.length}}</b>
@@ -86,7 +86,7 @@
             <v-container>
               <v-row>
                 <v-col cols="8">
-                  <v-text-field label="Descrição (Opcional)" v-model="itemSendoEditado.descricao"></v-text-field>
+                  <v-text-field label="Descrição (Opcional)" v-model="itemSendoEditado.nome"></v-text-field>
                 </v-col>
                 <v-col cols="4">
                   <v-text-field type="number" label="Qtd" v-model="itemSendoEditado.quantidade"></v-text-field>
@@ -147,7 +147,7 @@
       <v-card>
         <v-card-title
           class="headline"
-        >{{itemSendoEditado.descricao ? itemSendoEditado.descricao : itemSendoEditado.tipo}}</v-card-title>
+        >{{itemSendoEditado.nome ? itemSendoEditado.nome : itemSendoEditado.tipo}}</v-card-title>
         <v-card-text>
           Quantidade:{{itemSendoEditado.quantidade}}
           <br />
@@ -318,7 +318,7 @@ export default {
       this.itemSendoEditado = {
         id: null,
         tipo: "outros",
-        descricao: null,
+        nome: null,
         preco: null,
         perfil: []
       };
@@ -326,6 +326,7 @@ export default {
     },
     salvarItem(item) {
       //valida preco
+      console.log(item);  
       item.preco = parseFloat(item.preco) || 0;
       this.precoErro = item.preco <= 0;
       console.log(this.precoErro);
@@ -334,30 +335,35 @@ export default {
 
       if (!this.precoErro && !this.selectErro) {
         this.precoErro = false;
+        this.selectErro = false;
         if (this.AcaoItem == "Novo") {
-          this.items.push(item);
           console.log("REQUISIÇÃO POST PARA BACKEND");
           //No response Atualizar itens
           this.recalculaTotal();
-
+          let vm = this.itemSendoEditado.nome + '';
           axios
-            .post("http://54.159.203.154/pedidos", {
+            .post("http://54.159.203.154/pedidos", 
+            {
               id: 1,
               pedido: [
                 {
                   item: {
-                    nome: "teste",
-                    valor: 12.2
+                    nome: vm,
+                    valor: 1.2
                   },
-                  quantidade: 2,
+                  quantidade: 1,
                   perfil: [
                     {
-                      id: 1
+                      id: 1,
+                      usuario: {
+                          id: 1
+                        }
                     }
                   ]
                 }
               ]
-            },{
+            }
+            ,{
               auth: { username: "43999032081", password: "admin" }
             })
             .then(
@@ -435,19 +441,7 @@ export default {
 
       this.recalculaTotal();
 
-      axios
-        .post(`http://54.159.203.154/salas/${this.idSala}/usuarios`, {
-          auth: { username: "43999032081", password: "admin" }
-        })
-        .then(
-          response => {
-            // this.items =  response.data;
-            console.log(JSON.stringify(response.data));
-          },
-          error => {
-            console.log(error.data);
-          }
-        );
+     
 
       /*axios
         .put(`http://54.159.203.154/salas/entrar/1/ZXg9`, {
@@ -487,12 +481,12 @@ export default {
       itemSendoEditado: {
         id: null,
         tipo: null,
-        descricao: null,
+        nome: null,
         preco: null,
         quantidade: null,
         perfil: [1]
       },
-      items: [...itemsJson],
+      items: [],
       pessoas: [...pessoasJson],
       idPessoa: 1,
       intervaloAtualiza: setInterval(() => {
