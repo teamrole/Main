@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +26,9 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.SalaService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/salas")
@@ -68,11 +68,15 @@ public class SalaController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
 	}
 	
-	@PutMapping("/entrar/{idU}/{codigo}")
+	@PostMapping("/entrar/{idU}/{codigo}")
 	@ApiOperation(notes = "Entra numa sala usando o código/QR Code como parâmetro URI", value = "Entrar na sala")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "idU", value = "ID do usuário", required = true, dataType = "Long", paramType="path"),
+		@ApiImplicitParam(name = "codigo", value = "Código criado quando a sala é gerada", required = true, dataType = "String", paramType="path")
+	})	
 	public ResponseEntity<?> entrarSala(
-			@PathVariable @ApiParam(name = "ID do usuário", required = true) Long idU, 
-			@PathVariable @ApiParam(name = "Código", value = "Código criado quando a sala é gerada", required = true)  String codigo,
+			@PathVariable Long idU, 
+		    @PathVariable String codigo,
 			HttpServletResponse response) {
 		
 		return salaService.entraSala(idU,codigo);
