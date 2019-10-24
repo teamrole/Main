@@ -25,6 +25,7 @@ public interface SalaRepository extends JpaRepository<Sala, Long>{
 	@Query(value= "SELECT count(perfil_id) from PEDIDO_PERFIL wHERE pedido_id = ?1", nativeQuery = true)
 	Long usuariosPorPedido(Long idP);
 	
+	
 	public interface TotalPedido {
 
 		 public BigDecimal getValor();
