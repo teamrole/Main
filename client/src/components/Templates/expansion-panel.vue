@@ -10,7 +10,7 @@
       <div class="col-5 historico">
         <span class="caption c-data">
           <v-icon color="#9c27b0">calendar_today</v-icon>
-          {{ historico.data }}
+          {{ historico.data_saida.day +'/'+ historico.data_saida.month +'/'+ historico.data_saida.year }}
         </span>
       </div>
     </v-expansion-panel-header>
@@ -33,9 +33,9 @@
           </p>
         </div>
         <div class="col-4 text-center">
-          <p class="text-center font-weight-bold">{{historico.quantidadeParticipantes}}</p> 
-          <p class="text-center font-weight-bold">{{historico.valorParcial}}</p>
-          <p class="text-center font-weight-bold">{{historico.valorTotal}}</p>
+          <p class="text-center font-weight-bold">{{historico.totalUsuarios}}</p> 
+          <p class="text-center font-weight-bold">{{historico.totalParcial}}</p>
+          <p class="text-center font-weight-bold">{{historico.totalSala}}</p>
         </div>
       </div>
     </v-expansion-panel-content>

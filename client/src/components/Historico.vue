@@ -5,7 +5,7 @@
       <v-col>
         <p class="text-center headline">Histórico de Rolês</p>
         <v-expansion-panels mobile-breakpoint="400" active-class="c-painelAtivo">
-          <t-expansion-panel :key="item.id" v-for="item in historicos" :historico="item"></t-expansion-panel>
+          <t-expansion-panel :key="item.id" v-for="item in items" :historico="item"></t-expansion-panel>
         </v-expansion-panels>
       </v-col>
     </v-row>
@@ -13,10 +13,12 @@
 </template>
 <script>
 import expansionPanel from "./Templates/expansion-panel";
+import axios from "axios";
 export default {
   data() {
     return {
-      historicos: []
+      historicos: [],
+      idUsuario : 1
     };
   },
   components: {
@@ -38,6 +40,23 @@ export default {
       {id: 7, data: "23/09/2019", role: "SantArena", quantidadeParticipantes: 3, valorTotal: 198.67,valorParcial: 26.96},
       {id: 8, data: "23/09/2019", role: "Maximus bar", quantidadeParticipantes: 6, valorTotal: 394.67,valorParcial: 92.13}
     ];
+  },
+   atualizaJson() {
+      //Carrega itens da sala
+      axios
+        .get(`http://54.159.203.154/historicos/usuarios/${this.idUsuario}`, {
+          auth: { username: "43999032081", password: "admin" }
+        })
+        .then(
+          response => {
+            this.items = response.data;
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
+      console.log("Requisição backend para atualizar os itens");
+      
   }
 };
 </script>
