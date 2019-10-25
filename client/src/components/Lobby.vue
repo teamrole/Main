@@ -27,14 +27,14 @@
         v-for="pessoa in pessoas"
         :key="pessoa.id"
         :nome="pessoa.nome"
-        :avatar="pessoa.avatar"
+        :avatar="pessoa.foto"
       />
     </div>
     <v-container class="c-list-container" fluid>
       <v-list class="c-list">
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
-            <!-- <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img> -->
+            <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img>
             <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img>
           </v-avatar>
 
@@ -342,16 +342,16 @@ export default {
           this.recalculaTotal();
           let vm = this.itemSendoEditado.nome + '';
           axios
-            .post("http://54.159.203.154/pedidos", 
+            .post("http://5localhost:6969/pedidos", 
             {
               id: 1,
               pedido: [
                 {
                   item: {
-                    nome: vm,
-                    valor: 1.2
+                    nome: this.itemSendoEditado.nome + '',
+                    valor: this.itemSendoEditado.valor
                   },
-                  quantidade: 1,
+                  quantidade: this.itemSendoEditado.quantidade,
                   perfil: [
                     {
                       id: 1,
@@ -425,7 +425,7 @@ export default {
     atualizaJson() {
       //Carrega itens da sala
       axios
-        .get(`http://54.159.203.154/pedidos/salas/${this.idSala}`, {
+        .get(`http://localhost:6969/pedidos/salas/${this.idSala}`, {
           auth: { username: "43999032081", password: "admin" }
         })
         .then(
@@ -443,18 +443,18 @@ export default {
 
      
 
-      /*axios
-        .put(`http://54.159.203.154/salas/entrar/1/ZXg9`, {
+      axios
+        .get(`http://localhost:6969/salas/${this.idSala}/usuarios`, {
           auth: { username: "43999032081", password: "admin" }
         })
         .then(
           response => {
-            console.log(response);
+            this.pessoas = response.data;
           },
           error => {
             console.log(error);
           }
-        );*/
+        );
     }
   },
   components: {
