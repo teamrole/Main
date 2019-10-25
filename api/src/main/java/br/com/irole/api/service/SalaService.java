@@ -41,6 +41,13 @@ public class SalaService {
 			
 	public void fecharSala(Long id) {
 		Optional<Sala> buscaSala = salaRepository.findById(id);
+		List<HistoricoSalaUsuario> usuarios = historicoRepository.findByIDSala(id);
+		for (HistoricoSalaUsuario usuario : usuarios) {
+			if (usuario.getData_saida() == null) {
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				usuario.setData_saida(timestamp);
+			}
+		}
 		buscaSala.get().setAberta(false);
 		salaRepository.save(buscaSala.get());
 		
@@ -49,21 +56,18 @@ public class SalaService {
 	public ResponseEntity<?> entraSala(Long id, String codigo) {
 
 		Optional<Sala> sala = buscaSalaCodigo(codigo);	
-		
+		HistoricoSalaUsuario salaAtiva = historicoRepository.findSalaAtiva(id);
 		if(!sala.isPresent()) 
-			throw new EmptyResultDataAccessException(1);
-	
+			throw new EmptyResultDataAccessException(1);	
 		
-		if (sala.get().getAberta()) {
-			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
-			historicoSalaUsuario.setSala(sala.get());
-			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
-			historicoRepository.save(historicoSalaUsuario);	
-			
-			return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);
-			
+		if (sala.get().getAberta() && salaAtiva == null) {
+				HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
+				historicoSalaUsuario.setSala(sala.get());
+				historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
+				historicoRepository.save(historicoSalaUsuario);	
+				return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);			
 		}else {
-			String mensagemUsuario = messageSource.getMessage("recurso.nao-criado", null, LocaleContextHolder.getLocale());
+			String mensagemUsuario = messageSource.getMessage("recurso.usuario-na-sala", null, LocaleContextHolder.getLocale());
 			List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);			
 		}

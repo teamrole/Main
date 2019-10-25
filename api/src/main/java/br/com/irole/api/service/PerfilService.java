@@ -33,12 +33,12 @@ public class PerfilService {
 	private PerfilRepository perfilRepository;
 	
 	
-	public Perfil atualizar(Long id, Perfil perfil) {
+	public Usuario atualizar(Long id, Perfil perfil) {
 		Optional<Perfil> buscaPerfil = perfilRepository.findById(id);
 		if (buscaPerfil.isPresent()) {
 			BeanUtils.copyProperties(perfil, buscaPerfil, "id");
 			perfilRepository.save(buscaPerfil.get());
-			return buscaPerfil.get();			
+			return buscaPerfil.get().getUsuario();			
 		}else {
 			throw new EmptyResultDataAccessException(1);
 		}
