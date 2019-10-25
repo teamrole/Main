@@ -25,7 +25,7 @@ public class HistoricoSalaUsuario {
 	private Sala sala;
 	
 	@ManyToOne
-	private Usuario usuario;
+	private Perfil perfil;
 	
 	@Column(name = "data_hora_entrada")
 	@CreationTimestamp
@@ -81,13 +81,13 @@ public class HistoricoSalaUsuario {
 	public void setSala(Sala sala) {
 		this.sala = sala;
 	}
-
-	public Usuario getUsuario() {
-		return usuario;
+	
+	public Perfil getPerfil() {
+		return perfil;
 	}
 
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
+	public void setPerfil(Perfil perfil) {
+		this.perfil = perfil;
 	}
 
 	public Timestamp getData_entrada() {

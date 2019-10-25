@@ -16,10 +16,11 @@ import org.springframework.stereotype.Service;
 
 import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.HistoricoSalaUsuario;
-import br.com.irole.api.model.Item;
-import br.com.irole.api.model.Pedido;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
+import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.repository.SalaRepository.TotalPedido;
 
@@ -36,9 +37,11 @@ public class SalaService {
 	private HistoricoSalaUsuarioRepository historicoRepository;
 	
 	@Autowired
+	private PerfilRepository perfilRepository;
+	
+	@Autowired
 	private MessageSource messageSource;
-			
-			
+				
 	public void fecharSala(Long id) {
 		Optional<Sala> buscaSala = salaRepository.findById(id);
 		buscaSala.get().setAberta(false);
@@ -55,9 +58,11 @@ public class SalaService {
 	
 		
 		if (sala.get().getAberta()) {
+			Usuario buscaUsuario = usuarioService.buscaUsuario(id);
+			
 			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
 			historicoSalaUsuario.setSala(sala.get());
-			historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
+			historicoSalaUsuario.setPerfil(buscaUsuario.getPerfil());
 			historicoRepository.save(historicoSalaUsuario);	
 			
 			return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);
@@ -86,7 +91,11 @@ public class SalaService {
 	}
 	
 	public BigDecimal fecharParcial(Long id, Long idU) {
-		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, idU);
+		
+		Usuario usuario = usuarioService.buscaUsuario(idU);
+		
+		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id, usuario.getPerfil().getId());
+		
 		if(historicoSalaUsuario == null)
 			throw new EmptyResultDataAccessException(1);
 		
@@ -99,9 +108,11 @@ public class SalaService {
 	}
 
 	public BigDecimal contaParcial(Long id, Long idU) {
+		Usuario usuario = usuarioService.buscaUsuario(idU);
+		
 		BigDecimal total = BigDecimal.ZERO;
 		BigDecimal totalPedido = BigDecimal.ZERO;		
-		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);	
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, usuario.getPerfil().getId());	
 		
 		if(pedidoUsuario.isEmpty())
 			return new BigDecimal(0);
@@ -128,6 +139,21 @@ public class SalaService {
 			total.add(sala.getTotalParcial());
 		}		
 		return total;
+	}
+	
+	public Boolean isUsuarioNaSala(Long id_sala, Perfil perfil) {
+		
+		Optional<Perfil> p = perfilRepository.findById(perfil.getId());
+		
+		if(!p.isPresent())
+			return false;
+		
+		HistoricoSalaUsuario salaUsuario = historicoRepository.findBySalaUsuario(id_sala, p.get().getUsuario().getId());
+		
+		if(salaUsuario != null)
+				return false;
+		
+		return true;
 	}
 	
 }

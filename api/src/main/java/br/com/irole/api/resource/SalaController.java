@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.event.RecursoCriadoEvent;
 import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.SalaService;
@@ -91,11 +91,11 @@ public class SalaController {
 	
 	@GetMapping("/{id}/usuarios")
 	@ApiOperation(notes = "Mostra todos os usários cadastrados numa sala, ID da Sala na URI", value = "Lista usuários da sala")
-	public ResponseEntity<List<Usuario>> usuariosSala(@PathVariable Long id){
+	public ResponseEntity<List<Perfil>> usuariosSala(@PathVariable Long id){
 		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
-		List<Usuario> usuarios = new ArrayList<Usuario>();
+		List<Perfil> usuarios = new ArrayList<Perfil>();
 		for(HistoricoSalaUsuario historico : salas ) {
-			usuarios.add(historico.getUsuario());
+			usuarios.add(historico.getPerfil());
 		}
 		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
 	}

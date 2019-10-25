@@ -2,16 +2,12 @@ package br.com.irole.api.service;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.irole.api.model.HistoricoSalaUsuario;
-import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository.Ranking;
 
