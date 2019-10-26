@@ -293,8 +293,7 @@
 
 <script>
 import avatar from "./Templates/avatar-lobby";
-import pessoasJson from "../assets/dados/Lobby-pessoas";
-import itemsJson from "../assets/dados/Lobby-items";
+import config from "../assets/dados/config";
 import axios from "axios";
 
 export default {
@@ -357,7 +356,7 @@ export default {
           });
           axios
             .post(
-              "http://localhost:6969/pedidos",
+              `http://${config.api.host}:${config.api.port}/pedidos`,
               {
                 id: this.idSala,
                 pedido: [
@@ -372,7 +371,7 @@ export default {
                 ]
               },
               {
-                auth: { username: "43999032081", password: "admin" }
+                auth: config.api.auth
               }
             )
             .then(
@@ -443,8 +442,8 @@ export default {
       
       //Carrega itens da sala
       axios
-        .get(`http://localhost:6969/pedidos/salas/${this.idSala}`, {
-          auth: { username: "43999032081", password: "admin" }
+        .get(`http://${config.api.host}:${config.api.port}/pedidos/salas/${this.idSala}`, {
+          auth: config.api.auth
         })
         .then(
           response => {
@@ -460,8 +459,8 @@ export default {
       this.recalculaTotal();
 
       axios
-        .get(`http://localhost:6969/salas/${this.idSala}/usuarios`, {
-          auth: { username: "43999032081", password: "admin" }
+        .get(`http://${config.api.host}:${config.api.port}/salas/${this.idSala}/usuarios`, {
+          auth: config.api.auth
         })
         .then(
           response => {
@@ -478,6 +477,7 @@ export default {
   },
   data() {
     return {
+      config: config,
       totalPessoal: 0,
       totalDoRole: 0,
       codigoDaSala: "",

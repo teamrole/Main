@@ -13,9 +13,12 @@
 </template>
 <script>
 import expansionPanel from "./Templates/expansion-panel";
+import config from "../assets/dados/config";
+
 export default {
   data() {
     return {
+      config : config,
       historicos: []
     };
   },

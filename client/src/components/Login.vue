@@ -68,6 +68,8 @@
 </style>
 <script>
 import { mask } from "vue-the-mask";
+import config from "../assets/dados/config";
+
 export default {
   methods: {
     verificaCodKeyUp() {
@@ -114,6 +116,7 @@ export default {
     mask
   },
   data: () => ({
+    config : config,
     mask: "+55 (##) #####-####",
     userTel: "",
     codigoAut: "",

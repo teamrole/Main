@@ -13,7 +13,7 @@ import navbar from "./components/Templates/navbar";
 import footer from "./components/Templates/footer";
 
 export default {
-  name: "App",
+  name: "iRole",
   components: {
     "t-navbar": navbar,
     "t-footer": footer

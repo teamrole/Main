@@ -81,6 +81,8 @@
 </template>
 
 <script>
+import config from "../assets/dados/config";
+
 export default {
   methods: {
     alertaErro(msg) {
@@ -150,6 +152,7 @@ export default {
   },
   data() {
     return {
+      config : config,
       dialogSala: false,
       dialogErro: false,
       inputDialog: "",
