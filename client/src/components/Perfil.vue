@@ -106,12 +106,15 @@
 </template>
 <script>
 import { mask } from "vue-the-mask";
+import config from "../assets/dados/config";
+
 export default {
   directives: {
       mask
     },
   data() {
     return {
+    config : config,
      oldPhone : "",
      oldName : "",
      dialogErro : false,
