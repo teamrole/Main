@@ -30,18 +30,20 @@
     <v-dialog v-model="dialogCod" persistent max-width="600px">
       <v-card>
         <v-card-title>
-          <span class="headline">Insira o codigo recebido por SMS</span>
+          <!-- <span class="headline">Insira o codigo recebido por SMS</span> -->
+          <span class="headline">Digite uma senha:</span>
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="12">
                 <v-text-field
-                  label="Código"
+                  label="Senha"
                   v-model="codigoAut"
                   :error-messages="Erros.fieldCodMsg"
+                  type="password"
                   class="c-login-cod"
-                  @keyup="verificaCodKeyUp()"
+                  @keyup="/*verificaCodKeyUp() Apenas para SMS*/"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -69,6 +71,7 @@
 <script>
 import { mask } from "vue-the-mask";
 import config from "../assets/dados/config";
+import axios from "axios";
 
 export default {
   methods: {
@@ -80,27 +83,82 @@ export default {
       }
     },
     verificaCod() {
-      if (this.codigoAut.length != 6) {
-        this.Erros.fieldCodMsg = "O Código deve possuir 6 Digitos";
+      if (this.codigoAut.length < 6) {
+        this.Erros.fieldCodMsg = "Sua senha deve possuir no minimo 6 Digitos";
       } else {
         this.Erros.fieldCodMsg = "";
         console.log("REQUISIÇÃO GET PARA O BACKEND VALIDANDO CODIGO");
 
-        //Caso codigo for validado pelo backend
-        if (this.codigoAut == "666969") {
-          let user = {
-            telefone: this.userTel,
-            codigo: this.codigoAut
-          };
-          localStorage.setItem("USER", JSON.stringify(user));
-          //Redireciona para a home
-          this.$router.push("Home");
-        }
-        //Caso codigo nao for validado pelo backend
-        else {
-          this.Erros.fieldCodMsg = "Código inserido inválido";
-        }
+        axios
+          .post(
+            `http://${config.api.host}:${config.api.port}/usuarios`,
+            {
+              celular: this.userTel
+                .replace("+55 (", "")
+                .replace(") ", "")
+                .replace("-", ""),
+              permissao: [],
+              senha: this.codigoAut
+            },
+            {
+              auth: config.api.auth
+            }
+          )
+          .then(
+            response => {
+              console.log(response.data);
+
+              axios
+                .post(
+                  `http://${config.api.host}:${config.api.port}/perfis`,
+                  {
+                    foto: 'Perfil1.png',
+                    nome: 'Usuario',
+                    usuario: {
+                      id: response.data.id
+                    }
+                  },
+                  {
+                    auth: config.api.auth
+                  }
+                )
+                .then(
+                  response => {
+                    console.log(response.data)
+                  },
+                  error => {
+                    console.log(error);
+                  }
+                );
+            },
+            error => {
+              console.log(error);
+            }
+          );
       }
+
+      //codigo para verificar SMS
+      // if (this.codigoAut.length != 6) {
+      //   this.Erros.fieldCodMsg = "O Código deve possuir 6 Digitos";
+      // } else {
+      //   this.Erros.fieldCodMsg = "";
+      //   console.log("REQUISIÇÃO GET PARA O BACKEND VALIDANDO CODIGO");
+
+      //   //Caso codigo for validado pelo backend
+      //   if (this.codigoAut == "666969") {
+      //     let user = {
+      //       telefone: this.userTel,
+      //       codigo: this.codigoAut
+      //     };
+      //     localStorage.setItem("USER", JSON.stringify(user));
+      //     //Redireciona para a home
+      //     this.$router.push("Home");
+      //   }
+      //   //Caso codigo nao for validado pelo backend
+      //   else {
+      //     this.Erros.fieldCodMsg = "Código inserido inválido";
+      //   }
+      // }
     },
     verificaTel() {
       if (this.userTel.length < 18) {
@@ -108,7 +166,8 @@ export default {
       } else {
         this.Erros.fieldTelMsg = "";
         this.dialogCod = true;
-        console.log("REQUISIÇÃO POST PARA BACKEND ENVIAR SMS");
+        //Apenas para SMS
+        //console.log("REQUISIÇÃO POST PARA BACKEND ENVIAR SMS");
       }
     }
   },
@@ -116,7 +175,7 @@ export default {
     mask
   },
   data: () => ({
-    config : config,
+    config: config,
     mask: "+55 (##) #####-####",
     userTel: "",
     codigoAut: "",

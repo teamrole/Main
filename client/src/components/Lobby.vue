@@ -375,9 +375,7 @@ export default {
               }
             )
             .then(
-              response => {
-                this.items = response.data;
-              },
+              response => {},
               error => {
                 console.log(error);
               }
