@@ -87,13 +87,9 @@ public class SalaController {
 	}	
 	
 	@GetMapping("/{id}/usuarios")
-	@ApiOperation(notes = "Mostra todos os usários cadastrados numa sala, ID da Sala na URI", value = "Lista usuários da sala")
-	public ResponseEntity<List<Usuario>> usuariosSala(@PathVariable Long id){
-		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
-		List<Usuario> usuarios = new ArrayList<Usuario>();
-		for(HistoricoSalaUsuario historico : salas ) {
-			usuarios.add(historico.getUsuario());
-		}
+	@ApiOperation(notes = "Mostra todos os usários cadastrados numa sala e se esta ativo ou não na sala, ID da Sala na URI", value = "Lista usuários da sala")
+	public ResponseEntity<List<HistoricoSalaUsuario>> usuariosSala(@PathVariable Long id){
+		List<HistoricoSalaUsuario> usuarios = salaService.usuariosSala(id);
 		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
 	}
 		

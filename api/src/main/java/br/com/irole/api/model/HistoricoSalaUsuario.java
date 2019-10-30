@@ -37,10 +37,21 @@ public class HistoricoSalaUsuario {
 	private BigDecimal totalParcial = new BigDecimal(0); 
 	
 	@Transient
-	private BigDecimal totalSala; 
+	private BigDecimal totalSala; 	
+	
+	@Transient
+	private Boolean ativo; 	
 	
 	@Transient
 	private Long totalUsuarios; 
+
+	public Boolean getAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
+	}
 
 	public Long getTotalUsuarios() {
 		return totalUsuarios;

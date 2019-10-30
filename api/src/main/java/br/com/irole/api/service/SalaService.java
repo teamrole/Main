@@ -2,6 +2,7 @@ package br.com.irole.api.service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -46,11 +47,27 @@ public class SalaService {
 			if (usuario.getData_saida() == null) {
 				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 				usuario.setData_saida(timestamp);
+				usuario.setAtivo(false);
 			}
 		}
 		buscaSala.get().setAberta(false);
 		salaRepository.save(buscaSala.get());
 		
+	}
+	
+	public List<HistoricoSalaUsuario> usuariosSala(Long id){
+		List<HistoricoSalaUsuario> historico = historicoRepository.findByIDSala(id);
+		List<HistoricoSalaUsuario> usuarios = new ArrayList<HistoricoSalaUsuario>();
+		for (HistoricoSalaUsuario usuario : historico) {
+			if (usuario.getData_saida() == null) {
+				usuario.setAtivo(true);
+				usuarios.add(usuario);
+			}else {
+				usuario.setAtivo(false);
+				usuarios.add(usuario);
+			}
+		}
+		return usuarios;
 	}
 	
 	public ResponseEntity<?> entraSala(Long id, String codigo) {
@@ -64,6 +81,7 @@ public class SalaService {
 				HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
 				historicoSalaUsuario.setSala(sala.get());
 				historicoSalaUsuario.setUsuario(usuarioService.buscaUsuario(id));
+				historicoSalaUsuario.setAtivo(true);
 				historicoRepository.save(historicoSalaUsuario);	
 				return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);			
 		}else {
@@ -97,6 +115,7 @@ public class SalaService {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		historicoSalaUsuario.setData_saida(timestamp);
 		historicoSalaUsuario.setTotalParcial(contaParcial(id, idU));
+		historicoSalaUsuario.setAtivo(false);
 		historicoRepository.save(historicoSalaUsuario);
 		return contaParcial(id, idU);
 		
@@ -129,7 +148,7 @@ public class SalaService {
 		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
 		for(HistoricoSalaUsuario sala : salas) {
 			
-			total.add(sala.getTotalParcial());
+			total = total.add(sala.getTotalParcial());
 		}		
 		return total;
 	}

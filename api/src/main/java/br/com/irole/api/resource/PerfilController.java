@@ -1,5 +1,7 @@
 package br.com.irole.api.resource;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.service.PerfilService;
+import br.com.irole.api.service.SalaService;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -80,6 +83,17 @@ public class PerfilController {
 		return ResponseEntity.ok().body(ativa);
 	}
 	
+	@GetMapping("/{id}/total")
+	@ApiOperation(notes= "Retorna o total gasto em todos os roles do usuario", value= "Total Gasto")
+	public BigDecimal totalGeral(@PathVariable Long id) {
+		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDUsuario(id);
+		BigDecimal total = new BigDecimal(0);
+		for(HistoricoSalaUsuario historico : salas ) {
+			BigDecimal t = historico.getTotalParcial();
+			total = total.add(t);
+		}
+		return total;
+	}
 	
 	
 	
