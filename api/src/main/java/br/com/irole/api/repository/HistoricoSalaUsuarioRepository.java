@@ -22,7 +22,13 @@ public interface HistoricoSalaUsuarioRepository extends JpaRepository<HistoricoS
 	@Query(value = "SELECT count(perfil_id) FROM historico_sala_usuario WHERE sala_id = ?1", nativeQuery = true)
 	Long findRolezeros(Long id);	 
 	
-	@Query(value = "select count(id) as contador, perfil_id as usuario from historico_sala_usuario as h where data_hora_saida is not null and DATE(h.data_hora_entrada) = :date GROUP BY usuario_id order by count(id) DESC", nativeQuery=true)
+	@Query(value = "SELECT * FROM historico_sala_usuario WHERE perfil_id = ?1 AND data_hora_saida IS NULL", nativeQuery = true)
+	  HistoricoSalaUsuario findSalaAtual(Long id);
+	
+	@Query(value= "SELECT * FROM historico_sala_usuario WHERE sala_id = ?1 AND data_hora_saida IS NULL)", nativeQuery = true)
+	  List<HistoricoSalaUsuario> findUsuariosAtivo(Long id);
+
+	@Query(value = "select count(id) as contador, usuario_id as usuario from historico_sala_usuario as h where data_hora_saida is not null and DATE(h.data_hora_entrada) = :date GROUP BY usuario_id order by count(id) DESC", nativeQuery=true)
 	List<Ranking> rankingDia(@Param("date") String date);
 	
 	@Query(value = "select count(id) as contador, perfil_id as usuario from historico_sala_usuario as h where data_hora_saida is not null and MONTH(h.data_hora_entrada) = :mes and YEAR(h.data_hora_entrada) = :ano GROUP BY usuario_id order by count(id) DESC", nativeQuery=true)

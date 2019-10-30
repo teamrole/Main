@@ -2,6 +2,7 @@ package br.com.irole.api.service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -44,31 +45,50 @@ public class SalaService {
 				
 	public void fecharSala(Long id) {
 		Optional<Sala> buscaSala = salaRepository.findById(id);
+		List<HistoricoSalaUsuario> usuarios = historicoRepository.findByIDSala(id);
+		for (HistoricoSalaUsuario usuario : usuarios) {
+			if (usuario.getData_saida() == null) {
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				usuario.setData_saida(timestamp);
+				usuario.setAtivo(false);
+			}
+		}
 		buscaSala.get().setAberta(false);
 		salaRepository.save(buscaSala.get());
 		
 	}
 	
+	public List<HistoricoSalaUsuario> usuariosSala(Long id){
+		List<HistoricoSalaUsuario> historico = historicoRepository.findByIDSala(id);
+		List<HistoricoSalaUsuario> usuarios = new ArrayList<HistoricoSalaUsuario>();
+		for (HistoricoSalaUsuario usuario : historico) {
+			if (usuario.getData_saida() == null) {
+				usuario.setAtivo(true);
+				usuarios.add(usuario);
+			}else {
+				usuario.setAtivo(false);
+				usuarios.add(usuario);
+			}
+		}
+		return usuarios;
+	}
+	
 	public ResponseEntity<?> entraSala(Long id, String codigo) {
 
 		Optional<Sala> sala = buscaSalaCodigo(codigo);	
-		
+		Usuario buscaUsuario = usuarioService.buscaUsuario(id);
+		HistoricoSalaUsuario salaAtual = historicoRepository.findSalaAtual(buscaUsuario.getPerfil().getId());		
 		if(!sala.isPresent()) 
-			throw new EmptyResultDataAccessException(1);
-	
-		
-		if (sala.get().getAberta()) {
-			Usuario buscaUsuario = usuarioService.buscaUsuario(id);
-			
-			HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
-			historicoSalaUsuario.setSala(sala.get());
-			historicoSalaUsuario.setPerfil(buscaUsuario.getPerfil());
-			historicoRepository.save(historicoSalaUsuario);	
-			
-			return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);
-			
+			throw new EmptyResultDataAccessException(1);	
+		if (sala.get().getAberta() && salaAtual == null) {
+				HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();									
+				historicoSalaUsuario.setSala(sala.get());
+				historicoSalaUsuario.setPerfil(buscaUsuario.getPerfil());
+				historicoSalaUsuario.setAtivo(true);
+				historicoRepository.save(historicoSalaUsuario);	
+				return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);			
 		}else {
-			String mensagemUsuario = messageSource.getMessage("recurso.nao-criado", null, LocaleContextHolder.getLocale());
+			String mensagemUsuario = messageSource.getMessage("recurso.usuario-na-sala", null, LocaleContextHolder.getLocale());
 			List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);			
 		}
@@ -102,6 +122,7 @@ public class SalaService {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		historicoSalaUsuario.setData_saida(timestamp);
 		historicoSalaUsuario.setTotalParcial(contaParcial(id, idU));
+		historicoSalaUsuario.setAtivo(false);
 		historicoRepository.save(historicoSalaUsuario);
 		return contaParcial(id, idU);
 		
@@ -139,7 +160,7 @@ public class SalaService {
 		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
 		for(HistoricoSalaUsuario sala : salas) {
 			
-			total.add(sala.getTotalParcial());
+			total = total.add(sala.getTotalParcial());
 		}		
 		return total;
 	}

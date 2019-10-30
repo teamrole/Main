@@ -75,11 +75,7 @@ public class SalaController {
 		@ApiImplicitParam(name = "idU", value = "ID do usuário", required = true, dataType = "Long", paramType="path")
 		
 	})	
-	public ResponseEntity<?> entrarSala(
-			@PathVariable String codigo,
-			@PathVariable Long idU, 		  
-			HttpServletResponse response) {
-		
+	public ResponseEntity<?> entrarSala(@PathVariable String codigo,@PathVariable Long idU,HttpServletResponse response) {
 		return salaService.entraSala(idU,codigo);
 	}
 	
