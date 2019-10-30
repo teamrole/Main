@@ -51,14 +51,9 @@ public class PedidoController {
 	
 	@PostMapping
 	@ApiOperation(notes = "Cadastra um ou mais pedidos, passando um objeto Sala no corpo, contendo os pedidos", value = "Registrar pedidos")
-	public ResponseEntity<List<Pedido>> cadastrar(	@Valid @RequestBody Sala sala, HttpServletResponse response){	
+	public ResponseEntity<?> cadastrar(	@Valid @RequestBody Sala sala, HttpServletResponse response){	
 		
-		List<Pedido> novoPedido = pedidoService.salvarPedido(sala);
+		return pedidoService.salvarPedido(sala);
 		
-		for(Pedido pedido: novoPedido) {
-			publisher.publishEvent(new RecursoCriadoEvent(this, response, pedido.getId()));
-		}
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(novoPedido);		
 	}
 }

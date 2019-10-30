@@ -2,12 +2,16 @@ package br.com.irole.api.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
@@ -37,35 +41,43 @@ public class PedidoService {
 	@Autowired
 	private MessageSource messageSource;
 	
-	public List<Pedido> salvarPedido(Sala sala) {	
+	public ResponseEntity<?> salvarPedido(Sala sala) {	
 		
-		//buscaSala() tem tratamento para caso uma sala não exista
+		//salaService.buscaSala() tem tratamento para caso uma sala não exista
 		Sala s = salaService.buscaSala(sala.getId());
 		List<Erro> erros = new ArrayList<>(); 
 		
 		List<Pedido> pedidoSala = new ArrayList<Pedido>();
 
-		for(Pedido pedido: s.getPedido()) {
+		for(Pedido pedido: sala.getPedido()) {
 			
-			if(verificaUsuariosEstaNaSala(s.getId(), pedido.getPerfil())){
+			pedido.setPerfil(listaDePerfilSemRepeticao(pedido.getPerfil()));
+			
+			if(verificaUsuariosEstaNaSala(sala.getId(), pedido.getPerfil())){
 				Pedido p = persistePedido(pedido);
 				pedidoSala.add(p);							
+			}else {
+				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {pedido.getItem().getNome()},
+						LocaleContextHolder.getLocale());
+				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+				erros.add(erro);
 			}
 		}	
 		if(!pedidoSala.isEmpty()) {
 			s.setPedido(pedidoSala);
+			//TODO se falhar por algum motivo: dar rollback na transação, pois pedido persistido ficará solto
 			Sala salaSalva = salaRepository.save(s);
 			
-			return salaSalva.getPedido();
+			return ResponseEntity.ok(salaSalva.getPedido());
 			
 		}else {
 			String mensagemUsuario = messageSource.getMessage("recurso.pedido.nenhum-valido", null, LocaleContextHolder.getLocale());
 			Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
 			erros.add(erro);
+		
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 		}
-		
-		return  null;
-		
+				
 	}
 	
 	public Pedido persistePedido(Pedido pedido) {
@@ -77,11 +89,17 @@ public class PedidoService {
 	}
 	
 	public Boolean verificaUsuariosEstaNaSala(Long sala_id, List<Perfil> perfil) {
-
+		
 		for (Perfil p : perfil) {
 			if(!salaService.isUsuarioNaSala(sala_id, p))
 				return false;
 		}
 		return true;
+	}
+	
+	public List<Perfil> listaDePerfilSemRepeticao(List<Perfil> perfis){
+		return  perfis.stream() 
+		        .distinct()    
+		        .collect(Collectors.toList());
 	}
 }

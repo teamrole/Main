@@ -68,15 +68,16 @@ public class SalaController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
 	}
 	
-	@PostMapping("/entrar/{idU}/{codigo}")
+	@PostMapping("/{codigo}/{idU}")
 	@ApiOperation(notes = "Entra numa sala usando o código/QR Code como parâmetro URI", value = "Entrar na sala")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "idU", value = "ID do usuário", required = true, dataType = "Long", paramType="path"),
-		@ApiImplicitParam(name = "codigo", value = "Código criado quando a sala é gerada", required = true, dataType = "String", paramType="path")
+		@ApiImplicitParam(name = "codigo", value = "Código criado quando a sala é gerada", required = true, dataType = "String", paramType="path"),
+		@ApiImplicitParam(name = "idU", value = "ID do usuário", required = true, dataType = "Long", paramType="path")
+		
 	})	
 	public ResponseEntity<?> entrarSala(
-			@PathVariable Long idU, 
-		    @PathVariable String codigo,
+			@PathVariable String codigo,
+			@PathVariable Long idU, 		  
 			HttpServletResponse response) {
 		
 		return salaService.entraSala(idU,codigo);
