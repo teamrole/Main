@@ -40,6 +40,9 @@ public class HistoricoSalaUsuario {
 	private BigDecimal totalSala; 	
 	
 	@Transient
+	private Long totalRoles;
+	
+	@Transient
 	private Boolean ativo; 	
 	
 	@Transient
@@ -115,6 +118,14 @@ public class HistoricoSalaUsuario {
 
 	public void setData_saida(Timestamp data_saida) {
 		this.data_saida = data_saida;
+	}
+
+	public Long getTotalRoles() {
+		return totalRoles;
+	}
+
+	public void setTotalRoles(Long totalRoles) {
+		this.totalRoles = totalRoles;
 	}
 
 	@Override
