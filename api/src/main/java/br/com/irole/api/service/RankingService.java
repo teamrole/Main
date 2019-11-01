@@ -1,14 +1,15 @@
 package br.com.irole.api.service;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Perfil;
+import br.com.irole.api.model.Ranking;
+import br.com.irole.api.model.TipoRankingEnum;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 
 @Service
@@ -19,12 +20,17 @@ public class RankingService {
 	@Autowired
 	private HistoricoSalaUsuarioRepository historicoSalaUsuarioRepository;
 
-	public List<HistoricoSalaUsuario> rankingDia() {
-		Timestamp hoje = new Timestamp(System.currentTimeMillis());		
-		List<HistoricoSalaUsuario> ranking  = historicoSalaUsuarioRepository.rankingDia();
+	public List<Perfil> rankingDia() {
+		List<HashMap<Long, Perfil>> historicos  = historicoSalaUsuarioRepository.rankingDia();
 		
-		return ranking;
+		for (HashMap<Long, Perfil> h: historicos) {
+			System.out.println(h.toString());
+		}
+		//List<Ranking> ranking = converteParaRanking(historicos, TipoRankingEnum.DIA);
+		
+		return null;
 	}
+
 
 
 //	public List<Ranking> rankingTodos() {
@@ -43,5 +49,28 @@ public class RankingService {
 //		
 //		return ranking;
 //	}	
-	
+
+
+	private Ranking converteParaRanking(List<HistoricoSalaUsuario> historicos, TipoRankingEnum tipoRanking) {
+		
+//		List<Ranking> rankins = new ArrayList<>();
+//		
+//		historicos.stream().map( h -> {
+//			Ranking ranking = new Ranking();
+//			Long quantidade = historicoSalaUsuarioRepository.countRoleUsuario(historicosID)
+//			
+//			ranking
+//			return ranking;
+//		});
+//		
+//		
+//		Ranking ranking = new Ranking();
+//		ranking.setTotalRoles(historicosDoUsuario.size());
+//		ranking.setPerfil(historicosDoUsuario.get(0).getPerfil());
+//		ranking.setTipoRanking(tipoRanking);
+//		
+//		return ranking;
+		return null;
+	}
+
 }

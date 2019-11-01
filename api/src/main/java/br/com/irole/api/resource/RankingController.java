@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.service.RankingService;
 
 @RestController
@@ -27,10 +27,10 @@ public class RankingController {
 //	}
 	
 	@GetMapping("/dia")
-	public ResponseEntity<List<HistoricoSalaUsuario>> getRankingDia() {
+	public ResponseEntity<List<Perfil>> getRankingDia() {
 		
 		//Pega o rankings de pessoas que participaram em mais roles hoje, contabiliza somente as salas já fechadas		
-		List<HistoricoSalaUsuario> ranking  = rankingService.rankingDia();
+		List<Perfil> ranking  = rankingService.rankingDia();
 		
 		return (!ranking.isEmpty()) ? ResponseEntity.ok(ranking) : ResponseEntity.noContent().build();
 	}

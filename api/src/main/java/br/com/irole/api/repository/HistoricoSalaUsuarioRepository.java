@@ -1,6 +1,7 @@
  package br.com.irole.api.repository;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,9 +30,15 @@ public interface HistoricoSalaUsuarioRepository extends JpaRepository<HistoricoS
 	
 	@Query(value= "SELECT * FROM historico_sala_usuario WHERE sala_id = ?1 AND data_hora_saida IS NULL)", nativeQuery = true)
 	  List<HistoricoSalaUsuario> findUsuariosAtivo(Long id);
-
-	@Query(value = "select count(h) as totalRoles, h.perfil as perfil from HistoricoSalaUsuario h where h.data_saida is not null and h.data_entrada = :date GROUP BY h.perfil order by count(h) DESC")
-	List<HistoricoSalaUsuario> rankingDia();
+	
+	@Query(value = "select count(h) as long, h.perfil from HistoricoSalaUsuario as h where h.data_saida is not null and DATE(h.data_entrada) = CURRENT_DATE GROUP BY h.perfil order by count(h) DESC")
+	List<HashMap<Long, Perfil>> rankingDia();
+	
+	
+	
+	@Query(value = "select h.id from HistoricoSalaUsuario as h where id IN :h")
+	List<HistoricoSalaUsuario> countRoleUsuario(@Param("h") List<Long> historicosID);
+	
 	/*
 	@Query(value = "select count(id) as contador, perfil_id as usuario from HistoricoSalaUsuario as h where data_hora_saida is not null and MONTH(h.data_hora_entrada) = :mes and YEAR(h.data_hora_entrada) = :ano GROUP BY usuario_id order by count(id) DESC", nativeQuery=true)
 	List<HistoricoSalaUsuario> rankingMes(@Param("mes") String mes, @Param("ano") String ano);
