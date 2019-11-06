@@ -1,15 +1,11 @@
  package br.com.irole.api.repository;
 
-import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import br.com.irole.api.model.HistoricoSalaUsuario;
-import br.com.irole.api.model.Perfil;
 
 public interface HistoricoSalaUsuarioRepository extends JpaRepository<HistoricoSalaUsuario, Long>{
 
@@ -31,20 +27,23 @@ public interface HistoricoSalaUsuarioRepository extends JpaRepository<HistoricoS
 	@Query(value= "SELECT * FROM historico_sala_usuario WHERE sala_id = ?1 AND data_hora_saida IS NULL)", nativeQuery = true)
 	  List<HistoricoSalaUsuario> findUsuariosAtivo(Long id);
 	
-	@Query(value = "select count(h) as long, h.perfil from HistoricoSalaUsuario as h where h.data_saida is not null and DATE(h.data_entrada) = CURRENT_DATE GROUP BY h.perfil order by count(h) DESC")
-	List<HashMap<Long, Perfil>> rankingDia();
+	@Query(value = "select count(h.id) as contador, p.id as perfil_id, p.foto as foto, p.nome as nome, p.id_usuario_fk as usuario from historico_sala_usuario h left join perfil p on h.perfil_id = p.id where DATE(h.data_hora_entrada) = CURDATE() and h.data_hora_saida is not null GROUP BY h.perfil_id order by count(h.id) DESC", nativeQuery = true)
+	List<Ranking> rankingDia();
 	
-	
-	
-	@Query(value = "select h.id from HistoricoSalaUsuario as h where id IN :h")
-	List<HistoricoSalaUsuario> countRoleUsuario(@Param("h") List<Long> historicosID);
-	
-	/*
-	@Query(value = "select count(id) as contador, perfil_id as usuario from HistoricoSalaUsuario as h where data_hora_saida is not null and MONTH(h.data_hora_entrada) = :mes and YEAR(h.data_hora_entrada) = :ano GROUP BY usuario_id order by count(id) DESC", nativeQuery=true)
-	List<HistoricoSalaUsuario> rankingMes(@Param("mes") String mes, @Param("ano") String ano);
+	@Query(value = "select count(h.id) as contador, p.id as perfil_id, p.foto as foto, p.nome as nome, p.id_usuario_fk as usuario from historico_sala_usuario h left join perfil p on h.perfil_id = p.id  where h.data_hora_saida is not null and MONTH(h.data_hora_entrada) = MONTH(CURDATE()) and YEAR(h.data_hora_entrada) = YEAR(CURDATE()) GROUP BY h.perfil_id order by count(h.id) DESC", nativeQuery=true)
+	List<Ranking> rankingMes();
 
-	@Query(value = "select count(id) as contador, perfil_id as usuario from HistoricoSalaUsuario as h where data_hora_saida is not null GROUP BY usuario_id order by count(id) DESC", nativeQuery=true)
-	List<HistoricoSalaUsuario> ranking();
-	*/
+	@Query(value = "select count(h.id) as contador, p.id as perfil_id, p.foto as foto, p.nome as nome, p.id_usuario_fk as usuario from historico_sala_usuario h left join perfil p on h.perfil_id = p.id where h.data_hora_saida is not null GROUP BY h.perfil_id order by count(h.id) DESC", nativeQuery = true)
+	List<Ranking> rankingTodos();
+	
+	public interface Ranking{
+		Long getContador();
+		Long getPerfil_id();
+		String getFoto();
+		String getNome();
+		Long getUsuario();
+	}
+
+	
 
 }

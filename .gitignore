@@ -1,6 +1,5 @@
-<<<<<<< HEAD
-client/node_modules
-=======
+/client
+
 .DS_Store
 node_modules
 /dist
@@ -22,4 +21,4 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
->>>>>>> frontend
+
