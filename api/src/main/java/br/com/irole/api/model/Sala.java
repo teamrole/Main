@@ -27,6 +27,8 @@ public class Sala {
 	
 	@Size(min = 4, max = 4)
 	private String codigo;
+	
+	private String nome;
 
 	@ElementCollection
 	@JoinTable(name = "pedido_sala", joinColumns = {
@@ -65,6 +67,14 @@ public class Sala {
 
 	public void setPedido(List<Pedido> pedido) {
 		this.pedido = pedido;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
 	}
 
 	@Override

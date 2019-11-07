@@ -1,10 +1,7 @@
 package br.com.irole.api.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +54,8 @@ public class PedidoService {
 				Pedido p = persistePedido(pedido);
 				pedidoSala.add(p);							
 			}else {
-				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {pedido.getItem().getNome()},
+				String nomePedido = (pedido.getItem().getDescricao() != null) ? pedido.getItem().getDescricao() : pedido.getItem().getItemTipo().toString();
+				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {nomePedido},
 						LocaleContextHolder.getLocale());
 				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
 				erros.add(erro);

@@ -2,12 +2,13 @@ package br.com.irole.api.model;
 
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Entity
 public class Item {
@@ -15,11 +16,15 @@ public class Item {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@NotNull
-	@Size(min = 3)
-	private String nome;
+
+	private String descricao;
+	
 	@NotNull
 	private BigDecimal valor;
+	
+	@Enumerated
+	@Column(name = "item_tipo_id", nullable = false)
+	private ItemTipo itemTipo;
 	
 	public Long getId() {
 		return id;
@@ -27,17 +32,23 @@ public class Item {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNome() {
-		return nome;
+	public String getDescricao() {
+		return descricao;
 	}
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
 	}
 	public BigDecimal getValor() {
 		return valor;
 	}
 	public void setValor(BigDecimal valor) {
 		this.valor = valor;
+	}
+	public ItemTipo getItemTipo() {
+		return itemTipo;
+	}
+	public void setItemTipo(ItemTipo itemTipo) {
+		this.itemTipo = itemTipo;
 	}
 	@Override
 	public int hashCode() {

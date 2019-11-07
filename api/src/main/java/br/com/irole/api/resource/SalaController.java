@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -110,5 +112,18 @@ public class SalaController {
 	@ApiOperation(notes = "Troca a flag da sala para fechada", value = "Fechar sala")
 	public void fechaSala(@PathVariable Long id) {
 		salaService.fecharSala(id);
+	}
+	
+	@PutMapping("/{id}/nome")
+	@ApiOperation(notes = "Editar o nome da sala passando o ID da sala como parãmetro e o nome no corpo; *Sem aspas", value = "Trocar nome da Sala")
+	public ResponseEntity<?> editarNomeSala(@PathVariable Long id, @RequestBody String nome){
+		nome = nome.replaceAll("\"", "");
+		Sala buscaSala = salaService.buscaSala(id);
+		if(buscaSala.getAberta()) {
+			buscaSala.setNome(nome);
+			Sala salaSalva = salaRepository.save(buscaSala);
+			return ResponseEntity.ok(salaSalva);
+		}
+			return ResponseEntity.badRequest().body("Só é possível editar salas abertas");
 	}
 }
