@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import br.com.irole.api.model.Item;
 import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.ItemRepository;
 import br.com.irole.api.repository.PedidoRepository;
 import br.com.irole.api.repository.SalaRepository;
@@ -100,4 +103,15 @@ public class PedidoService {
 		        .distinct()    
 		        .collect(Collectors.toList());
 	}
+	
+	public Pedido atualizar(Long id, Pedido pedido) {
+		Optional<Pedido> buscaPedido = pedidoRepository.findById(id);
+		if (buscaPedido.isPresent()) {
+			BeanUtils.copyProperties(pedido, buscaPedido, "id");
+			pedidoRepository.save(buscaPedido.get());
+			return buscaPedido.get();			
+		}else {
+			throw new EmptyResultDataAccessException(1);
+		}
+	} 
 }
