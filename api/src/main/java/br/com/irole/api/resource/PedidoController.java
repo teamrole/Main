@@ -13,13 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.event.RecursoCriadoEvent;
 import br.com.irole.api.model.Pedido;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
+import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.PedidoService;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +57,14 @@ public class PedidoController {
 	public ResponseEntity<?> cadastrar(	@Valid @RequestBody Sala sala, HttpServletResponse response){	
 		
 		return pedidoService.salvarPedido(sala);
+		
+	}
+	
+	@PutMapping("/{id}")
+	@ApiOperation(notes = "Edita dados do perfil, passando um objeto Perfil no corpo e o ID do perfil à ser alterado via URI", value = "Edita Perfil")
+	public Pedido atualizar(@PathVariable Long id, @Valid @RequestBody Pedido pedido){
+			Pedido pedidoSalvo = pedidoService.atualizar(id, pedido);
+			return pedidoSalvo;    
 		
 	}
 }

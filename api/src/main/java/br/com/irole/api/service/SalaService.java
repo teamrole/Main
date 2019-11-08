@@ -169,7 +169,7 @@ public class SalaService {
 		
 		Optional<Perfil> p = perfilRepository.findById(perfil.getId());
 		
-		if(!p.isPresent())
+		if(!p.isPresent())     
 			return false;
 		
 		HistoricoSalaUsuario salaUsuario = historicoRepository.findBySalaUsuario(id_sala, p.get().getUsuario().getId());
