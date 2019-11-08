@@ -2,6 +2,7 @@ package br.com.irole.api.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -107,11 +108,18 @@ public class PedidoService {
 	public Pedido atualizar(Long id, Pedido pedido) {
 		Optional<Pedido> buscaPedido = pedidoRepository.findById(id);
 		if (buscaPedido.isPresent()) {
-			BeanUtils.copyProperties(pedido, buscaPedido, "id");
+			BeanUtils.copyProperties(pedido, buscaPedido.get(), "id");
 			pedidoRepository.save(buscaPedido.get());
 			return buscaPedido.get();			
 		}else {
 			throw new EmptyResultDataAccessException(1);
 		}
 	} 
+	
+	public void apagarPedido(Long id) {
+		Optional<Pedido> pedido = pedidoRepository.findById(id);
+		if (pedido.isPresent()) {
+			pedidoRepository.deleteById(pedido.get().getId());
+		}
+	}
 }

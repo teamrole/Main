@@ -14,7 +14,7 @@ import br.com.irole.api.model.ItemTipo;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/items")
+@RequestMapping("/itens")
 public class ItemController {
 
 	@GetMapping("/tipos")

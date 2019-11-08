@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.event.RecursoCriadoEvent;
@@ -61,10 +63,17 @@ public class PedidoController {
 	}
 	
 	@PutMapping("/{id}")
-	@ApiOperation(notes = "Edita dados do perfil, passando um objeto Perfil no corpo e o ID do perfil à ser alterado via URI", value = "Edita Perfil")
+	@ApiOperation(notes = "Edita dados do pedido, passando um objeto Pedido no corpo e o ID do pedido à ser alterado via URI", value = "Edita Pedido")
 	public Pedido atualizar(@PathVariable Long id, @Valid @RequestBody Pedido pedido){
 			Pedido pedidoSalvo = pedidoService.atualizar(id, pedido);
 			return pedidoSalvo;    
 		
+	}
+	
+	@DeleteMapping("/{id]")
+	@ApiOperation(notes = "Apagar pedido pelo ID", value = "Apaga Pedido")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void apagar(@PathVariable Long id) {
+		pedidoService.apagarPedido(id);
 	}
 }
