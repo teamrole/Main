@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,8 +23,9 @@ public class Item {
 	@NotNull
 	private BigDecimal valor;
 	
-	@Enumerated
-	@Column(name = "item_tipo_id", nullable = false)
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo", nullable = false)
 	private ItemTipo itemTipo;
 	
 	public Long getId() {

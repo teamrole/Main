@@ -1,7 +1,6 @@
 package br.com.irole.api.resource;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +30,6 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.service.PerfilService;
-import br.com.irole.api.service.SalaService;
 import br.com.irole.api.service.UsuarioService;
 import io.swagger.annotations.ApiOperation;
 
