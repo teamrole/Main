@@ -1,1 +1,0 @@
-insert into perfil (id, foto, nome, id_usuario_fk) values (1, "i.pravatar.cc/300", "Administrador", 1);
