@@ -70,10 +70,9 @@ public class PedidoController {
 		
 	}
 	
-	@DeleteMapping("/{id]")
+	@DeleteMapping("/{id}")
 	@ApiOperation(notes = "Apagar pedido pelo ID", value = "Apaga Pedido")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void apagar(@PathVariable Long id) {
-		pedidoService.apagarPedido(id);
+	public ResponseEntity<?> apagar(@PathVariable Long id) {
+		return pedidoService.apagarPedido(id);
 	}
 }

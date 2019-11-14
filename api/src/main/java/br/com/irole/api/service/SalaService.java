@@ -97,9 +97,9 @@ public class SalaService {
 	}
 	
 	public Sala buscaSala(Long id) {
-		Optional<Sala> salaSalvo = salaRepository.findById(id);		
-		if (salaSalvo.isPresent()) {
-			return salaSalvo.get();
+		Optional<Sala> sala = salaRepository.findById(id);		
+		if (sala.isPresent()) {
+			return sala.get();
 		}else {
 			throw new EmptyResultDataAccessException(1);
 		}

@@ -3,6 +3,7 @@ package br.com.irole.api.model;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,7 +31,8 @@ public class Sala {
 	
 	private String nome;
 
-	@ElementCollection
+	@ElementCollection()
+	
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn( name="pedido_id", referencedColumnName = "id") })	

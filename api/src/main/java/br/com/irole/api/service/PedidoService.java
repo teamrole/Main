@@ -116,10 +116,27 @@ public class PedidoService {
 		}
 	} 
 	
-	public void apagarPedido(Long id) {
+	public ResponseEntity<?> apagarPedido(Long id) {
+		List<Erro> erros = new ArrayList<>();
 		Optional<Pedido> pedido = pedidoRepository.findById(id);
+		Boolean sala = salaRepository.salaDoPedidoAberta(id);
 		if (pedido.isPresent()) {
-			pedidoRepository.deleteById(pedido.get().getId());
+			if (sala) {
+				pedidoRepository.deletarPP(pedido.get().getId());
+				pedidoRepository.deletarPS(pedido.get().getId());
+				pedidoRepository.deleteById(pedido.get().getId());
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			}else {
+				String mensagemUsuario = messageSource.getMessage("recurso.sala.fechada",null, LocaleContextHolder.getLocale());
+				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+				erros.add(erro);
+				
+			}
+		}else {
+			String mensagemUsuario = messageSource.getMessage("recurso.pedido.nao-encontrado",null, LocaleContextHolder.getLocale());
+			Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+			erros.add(erro);
 		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 	}
 }
