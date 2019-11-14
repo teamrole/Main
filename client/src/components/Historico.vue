@@ -22,6 +22,7 @@
 <script>
 import expansionPanel from "./Templates/expansion-panel";
 import config from "../assets/dados/config";
+
 import axios from "axios";
 export default {
   data() {
