@@ -6,11 +6,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.model.Usuario;
 
 public interface SalaRepository extends JpaRepository<Sala, Long>{
 	

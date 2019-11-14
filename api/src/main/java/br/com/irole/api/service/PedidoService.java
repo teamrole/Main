@@ -19,7 +19,6 @@ import br.com.irole.api.model.Item;
 import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.ItemRepository;
 import br.com.irole.api.repository.PedidoRepository;
 import br.com.irole.api.repository.SalaRepository;

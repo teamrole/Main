@@ -1,4 +1,4 @@
-create table item_tipo (id bigint primary key auto_increment, tipo varchar(255) not null);
+create table item_tipo (id bigint auto_increment not null, tipo varchar(255) not null, primary key(id)) engine=InnoDB default charset=utf8;
 insert into item_tipo (tipo) values ("COMIDA");
 insert into item_tipo (tipo) values ("BEBIDA");
 insert into item_tipo (tipo) values ("OUTRO");

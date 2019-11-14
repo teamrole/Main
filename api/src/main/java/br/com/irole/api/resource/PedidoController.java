@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,11 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.irole.api.event.RecursoCriadoEvent;
 import br.com.irole.api.model.Pedido;
-import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.PedidoService;
 import io.swagger.annotations.ApiOperation;
@@ -38,10 +34,7 @@ public class PedidoController {
 	
 	@Autowired
 	private SalaRepository SalaRepository;
-	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-	
+		
 	@GetMapping("salas/{id}")
 	@ApiOperation(notes = "Retorna uma lista de pedidos pelo ID da sala (URI)", value = "Capturar pedidos")
 	public ResponseEntity<List<Pedido>> listarPedido(@PathVariable Long id){
