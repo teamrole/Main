@@ -13,16 +13,20 @@
 </template>
 
 <style scoped>
+
 .c-painelHeader{
   padding: 1px
 }
 </style>
+
 <script>
 import expansionPanel from "./Templates/expansion-panel";
+import config from "../assets/dados/config";
 import axios from "axios";
 export default {
   data() {
     return {
+      config : config,
       historicos: [],
       idUsuario: 2
     };
@@ -43,8 +47,8 @@ export default {
     atualizaJson() {
       //Carrega itens da sala
       axios
-        .get(`http://localhost:6969/historicos/usuarios/${this.idUsuario}`, {
-          auth: { username: "43999032081", password: "admin" }
+        .get(`http://${config.api.host}:${config.api.port}/historicos/usuarios/${this.idUsuario}`, {
+          auth: config.api.auth
         })
         .then(
           response => {

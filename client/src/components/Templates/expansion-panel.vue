@@ -54,6 +54,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .c-secondary {
   color: #9c27b0;

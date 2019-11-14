@@ -34,7 +34,7 @@
       <v-list class="c-list">
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
-            <!-- <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img> -->
+            <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img>
             <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img>
           </v-avatar>
 
@@ -89,7 +89,7 @@
                   <v-text-field label="Descrição (Opcional)" v-model="itemSendoEditado.nome"></v-text-field>
                 </v-col>
                 <v-col cols="4">
-                  <v-text-field type="number" label="Qtd" :error="qtdErro" v-model="itemSendoEditado.quantidade"></v-text-field>
+                  <v-text-field type="number" label="Qtd" v-model="itemSendoEditado.quantidade"></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-select
@@ -104,7 +104,7 @@
                     :error="precoErro"
                     @change="verificaPreco()"
                     label="Preço"
-                    v-model="itemSendoEditado.valor"
+                    v-model="itemSendoEditado.preco"
                     prefix="$"
                   ></v-text-field>
                 </v-col>
@@ -151,7 +151,7 @@
         <v-card-text>
           Quantidade:{{itemSendoEditado.quantidade}}
           <br />
-          Preço:{{itemSendoEditado.valor}}
+          Preço:{{itemSendoEditado.preco}}
           <br />
           Pagantes: {{itemSendoEditado.perfil.length}}
         </v-card-text>
@@ -293,87 +293,76 @@
 
 <script>
 import avatar from "./Templates/avatar-lobby";
-import config from "../assets/dados/config";
+import pessoasJson from "../assets/dados/Lobby-pessoas";
+import itemsJson from "../assets/dados/Lobby-items";
 import axios from "axios";
-
 export default {
   methods: {
     recalculaTotal() {
       //calcula total do role
       let vm = this;
       vm.totalDoRole = 0;
-      this.items.map(a => (vm.totalDoRole += a.valor * a.quantidade));
-
+      this.items.map(a => (vm.totalDoRole += a.preco * a.quantidade));
       //calcula parcial do role
       vm.totalPessoal = 0;
       this.items.map(
         a =>
           (vm.totalPessoal +=
-            a.perfil.id == vm.idPessoa ? a.valor * a.quantidade : 0)
+            a.perfil.id == vm.idPessoa ? a.preco * a.quantidade : 0)
       );
     },
     novoItem() {
-      console.log("novo");
-      
       this.AcaoItem = "Novo";
       this.itemSendoEditado = {
         id: null,
         tipo: "outros",
         nome: null,
-        valor: null,
-        quantidade: 1,
+        preco: null,
         perfil: []
       };
       this.dialog.Edit = true;
     },
     salvarItem(item) {
       //valida preco
-      console.log("SALVAR");
-      item.valor = parseFloat(item.valor) || 0;
-      this.precoErro = item.valor <= 0;
+      console.log(item);  
+      item.preco = parseFloat(item.preco) || 0;
+      this.precoErro = item.preco <= 0;
+      console.log(this.precoErro);
       //valida pagantes
       this.selectErro = item.perfil.length <= 0;
-      //valdia quantidade
-      this.qtdErro = item.quantidade <= 0;
-
-      if (!this.precoErro && !this.selectErro && !this.qtdErro) {
+      if (!this.precoErro && !this.selectErro) {
         this.precoErro = false;
         this.selectErro = false;
-        this.qtdErro = false;
-
         if (this.AcaoItem == "Novo") {
           console.log("REQUISIÇÃO POST PARA BACKEND");
           //No response Atualizar itens
           this.recalculaTotal();
-          let pagantesJson = [];
-          let pagantes = item.perfil.map(function(pagante) {
-            pagantesJson.push({
-              id: pagante,
-              usuario: {
-                id: pagante
-              }
-            });
-          });
+          let vm = this.itemSendoEditado.nome + '';
           axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              {
-                id: this.idSala,
-                pedido: [
-                  {
-                    item: {
-                      nome: item.nome + "",
-                      valor: item.valor
-                    },
-                    quantidade: item.quantidade,
-                    perfil: pagantesJson
-                  }
-                ]
-              },
-              {
-                auth: config.api.auth
-              }
-            )
+            .post("http://5localhost:6969/pedidos", 
+            {
+              id: 1,
+              pedido: [
+                {
+                  item: {
+                    nome: this.itemSendoEditado.nome + '',
+                    valor: this.itemSendoEditado.valor
+                  },
+                  quantidade: this.itemSendoEditado.quantidade,
+                  perfil: [
+                    {
+                      id: 1,
+                      usuario: {
+                          id: 1
+                        }
+                    }
+                  ]
+                }
+              ]
+            }
+            ,{
+              auth: { username: "43999032081", password: "admin" }
+            })
             .then(
               response => {
                 this.items = response.data;
@@ -382,7 +371,6 @@ export default {
                 console.log(error);
               }
             );
-
           return true;
         } else if (this.AcaoItem == "Editar") {
           let alteraIndex = this.items.findIndex(x => x.id === item.id);
@@ -397,32 +385,26 @@ export default {
       }
     },
     excluirItem(item) {
-      console.log("excluir");
-
+      let alteraIndex = this.items.findIndex(x => x.id === item.id);
+      this.items.splice(alteraIndex, 1);
       console.log("REQUISIÇÃO DELETE PARA BACKEND");
-
-      atualizaJson();
       //no response atualizar itens
-      //this.recalculaTotal();
+      this.recalculaTotal();
     },
     editarItem(item) {
-      console.log("editar");
-
       this.AcaoItem = "Editar";
       this.itemSendoEditado = { ...item };
       this.dialog.Edit = true;
     },
     verificaPreco() {
-      console.log("verifica");
-
-      if (this.itemSendoEditado.valor.length <= 0) this.precoErro = true;
+      if (this.itemSendoEditado.preco.length <= 0) this.precoErro = true;
       else {
-        let preco = (this.itemSendoEditado.valor + "").replace(/\,/g, ".");
+        let preco = (this.itemSendoEditado.preco + "").replace(/\,/g, ".");
         preco = preco.includes(".") ? preco : preco + ".00";
         preco = preco.replace(/[^0-9.]/g, "");
         preco = preco.split(".");
         preco = preco.slice(0, -1).join("") + "." + preco.slice(-1);
-        this.itemSendoEditado.valor = parseFloat(preco).toFixed(2);
+        this.itemSendoEditado.preco = parseFloat(preco).toFixed(2);
         this.precoErro = false;
       }
     },
@@ -434,33 +416,28 @@ export default {
     },
     opcoesSala() {},
     toggleSelect() {
-      this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
+      this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
-
-      console.log("ATUALIZA JSON");
-      
       //Carrega itens da sala
       axios
-        .get(`http://${config.api.host}:${config.api.port}/pedidos/salas/${this.idSala}`, {
-          auth: config.api.auth
+        .get(`http://localhost:6969/pedidos/salas/${this.idSala}`, {
+          auth: { username: "43999032081", password: "admin" }
         })
         .then(
           response => {
-            this.items = response.data ? response.data : [];
+            this.items = response.data;
           },
           error => {
             console.log(error.data);
           }
         );
-
       console.log("Requisição backend para atualizar os itens");
-
       this.recalculaTotal();
-
+     
       axios
-        .get(`http://${config.api.host}:${config.api.port}/salas/${this.idSala}/usuarios`, {
-          auth: config.api.auth
+        .get(`http://localhost:6969/salas/${this.idSala}/usuarios`, {
+          auth: { username: "43999032081", password: "admin" }
         })
         .then(
           response => {
@@ -477,14 +454,12 @@ export default {
   },
   data() {
     return {
-      config: config,
       totalPessoal: 0,
       totalDoRole: 0,
       codigoDaSala: "",
       idSala: 1,
       precoErro: false,
       selectErro: false,
-      qtdErro: false,
       dialog: {
         Edit: false,
         Excluir: false,
@@ -499,12 +474,12 @@ export default {
         id: null,
         tipo: null,
         nome: null,
-        valor: null,
+        preco: null,
         quantidade: null,
         perfil: [1]
       },
       items: [],
-      pessoas: [],
+      pessoas: [...pessoasJson],
       idPessoa: 1,
       intervaloAtualiza: setInterval(() => {
         this.atualizaJson();

@@ -7,7 +7,7 @@
         @click="dialogSala = true; dialogType = 'Novo Role'; classePopup=''"
       >
         <v-card>
-          <v-img class="white--text" height="30vh" src="@/assets/novo_role.png">
+          <v-img class="white--text" height="30vh" src="@/assets/img/novo_role.png">
             <v-card-title class="fill-height c-right">Novo role</v-card-title>
           </v-img>
         </v-card>
@@ -18,7 +18,7 @@
         @click="dialogSala = true; dialogType = 'Entrar em um Role'; classePopup='c-login-cod'"
       >
         <v-card>
-          <v-img class="white--text" height="30vh" src="@/assets/entrar_role.png">
+          <v-img class="white--text" height="30vh" src="@/assets/img/entrar_role.png">
             <v-card-title class="fill-height c-right">Entrar em um role</v-card-title>
           </v-img>
         </v-card>
@@ -27,7 +27,7 @@
       <router-link to="Ranking" class="c-decoration-none">
         <v-list-item three-line class="c-nopadding">
           <v-card>
-            <v-img class="white--text" height="30vh" src="@/assets/ranking_role.png">
+            <v-img class="white--text" height="30vh" src="@/assets/img/ranking_role.png">
               <v-card-title class="fill-height c-right">Ranking</v-card-title>
             </v-img>
           </v-card>
@@ -81,6 +81,8 @@
 </template>
 
 <script>
+import config from "../assets/dados/config";
+
 export default {
   methods: {
     alertaErro(msg) {
@@ -150,6 +152,7 @@ export default {
   },
   data() {
     return {
+      config : config,
       dialogSala: false,
       dialogErro: false,
       inputDialog: "",
