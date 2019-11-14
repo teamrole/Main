@@ -4,7 +4,7 @@
       <div class="col-7 c-painelHeader">
         <span class="title">
           <v-icon color="#9c27b0">where_to_vote</v-icon>
-          {{'historico.nomeRole'}}
+          {{historico.sala.nome}}
         </span>
       </div>
       <div>
@@ -34,8 +34,8 @@
         </div>
         <div class="col-4 text-center c-nopadding">
           <p class="text-center font-weight-bold">{{historico.totalUsuarios}}</p> 
-          <p class="text-center font-weight-bold">{{historico.totalParcial}}</p>
-          <p class="text-center font-weight-bold">{{historico.totalSala}}</p>
+          <p class="text-center font-weight-bold">{{(historico.sala.pedido.map((ped) => ped.perfil.filter((perf) => { return perf.id == idUsuario }).length > 0 ?  ped.item.valor * ped.quantidade / ped.perfil.length : 0).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>        
+          <p class="text-center font-weight-bold">{{(historico.sala.pedido.map((ped) => ped.item.valor * ped.quantidade).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>
         </div>
       </div>
     </v-expansion-panel-content>
@@ -46,6 +46,11 @@
 export default {
   props: {
     historico: Object
+  },
+  data(){
+    return {
+      idUsuario : 2
+    }
   }
 };
 </script>
