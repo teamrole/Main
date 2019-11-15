@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.irole.api.model.Usuario;
@@ -15,6 +16,9 @@ public class UsuarioService {
 	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	public Usuario atualizar(Long id, Usuario usuario) {
 		Usuario buscaUsuario = buscaUsuario(id);
@@ -36,6 +40,20 @@ public class UsuarioService {
 		}else {
 			throw new EmptyResultDataAccessException(1);
 		}
+	}
+
+	public Usuario login(Usuario usuario) {
+		Optional<Usuario> findByCelular = usuarioRepository.findByCelular(usuario.getCelular());
+		
+		//celular nao cadastrado
+		if(findByCelular == null)
+				return null;
+		
+		//senha nao bate com o do usuario encontrado pelo celular
+		if(!bCryptPasswordEncoder.matches(usuario.getSenha(), findByCelular.get().getSenha()))
+				return null;
+		
+		return findByCelular.get();
 	}
 	
 }

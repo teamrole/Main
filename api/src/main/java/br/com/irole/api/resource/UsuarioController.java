@@ -43,8 +43,7 @@ public class UsuarioController {
 	private UsuarioService usuarioService;
 	
 	@Autowired
-	private PerfilService perfilService;
-	
+	private PerfilService perfilService;	
 	
 	@Autowired
 	private ApplicationEventPublisher publisher;
@@ -55,13 +54,22 @@ public class UsuarioController {
 	@Autowired
 	private MessageSource messageSource;
 	
+	@PostMapping("login")
+	@ApiOperation(notes = "Faz login com o celular e senha disponibilizados", value = "Login do usuário")
+	public ResponseEntity<Usuario> login(@RequestBody @Valid Usuario usuario){
+		Usuario usuarioEncontrado = usuarioService.login(usuario);
+		if(usuarioEncontrado == null) {
+			return ResponseEntity.status(401).build();
+		}
+		return ResponseEntity.ok(usuarioEncontrado);
+	}
+	
 	@GetMapping
 	@ApiOperation(notes = "Lista todos os usuários cadastrados no sistema", value = "Listar usuários")
 	public ResponseEntity<?> listarUsuarios(){
 		List<Usuario> usuarios = usuarioRepository.findAll();
 		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
-	}
-	
+	}	
 	@PostMapping
 	@ApiOperation(notes = "Cadastrar um novo usuário passando o objeto Usuário no corpo da requisição", value = "Registra usuário")
 	public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody Usuario usuario, HttpServletResponse response){
