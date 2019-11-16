@@ -19,50 +19,75 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.UsuarioRepository;
 
-
 @Service
 public class PerfilService {
-	
+
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 	
+	@Autowired 
+	private UsuarioService usuarioService;
+
 	@Autowired
 	private PerfilRepository perfilRepository;
-	
-	
+
 	public Usuario atualizar(Long id, Perfil perfil) {
 		Optional<Perfil> buscaPerfil = perfilRepository.findById(id);
 		if (buscaPerfil.isPresent()) {
 			BeanUtils.copyProperties(perfil, buscaPerfil, "id");
 			perfilRepository.save(buscaPerfil.get());
-			return buscaPerfil.get().getUsuario();			
-		}else {
+			return buscaPerfil.get().getUsuario();
+		} else {
 			throw new EmptyResultDataAccessException(1);
 		}
 	}
-	
-	
-	public ResponseEntity<?> buscaPerfilId(Long id){
+
+	public ResponseEntity<?> buscaPerfilId(Long id) {
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
 		if (usuario.isPresent()) {
-			if(usuario.get().getAtivo()) {
+			if (usuario.get().getAtivo()) {
 				Perfil perfil = perfilRepository.findByUsuario(usuario.get());
 				if (perfil != null) {
 					return ResponseEntity.ok(perfil);
-				}else {
+				} else {
 					return ResponseEntity.notFound().build();
 				}
-			}else {
-				String mensagemUsuario = messageSource.getMessage("recurso.usuario-inativo", null, LocaleContextHolder.getLocale());
+			} else {
+				String mensagemUsuario = messageSource.getMessage("recurso.usuario-inativo", null,
+						LocaleContextHolder.getLocale());
 				List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 			}
-		}else {
+		} else {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
+	public Perfil cadastraPerfilParaUsuario(Usuario usuario) throws Exception {
+
+		Perfil perfil = new Perfil();	
 		
+		Optional<Usuario> usuariovalidado = usuarioRepository.findById(usuario.getId());
+		
+		if(!usuariovalidado.isPresent() || !usuariovalidado.get().getAtivo())
+			throw new Exception("usuario erro");
+			
+			perfil.setUsuario(usuariovalidado.get());
+		
+		try {
+			Perfil perfilSalvo = perfilRepository.save(perfil);
+			
+			if(perfilSalvo == null)
+				throw new Exception("perfil erro");	
+			
+			return perfilSalvo;
+		}catch (Exception e) {
+			usuarioService.rollbackUsuarioPerfil(usuariovalidado.get());
+			throw e;
+		}
+	}
+
 }

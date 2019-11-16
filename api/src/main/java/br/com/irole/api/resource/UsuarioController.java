@@ -1,6 +1,5 @@
 package br.com.irole.api.resource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,12 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.irole.api.event.RecursoCriadoEvent;
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.UsuarioRepository;
 import br.com.irole.api.service.PerfilService;
@@ -44,15 +37,6 @@ public class UsuarioController {
 	
 	@Autowired
 	private PerfilService perfilService;	
-	
-	@Autowired
-	private ApplicationEventPublisher publisher;
-	
-	@Autowired
-	private BCryptPasswordEncoder codifica;
-	
-	@Autowired
-	private MessageSource messageSource;
 	
 	@PostMapping("login")
 	@ApiOperation(notes = "Faz login com o celular e senha disponibilizados", value = "Login do usuário")
@@ -73,22 +57,8 @@ public class UsuarioController {
 	@PostMapping
 	@ApiOperation(notes = "Cadastrar um novo usuário passando o objeto Usuário no corpo da requisição", value = "Registra usuário")
 	public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody Usuario usuario, HttpServletResponse response){
-		List<Erro> erros = new ArrayList<>(); 
 		
-		usuario.setSenha(codifica.encode(usuario.getSenha()));
-		Usuario novoUsuario = null;
-		try {
-			novoUsuario = usuarioRepository.save(usuario);
-			publisher.publishEvent(new RecursoCriadoEvent(this, response, novoUsuario.getId()));
-			
-		} catch (Exception e) {
-			String mensagemUsuario = messageSource.getMessage("recurso.usuario.jaexiste", null,LocaleContextHolder.getLocale());
-			String mensagemDev = e.getMessage();
-			Erro erro = new Erro(mensagemUsuario, mensagemDev);
-			erros.add(erro);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
-		}
-		return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
+		return usuarioService.cadastra(usuario);
 	}
 	
 	@GetMapping("/{id}")
@@ -129,12 +99,4 @@ public class UsuarioController {
 	public void atualizaAtivo(@PathVariable Long id, @RequestBody Boolean ativo) {
 		usuarioService.atualizarAtivo(id, ativo);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 }
