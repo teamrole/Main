@@ -49,7 +49,7 @@ pipeline {
                     }catch (err) {
                         echo: 'caught error: $err'
                     }
-                    sh "docker run --restart always --name irole-api -p 80:6969 --link mysql-database:mysql -d danjun48/irole-api:${env.BUILD_NUMBER}"
+                    sh "docker run --restart always --name irole-api -p 80:6969 --link app-database:mysql -d danjun48/irole-api:${env.BUILD_NUMBER}"
                   }
              }
         }
