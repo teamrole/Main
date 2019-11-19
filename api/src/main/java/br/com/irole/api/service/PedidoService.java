@@ -1,15 +1,15 @@
 package br.com.irole.api.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -57,7 +57,8 @@ public class PedidoService {
 				Pedido p = persistePedido(pedido);
 				pedidoSala.add(p);							
 			}else {
-				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {pedido.getItem().getNome()},
+				String nomePedido = (pedido.getItem().getDescricao() != null) ? pedido.getItem().getDescricao() : pedido.getItem().getItemTipo().toString();
+				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {nomePedido},
 						LocaleContextHolder.getLocale());
 				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
 				erros.add(erro);
@@ -101,5 +102,40 @@ public class PedidoService {
 		return  perfis.stream() 
 		        .distinct()    
 		        .collect(Collectors.toList());
+	}
+	
+	public Pedido atualizar(Long id, Pedido pedido) {
+		Optional<Pedido> buscaPedido = pedidoRepository.findById(id);
+		if (buscaPedido.isPresent()) {
+			BeanUtils.copyProperties(pedido, buscaPedido.get(), "id");
+			pedidoRepository.save(buscaPedido.get());
+			return buscaPedido.get();			
+		}else {
+			throw new EmptyResultDataAccessException(1);
+		}
+	} 
+	
+	public ResponseEntity<?> apagarPedido(Long id) {
+		List<Erro> erros = new ArrayList<>();
+		Optional<Pedido> pedido = pedidoRepository.findById(id);
+		Boolean sala = salaRepository.salaDoPedidoAberta(id);
+		if (pedido.isPresent()) {
+			if (sala) {
+				pedidoRepository.deletarPP(pedido.get().getId());
+				pedidoRepository.deletarPS(pedido.get().getId());
+				pedidoRepository.deleteById(pedido.get().getId());
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			}else {
+				String mensagemUsuario = messageSource.getMessage("recurso.sala.fechada",null, LocaleContextHolder.getLocale());
+				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+				erros.add(erro);
+				
+			}
+		}else {
+			String mensagemUsuario = messageSource.getMessage("recurso.pedido.nao-encontrado",null, LocaleContextHolder.getLocale());
+			Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+			erros.add(erro);
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 	}
 }

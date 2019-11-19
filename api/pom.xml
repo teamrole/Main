@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.irole.api</groupId>
 	<artifactId>api_irole</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<name>api_irole</name>
 	<packaging>jar</packaging>
 	<description>Project w Spring Boot</description>

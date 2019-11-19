@@ -1,0 +1,1 @@
+alter table usuario modify celular varchar(11) not null unique;

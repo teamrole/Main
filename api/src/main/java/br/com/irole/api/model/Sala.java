@@ -1,18 +1,16 @@
 package br.com.irole.api.model;
 
 import java.util.List;
-import java.util.Optional;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -27,8 +25,11 @@ public class Sala {
 	
 	@Size(min = 4, max = 4)
 	private String codigo;
+	
+	private String nome;
 
-	@ElementCollection
+	@ElementCollection()
+	
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn( name="pedido_id", referencedColumnName = "id") })	
@@ -65,6 +66,14 @@ public class Sala {
 
 	public void setPedido(List<Pedido> pedido) {
 		this.pedido = pedido;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
 	}
 
 	@Override

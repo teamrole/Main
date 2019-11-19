@@ -1,8 +1,5 @@
 package br.com.irole.api.service;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,29 +17,18 @@ public class RankingService {
 	private HistoricoSalaUsuarioRepository historicoSalaUsuarioRepository;
 
 	public List<Ranking> rankingDia() {
-		Timestamp hoje = new Timestamp(System.currentTimeMillis());
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date(hoje.getTime()));		
-		List<Ranking> ranking  = historicoSalaUsuarioRepository.rankingDia(date);
-		
-		return ranking;
+		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingDia();
+		return historicos;
 	}
 
+	public List<Ranking> rankingMes() {
+		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingMes();		
+		return historicos;
+	}
 
 	public List<Ranking> rankingTodos() {
-		
-		List<Ranking> ranking  = historicoSalaUsuarioRepository.ranking();		
-		
-		return ranking;
+		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingTodos();		
+		return historicos;
 	}
-	
-	public List<Ranking> rankingMes() {
-		Timestamp hoje = new Timestamp(System.currentTimeMillis());
-		String mes = new SimpleDateFormat("MM").format(new Date(hoje.getTime()));
-		String ano = new SimpleDateFormat("yyyy").format(new Date(hoje.getTime()));
-		
-		List<Ranking> ranking = historicoSalaUsuarioRepository.rankingMes(mes, ano);
-		
-		return ranking;
-	}	
 	
 }

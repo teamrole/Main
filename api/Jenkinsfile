@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+    
+    environment {
+        DISABLE_AUTH = 'true'
+        PROJECT_PATH = 'api'  
+    }    
+   
+    stages {       
+        stage('Build') {
+            steps { 
+                dir(PROJECT_PATH){
+                  sh 'mvn clean package'
+                }
+            }
+        }
+        stage('Archival'){
+          steps{
+            archiveArtifacts artifacts: 'api/target/*.jar'
+          }
+        }
+        stage('Build Docker Image') {                
+            steps {
+                script {
+                    dir(PROJECT_PATH){
+                        app = docker.build("danjun48/irole-api")                        
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {           
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+                        app.push("${env.BUILD_NUMBER}")
+                        app.push("latest")
+                    }   
+                }
+            }
+        }
+        stage('DeployLocal') {
+             steps {
+                milestone(1)
+                  script {
+                    sh "docker pull danjun48/irole-api:${env.BUILD_NUMBER}"                    
+                    try {                         
+                        sh "docker stop irole-api"
+                        sh "docker rm irole-api"                                                 
+                    }catch (err) {
+                        echo: 'caught error: $err'
+                    }
+                    sh "docker run --restart always --name irole-api -p 80:6969 --link mysql-database:mysql -d danjun48/irole-api:${env.BUILD_NUMBER}"
+                  }
+             }
+        }
+        stage('Remove Unused docker image'){
+            steps{
+                script{
+                    sh "docker rmi -f registry.hub.docker.com/danjun48/irole-api:$BUILD_NUMBER" 
+                    sh "docker rmi -f danjun48/irole-api:$BUILD_NUMBER"   
+                }
+            }
+        }
+    }   
+}
