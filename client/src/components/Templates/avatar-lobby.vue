@@ -2,7 +2,7 @@
   <div class="c-avatar">
     <div class="c-block">
       <v-avatar size="40px">
-        <v-img :src="require(`@/assets/Perfil/${avatar}`)" />
+        <v-img :src="avatar" />
       </v-avatar>
     </div>
     <div>

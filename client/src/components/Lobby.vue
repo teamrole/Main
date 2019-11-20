@@ -27,21 +27,21 @@
         v-for="pessoa in pessoas"
         :key="pessoa.id"
         :nome="pessoa.nome"
-        :avatar="pessoa.foto"
+        avatar="https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/1574163594954-perfil.jpg?alt=media&token=e2041018-9432-442c-aca2-8de11593c8b4"
       />
     </div>
     <v-container class="c-list-container" fluid>
       <v-list class="c-list">
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
-            <!-- <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img> -->
-            <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img>
+            <v-img :src="require(`@/assets/Icon/${pedido.item.itemTipo}.png`)"></v-img>
+            <!-- <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img> -->
           </v-avatar>
 
           <v-list-item-content class="c-list-item-content">
             <v-list-item-title
               class="c-item-lista"
-              v-text="pedido.quantidade + 'x ' + (pedido.item.nome ? pedido.item.nome : pedido.item.tipo)"
+              v-text="pedido.quantidade + 'x ' + (pedido.item.descricao ? pedido.item.descricao : pedido.item.itemTipo)"
             ></v-list-item-title>
             <span class="c-item-lista">
               <b>{{pedido.perfil.length}}</b>
@@ -86,15 +86,23 @@
             <v-container>
               <v-row>
                 <v-col cols="8">
-                  <v-text-field label="Descrição (Opcional)" v-model="itemSendoEditado.nome"></v-text-field>
+                  <v-text-field
+                    label="Descrição (Opcional)"
+                    v-model="itemSendoEditado.item.descricao"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="4">
-                  <v-text-field type="number" label="Qtd" :error="qtdErro" v-model="itemSendoEditado.quantidade"></v-text-field>
+                  <v-text-field
+                    type="number"
+                    label="Qtd"
+                    :error="qtdErro"
+                    v-model="itemSendoEditado.quantidade"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-select
-                    :items="['bebida', 'comida', 'outros']"
-                    v-model="itemSendoEditado.tipo"
+                    :items="['BEBIDA', 'COMIDA', 'OUTRO']"
+                    v-model="itemSendoEditado.item.itemTipo"
                     label="Tipo"
                     required
                   ></v-select>
@@ -104,7 +112,7 @@
                     :error="precoErro"
                     @change="verificaPreco()"
                     label="Preço"
-                    v-model="itemSendoEditado.valor"
+                    v-model="itemSendoEditado.item.valor"
                     prefix="$"
                   ></v-text-field>
                 </v-col>
@@ -147,11 +155,11 @@
       <v-card>
         <v-card-title
           class="headline"
-        >{{itemSendoEditado.nome ? itemSendoEditado.nome : itemSendoEditado.tipo}}</v-card-title>
+        >{{itemSendoEditado.descricao ? itemSendoEditado.descricao : itemSendoEditado.itemTipo}}</v-card-title>
         <v-card-text>
           Quantidade:{{itemSendoEditado.quantidade}}
           <br />
-          Preço:{{itemSendoEditado.valor}}
+          Preço:{{itemSendoEditado.item.valor}}
           <br />
           Pagantes: {{itemSendoEditado.perfil.length}}
         </v-card-text>
@@ -313,24 +321,26 @@ export default {
       );
     },
     novoItem() {
-      console.log("novo");
-      
+
       this.AcaoItem = "Novo";
       this.itemSendoEditado = {
         id: null,
-        tipo: "outros",
-        nome: null,
-        valor: null,
-        quantidade: 1,
-        perfil: []
+        item: {
+          id: null,
+          descricao: null,
+          itemTipo: "OUTRO",
+          valor: null
+        },
+        perfil: [],
+        quantidade: 1
       };
       this.dialog.Edit = true;
     },
     salvarItem(item) {
       //valida preco
-      console.log("SALVAR");
-      item.valor = parseFloat(item.valor) || 0;
-      this.precoErro = item.valor <= 0;
+      console.log(item);
+      item.item.valor = parseFloat(item.item.valor) || 0;
+      this.precoErro = item.item.valor <= 0;
       //valida pagantes
       this.selectErro = item.perfil.length <= 0;
       //valdia quantidade
@@ -354,22 +364,25 @@ export default {
               }
             });
           });
+
+          this.items.push({
+            item: {
+              descricao : item.item.descricao + "",
+              valor : item.item.valor,
+              itemTipo : item.item.itemTipo
+            },
+            quantidade: item.quantidade,
+            perfil: pagantesJson
+          });
+          let pedido = {
+            id: this.idSala,
+            pedido: this.items
+          };
+          console.log(JSON.stringify(pedido));
           axios
             .post(
               `http://${config.api.host}:${config.api.port}/pedidos`,
-              {
-                id: this.idSala,
-                pedido: [
-                  {
-                    item: {
-                      nome: item.nome + "",
-                      valor: item.valor
-                    },
-                    quantidade: item.quantidade,
-                    perfil: pagantesJson
-                  }
-                ]
-              },
+              pedido,
               {
                 auth: config.api.auth
               }
@@ -378,8 +391,9 @@ export default {
               response => {
                 this.items = response.data;
               },
-              error => {
+              error => {  
                 console.log(error);
+                console.log(response);
               }
             );
 
@@ -387,9 +401,29 @@ export default {
         } else if (this.AcaoItem == "Editar") {
           let alteraIndex = this.items.findIndex(x => x.id === item.id);
           this.items[alteraIndex] = item;
-          console.log("REQUISIÇÃO EDIT PARA BACKEND");
-          //no response atualizar itens
-          this.recalculaTotal();
+
+          let pedido = {
+            id: this.idSala,
+            pedido: this.items
+          };
+          console.log(pedido);
+          axios
+            .post(
+              `http://${config.api.host}:${config.api.port}/pedidos`,
+              pedido,
+              {
+                auth: config.api.auth
+              }
+            )
+            .then(
+              response => {
+                this.items = response.data;
+                this.recalculaTotal();
+              },
+              error => {
+                console.log(error);
+              }
+            );
           return true;
         }
       } else {
@@ -399,14 +433,39 @@ export default {
     excluirItem(item) {
       console.log("excluir");
 
-      console.log("REQUISIÇÃO DELETE PARA BACKEND");
+      console.log(item.id);
+      let alteraIndex = this.items.findIndex(x => x.id === item.id);
+          this.items.splice(alteraIndex, 1);
 
-      atualizaJson();
+          let pedido = {
+            id: this.idSala,
+            pedido: this.items
+          };
+          console.log(pedido);
+          axios
+            .post(
+              `http://${config.api.host}:${config.api.port}/pedidos`,
+              pedido,
+              {
+                auth: config.api.auth
+              }
+            )
+            .then(
+              response => {
+                this.items = response.data;
+                this.recalculaTotal();
+              },
+              error => {
+                console.log(error);
+              }
+            );
+
+      
       //no response atualizar itens
       //this.recalculaTotal();
     },
     editarItem(item) {
-      console.log("editar");
+      console.log(item);
 
       this.AcaoItem = "Editar";
       this.itemSendoEditado = { ...item };
@@ -415,14 +474,14 @@ export default {
     verificaPreco() {
       console.log("verifica");
 
-      if (this.itemSendoEditado.valor.length <= 0) this.precoErro = true;
+      if (this.itemSendoEditado.item.valor.length <= 0) this.precoErro = true;
       else {
-        let preco = (this.itemSendoEditado.valor + "").replace(/\,/g, ".");
+        let preco = (this.itemSendoEditado.item.valor + "").replace(/\,/g, ".");
         preco = preco.includes(".") ? preco : preco + ".00";
         preco = preco.replace(/[^0-9.]/g, "");
         preco = preco.split(".");
         preco = preco.slice(0, -1).join("") + "." + preco.slice(-1);
-        this.itemSendoEditado.valor = parseFloat(preco).toFixed(2);
+        this.itemSendoEditado.item.valor = parseFloat(preco).toFixed(2);
         this.precoErro = false;
       }
     },
@@ -437,14 +496,16 @@ export default {
       this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
-
       console.log("ATUALIZA JSON");
-      
+
       //Carrega itens da sala
       axios
-        .get(`http://${config.api.host}:${config.api.port}/pedidos/salas/${this.idSala}`, {
-          auth: config.api.auth
-        })
+        .get(
+          `http://${config.api.host}:${config.api.port}/pedidos/salas/${this.idSala}`,
+          {
+            auth: config.api.auth
+          }
+        )
         .then(
           response => {
             this.items = response.data ? response.data : [];
@@ -459,9 +520,12 @@ export default {
       this.recalculaTotal();
 
       axios
-        .get(`http://${config.api.host}:${config.api.port}/salas/${this.idSala}/usuarios`, {
-          auth: config.api.auth
-        })
+        .get(
+          `http://${config.api.host}:${config.api.port}/salas/${this.idSala}/usuarios`,
+          {
+            auth: config.api.auth
+          }
+        )
         .then(
           response => {
             this.pessoas = response.data;
@@ -481,7 +545,7 @@ export default {
       totalPessoal: 0,
       totalDoRole: 0,
       codigoDaSala: "",
-      idSala: 1,
+      idSala: 3,
       precoErro: false,
       selectErro: false,
       qtdErro: false,
@@ -497,11 +561,14 @@ export default {
       AcaoItem: "Editar",
       itemSendoEditado: {
         id: null,
-        tipo: null,
-        nome: null,
-        valor: null,
-        quantidade: null,
-        perfil: [1]
+        item: {
+          id: null,
+          descricao: null,
+          itemTipo: null,
+          valor: null
+        },
+        perfil: [1],
+        quantidade: null
       },
       items: [],
       pessoas: [],
