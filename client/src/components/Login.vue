@@ -31,7 +31,7 @@
       <v-card>
         <v-card-title>
           <!-- <span class="headline">Insira o codigo recebido por SMS</span> -->
-          <span class="headline">Digite uma senha:</span>
+          <span class="headline">Digite {{statusSenha}} senha:</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -86,9 +86,8 @@ export default {
       if (this.codigoAut.length < 6) {
         this.Erros.fieldCodMsg = "Sua senha deve possuir no minimo 6 Digitos";
       } else {
+        return;
         this.Erros.fieldCodMsg = "";
-        console.log("REQUISIÇÃO GET PARA O BACKEND VALIDANDO CODIGO");
-
         axios
           .post(
             `http://${config.api.host}:${config.api.port}/usuarios`,
@@ -106,14 +105,10 @@ export default {
           )
           .then(
             response => {
-              console.log(response.data);
-
               axios
                 .post(
                   `http://${config.api.host}:${config.api.port}/perfis`,
                   {
-                    foto: 'Perfil1.png',
-                    nome: 'Usuario',
                     usuario: {
                       id: response.data.id
                     }
@@ -124,7 +119,27 @@ export default {
                 )
                 .then(
                   response => {
-                    console.log(response.data)
+                    axios
+                      .get(
+                        `http://${config.api.host}:${config.api.port}/usuarios/${response.data.id}`,
+
+                        {
+                          auth: config.api.auth
+                        }
+                      )
+                      .then(
+                        response => {
+                          console.log(response.data);
+                          localStorage.setItem(
+                            "USER",
+                            JSON.stringify(response.data)
+                          );
+                          this.$router.push("Perfil");
+                        },
+                        error => {
+                          console.log(error);
+                        }
+                      );
                   },
                   error => {
                     console.log(error);
@@ -136,39 +151,40 @@ export default {
             }
           );
       }
-
-      //codigo para verificar SMS
-      // if (this.codigoAut.length != 6) {
-      //   this.Erros.fieldCodMsg = "O Código deve possuir 6 Digitos";
-      // } else {
-      //   this.Erros.fieldCodMsg = "";
-      //   console.log("REQUISIÇÃO GET PARA O BACKEND VALIDANDO CODIGO");
-
-      //   //Caso codigo for validado pelo backend
-      //   if (this.codigoAut == "666969") {
-      //     let user = {
-      //       telefone: this.userTel,
-      //       codigo: this.codigoAut
-      //     };
-      //     localStorage.setItem("USER", JSON.stringify(user));
-      //     //Redireciona para a home
-      //     this.$router.push("Home");
-      //   }
-      //   //Caso codigo nao for validado pelo backend
-      //   else {
-      //     this.Erros.fieldCodMsg = "Código inserido inválido";
-      //   }
-      // }
     },
     verificaTel() {
-      if (this.userTel.length < 18) {
+      let telSemMask = this.unmaskTel(this.userTel);
+      console.log(telSemMask);
+      if (telSemMask.length < 10) {
         this.Erros.fieldTelMsg = "O Telefone deve possuir 10 ou 11 Digitos";
       } else {
         this.Erros.fieldTelMsg = "";
-        this.dialogCod = true;
-        //Apenas para SMS
-        //console.log("REQUISIÇÃO POST PARA BACKEND ENVIAR SMS");
+
+        axios
+          .get(`http://${config.api.host}:${config.api.port}/usuarios`, {
+            auth: config.api.auth
+          })
+          .then(
+            response => {
+              let flag = false;
+              response.data.some(function(a) {
+                if (a.celular == telSemMask) {
+                  flag = true;
+                  return;
+                }
+              });
+              this.statusSenha = flag ? "sua" : "uma nova";
+              this.dialogCod = true;
+            },
+            error => {}
+          );
       }
+    },
+    unmaskTel(tel) {
+      return tel
+        .replace("+55 (", "")
+        .replace(") ", "")
+        .replace("-", "");
     }
   },
   directives: {
@@ -180,6 +196,7 @@ export default {
     userTel: "",
     codigoAut: "",
     dialogCod: false,
+    statusSenha: "sua",
     Erros: {
       fieldTelMsg: "",
       fieldCodMsg: ""
