@@ -34,4 +34,11 @@ public interface UsuarioService {
 	 * @param status do tipo Boolean, true para ativo e false para desativo
 	 */
 	public Usuario atualizar(Long id, Usuario usuario);
+	
+	/**
+	 * Busca um usuário
+	 * @param id o ID do usuário
+	 * @return Usuario
+	 */
+	public Usuario buscaUsuario(Long id);
 }

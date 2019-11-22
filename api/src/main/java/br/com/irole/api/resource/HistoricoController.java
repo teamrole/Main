@@ -27,9 +27,9 @@ public class HistoricoController {
 	private SalaService salaService;
 	
 	@GetMapping("/usuarios/{id}")
-	@ApiOperation(notes = "Retorna uma lista de histórico pelo ID do usuário", value = "Capturar histórico")
+	@ApiOperation(notes = "Retorna uma lista de histórico pelo ID do perfil", value = "Capturar histórico")
 	public ResponseEntity<List<HistoricoSalaUsuario>> getHistorico(@PathVariable Long id){
-		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDUsuario(id);
+		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDPerfil(id);
 		List<HistoricoSalaUsuario> historicos = new ArrayList<HistoricoSalaUsuario>();;
 		for(HistoricoSalaUsuario historico : salas ) {
 			historico.setTotalSala(salaService.totalSala(historico.getSala().getId()));

@@ -72,9 +72,9 @@ public class PerfilController {
 	@PutMapping("/{id}")
 	@ApiOperation(notes = "Edita dados do perfil, passando um objeto Perfil no corpo e o ID do perfil à ser alterado via URI", value = "Edita Perfil")
 	public Perfil atualizar(@PathVariable Long id, @Valid @RequestBody Perfil perfil){
-			Perfil perfilSalvo = perfilService.atualizar(id, perfil);
-			return perfilSalvo;    
-		
+
+		Perfil perfilSalvo = perfilService.atualizar(id, perfil);
+		return perfilSalvo;   		
 	}
 	
 	@GetMapping("/{id}/sala-atual")
@@ -89,11 +89,10 @@ public class PerfilController {
 	@GetMapping("/{id}/total")
 	@ApiOperation(notes= "Retorna o total gasto em todos os roles do usuario", value= "Total Gasto")
 	public BigDecimal totalGeral(@PathVariable Long id) {
-		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDUsuario(id);
+		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDPerfil(id);
 		BigDecimal total = new BigDecimal(0);
 		for(HistoricoSalaUsuario historico : salas ) {
-			BigDecimal t = historico.getTotalParcial();
-			total = total.add(t);
+			total = total.add(historico.getTotalParcial());
 		}
 		return total;
 	}

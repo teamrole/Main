@@ -135,15 +135,20 @@ public class SalaServiceImpl implements SalaService{
 				usuario.getPerfil().getId());
 
 		if (historicoSalaUsuario == null) {
+			
 			throw new EmptyResultDataAccessException(1);
 		} else {
+			
+			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, idU);
+			
 			if (historicoSalaUsuario.getData_saida() == null) {
 				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 				historicoSalaUsuario.setData_saida(timestamp);
-				historicoSalaUsuario.setTotalParcial(pegaContaDeUmUsuario(id, idU));
+				historicoSalaUsuario.setTotalParcial(pegaContaDeUmUsuario);
 				historicoSalaUsuario.setAtivo(false);
 				historicoRepository.save(historicoSalaUsuario);
-				return pegaContaDeUmUsuario(id, idU);
+				return pegaContaDeUmUsuario;
+				
 			}else {
 				throw new EmptyResultDataAccessException("O usuario ja saiu da sala!", 1);
 			}
@@ -154,11 +159,10 @@ public class SalaServiceImpl implements SalaService{
 	// TODO trocar para receber pefil id no parametro
 	@Override
 	public BigDecimal pegaContaDeUmUsuario(Long id, Long idU) {
-		Usuario usuario = usuarioService.buscaUsuario(idU);
 
 		BigDecimal total = BigDecimal.ZERO;
 		BigDecimal totalPedido = BigDecimal.ZERO;
-		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, usuario.getPerfil().getId());
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);
 
 		if (pedidoUsuario.isEmpty())
 			return new BigDecimal(0);
@@ -166,7 +170,6 @@ public class SalaServiceImpl implements SalaService{
 		Long usuarioPorPedido;
 		for (TotalPedido pedido : pedidoUsuario) {
 			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));
-			// TODO PEgar somente os usuarios ativo
 			usuarioPorPedido = salaRepository.usuariosPorPedido(pedido.getPedido_id());
 			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido));
 			total = total.add(totalPedido);

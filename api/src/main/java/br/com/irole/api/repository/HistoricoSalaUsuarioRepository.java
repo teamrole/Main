@@ -13,7 +13,7 @@ public interface HistoricoSalaUsuarioRepository extends JpaRepository<HistoricoS
 	  HistoricoSalaUsuario findBySalaUsuario(Long id, Long idU);
 	 
 	@Query(value = "SELECT * FROM historico_sala_usuario WHERE perfil_id = ?1", nativeQuery = true)
-	  List<HistoricoSalaUsuario> findByIDUsuario(Long id);
+	  List<HistoricoSalaUsuario> findByIDPerfil(Long id);
 	  
 	@Query(value = "SELECT * FROM historico_sala_usuario WHERE sala_id = ?1", nativeQuery = true)
 	  List<HistoricoSalaUsuario> findByIDSala(Long id);

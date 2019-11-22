@@ -37,12 +37,17 @@ public class PerfilServiceImpl implements PerfilService{
 
 	@Override
 	public Perfil atualizar(Long id, Perfil perfil) {
+
 		Optional<Perfil> buscaPerfil = perfilRepository.findById(id);
+		Perfil p = buscaPerfil.get();
+		perfil.setId(p.getId());
+		perfil.setUsuario(p.getUsuario());
 		if (buscaPerfil.isPresent()) {
-			BeanUtils.copyProperties(perfil, buscaPerfil, "id");
-			perfilRepository.save(buscaPerfil.get());
-			return buscaPerfil.get();
-		} else {
+			BeanUtils.copyProperties(perfil, p);
+			perfilRepository.save(p);
+			return p;			
+		}else {
+
 			throw new EmptyResultDataAccessException(1);
 		}
 	}
