@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.irole.api.model.HistoricoSalaUsuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.service.SalaService;
-import br.com.irole.api.service.implementation.SalaServiceImpl;
 import io.swagger.annotations.ApiOperation;
 
 @RestController

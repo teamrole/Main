@@ -23,7 +23,6 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.UsuarioRepository;
 import br.com.irole.api.service.PerfilService;
 import br.com.irole.api.service.UsuarioService;
-import br.com.irole.api.service.implementation.UsuarioServiceImpl;
 import io.swagger.annotations.ApiOperation;
 
 @RestController

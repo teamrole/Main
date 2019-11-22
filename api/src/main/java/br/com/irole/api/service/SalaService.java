@@ -76,5 +76,11 @@ public interface SalaService {
 	 */
 	public ResponseEntity<?> editarNomeSala(Long id, String nomeDaSala);
 	
+	/**
+	 * Retorna o gasto de todos os usuários da sala
+	 * @param id o ID da sala
+	 * @return BigDecimal
+	 */
+	public BigDecimal totalSala(Long id);
 	
 }
