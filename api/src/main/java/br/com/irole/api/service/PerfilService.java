@@ -1,93 +1,34 @@
 package br.com.irole.api.service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
-import br.com.irole.api.repository.PerfilRepository;
-import br.com.irole.api.repository.UsuarioRepository;
 
-@Service
-public class PerfilService {
+public interface PerfilService {
 
-	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
-	private UsuarioRepository usuarioRepository;
+	/**
+	 * Encontra um perfil
+	 * @param id o ID do usuário que é dono do perfil a ser encontrado
+	 * @return ResponseEntity<Perfil> ou ResponseEntity com uma lista de erros
+	 */
+	public ResponseEntity<?> buscaPerfil(Long id);
 	
-	@Autowired 
-	private UsuarioService usuarioService;
-
-	@Autowired
-	private PerfilRepository perfilRepository;
-
-	public Usuario atualizar(Long id, Perfil perfil) {
-		Optional<Perfil> buscaPerfil = perfilRepository.findById(id);
-		if (buscaPerfil.isPresent()) {
-			BeanUtils.copyProperties(perfil, buscaPerfil, "id");
-			perfilRepository.save(buscaPerfil.get());
-			return buscaPerfil.get().getUsuario();
-		} else {
-			throw new EmptyResultDataAccessException(1);
-		}
-	}
-
-	public ResponseEntity<?> buscaPerfilId(Long id) {
-		Optional<Usuario> usuario = usuarioRepository.findById(id);
-		if (usuario.isPresent()) {
-			if (usuario.get().getAtivo()) {
-				Perfil perfil = perfilRepository.findByUsuario(usuario.get());
-				if (perfil != null) {
-					return ResponseEntity.ok(perfil);
-				} else {
-					return ResponseEntity.notFound().build();
-				}
-			} else {
-				String mensagemUsuario = messageSource.getMessage("recurso.usuario-inativo", null,
-						LocaleContextHolder.getLocale());
-				List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
-			}
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	public Perfil cadastraPerfilParaUsuario(Usuario usuario) throws Exception {
-
-		Perfil perfil = new Perfil();	
-		
-		Optional<Usuario> usuariovalidado = usuarioRepository.findById(usuario.getId());
-		
-		if(!usuariovalidado.isPresent() || !usuariovalidado.get().getAtivo())
-			throw new Exception("usuario erro");
-			
-			perfil.setUsuario(usuariovalidado.get());
-		
-		try {
-			Perfil perfilSalvo = perfilRepository.save(perfil);
-			
-			if(perfilSalvo == null)
-				throw new Exception("perfil erro");	
-			
-			return perfilSalvo;
-		}catch (Exception e) {
-			usuarioService.rollbackUsuarioPerfil(usuariovalidado.get());
-			throw e;
-		}
-	}
-
+	/**
+	 * Altera um perfil
+	 * @param id o ID do perfil a ser alterado
+	 * @param perfil um objeto contendo os novos valores
+	 * @return Perfil
+	 */
+	public Perfil atualizar(Long id, Perfil perfil);
+	
+	/**
+	 * Cadastrar um perfil ao usuário recém criado, se der erro deve alertar o Usuario Service
+	 * para que o mesmo possa fazer um rollback
+	 * @param usuario um objeto Usuário que vai receber um perfil
+	 * @throws Exception uma exeção genérica que alerta que o cadastro do perfil falhou
+	 * @return Perfil
+	 */
+	public Perfil cadastraPerfilParaUsuario(Usuario usuario) throws Exception;
+	
 }

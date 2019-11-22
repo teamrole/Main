@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,6 @@ import br.com.irole.api.model.HistoricoSalaUsuario;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
-import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.SalaService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,10 +33,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/salas")
 public class SalaController {
-	
-	@Autowired
-	private SalaRepository salaRepository;
-	
+		
 	@Autowired
 	private HistoricoSalaUsuarioRepository historicoRepository;
 	
@@ -63,10 +58,9 @@ public class SalaController {
 	@PostMapping
 	@ApiOperation(notes = "Cria uma nova sala e gera um código. Nenhum parâmetro é necessário", value = "Criar Sala")
 	public ResponseEntity<Sala> criarSala(HttpServletResponse response){
-		Sala novaSala = new Sala();
-		novaSala.setCodigo(RandomStringUtils.randomAlphanumeric(4));
-		salaRepository.save(novaSala);
+		Sala novaSala = salaService.criarSala();
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novaSala.getId()));
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
 	}
 	
@@ -81,10 +75,10 @@ public class SalaController {
 		return salaService.entraSala(idU,codigo);
 	}
 	
-	@PostMapping("/{id}/{idU}/fecharConta")
+	@DeleteMapping("/{id}/{idU}")
 	@ApiOperation(notes = "Fecha a conta de um usuário específico; ID da sala; ID do usuário na URI", value = "Fechar conta de um usuário")
 	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		 BigDecimal totalParcial = salaService.fecharParcial(id, idU);		 
+		 BigDecimal totalParcial = salaService.fecharContaDoUsuario(id, idU);		 
 		 return totalParcial;
 	}	
 	
@@ -100,10 +94,10 @@ public class SalaController {
 	}
 		
 	
-	@GetMapping("/{id}/{idU}/contaUsuario")
+	@GetMapping("/{id}/{idU}/conta")
 	@ApiOperation(notes = "Retorna os gastos de um usuário específico dentro de uma sala", value = "Retorna Conta do usuário")
 	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		BigDecimal totalParcial = salaService.contaParcial(id, idU);
+		BigDecimal totalParcial = salaService.pegaContaDeUmUsuario(id, idU);
 		return totalParcial;
 	}	
 		
@@ -117,13 +111,6 @@ public class SalaController {
 	@PutMapping("/{id}/nome")
 	@ApiOperation(notes = "Editar o nome da sala passando o ID da sala como parãmetro e o nome no corpo; *Sem aspas", value = "Trocar nome da Sala")
 	public ResponseEntity<?> editarNomeSala(@PathVariable Long id, @RequestBody String nome){
-		nome = nome.replaceAll("\"", "");
-		Sala buscaSala = salaService.buscaSala(id);
-		if(buscaSala.getAberta()) {
-			buscaSala.setNome(nome);
-			Sala salaSalva = salaRepository.save(buscaSala);
-			return ResponseEntity.ok(salaSalva);
-		}
-			return ResponseEntity.badRequest().body("Só é possível editar salas abertas");
+		return salaService.editarNomeSala(id, nome);
 	}
 }

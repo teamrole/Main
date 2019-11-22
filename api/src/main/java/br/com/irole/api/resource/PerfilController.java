@@ -71,9 +71,9 @@ public class PerfilController {
 	
 	@PutMapping("/{id}")
 	@ApiOperation(notes = "Edita dados do perfil, passando um objeto Perfil no corpo e o ID do perfil à ser alterado via URI", value = "Edita Perfil")
-	public Usuario atualizar(@PathVariable Long id, @Valid @RequestBody Perfil perfil){
-			Usuario usuarioSalvo = perfilService.atualizar(id, perfil);
-			return usuarioSalvo;    
+	public Perfil atualizar(@PathVariable Long id, @Valid @RequestBody Perfil perfil){
+			Perfil perfilSalvo = perfilService.atualizar(id, perfil);
+			return perfilSalvo;    
 		
 	}
 	

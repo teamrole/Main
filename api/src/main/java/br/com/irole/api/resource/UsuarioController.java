@@ -23,6 +23,7 @@ import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.UsuarioRepository;
 import br.com.irole.api.service.PerfilService;
 import br.com.irole.api.service.UsuarioService;
+import br.com.irole.api.service.implementation.UsuarioServiceImpl;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -54,6 +55,7 @@ public class UsuarioController {
 		List<Usuario> usuarios = usuarioRepository.findAll();
 		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
 	}	
+	
 	@PostMapping
 	@ApiOperation(notes = "Cadastrar um novo usuário passando o objeto Usuário no corpo da requisição", value = "Registra usuário")
 	public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody Usuario usuario, HttpServletResponse response){
@@ -75,7 +77,7 @@ public class UsuarioController {
 	@GetMapping("/{id}/perfil")
 	@ApiOperation(notes = "Busca o perfil de um determinado usuário, passando ID do usuário na URI", value = "Retornar perfil do usuário")
 	public ResponseEntity<?> buscaPerfilId(@PathVariable Long id) {
-		return perfilService.buscaPerfilId(id);
+		return perfilService.buscaPerfil(id);
 	}
 	
 	@DeleteMapping("/{id}")
