@@ -5,18 +5,18 @@
       <v-col cols="12" class="c-margin-auto">
         <v-avatar size="120">
           <img src="../assets/Perfil/perfil5.jpg" />
-           <v-btn class="mx-2 c-changePic" fab dark small absolute bottom right color="cyan">
-         <v-icon dark>mdi-pencil</v-icon>
-        </v-btn>
+          <v-btn class="mx-2 c-changePic" fab dark small absolute bottom right color="cyan">
+            <v-icon dark>mdi-pencil</v-icon>
+          </v-btn>
         </v-avatar>
       </v-col>
       <v-col col="12" class="c-col">
         <v-row>
           <v-col cols="col-6" class="c-col1">
-            <span class="headline" id='rTotal'>{{usuario.totalRoles}}</span>
+            <span class="headline" id="rTotal">{{totalRoles}}</span>
           </v-col>
           <v-col cols="col-6" class="c-col1">
-            <span class="headline" id='vTotal'>R$ {{usuario.totalPago}}</span>
+            <span class="headline" id="vTotal">R$ {{totalPago}}</span>
           </v-col>
         </v-row>
         <v-row>
@@ -37,12 +37,18 @@
           label="Nome"
           :disabled="nameCheck"
           @blur="nameFocusOut"
-          v-model=usuario.user
+          v-model="usuario.perfil.nome"
           color="#033"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="nameCheck = false; oldName = usuario.user">
+        <v-btn
+          text
+          icon
+          color="gray"
+          height="100%"
+          @click="nameCheck = false; oldName = usuario.perfil.nome"
+        >
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
@@ -53,22 +59,27 @@
       <v-col cols="9">
         <v-text-field
           label="Celular"
-            v-model=usuario.tel
+          v-model="usuario.celular"
           class="c-text-field"
           :disabled="numberCheck"
           @blur="numberFocusOut"
-          v-mask='mask'
+          v-mask="mask"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="numberCheck=false; oldPhone = usuario.tel">
+        <v-btn
+          text
+          icon
+          color="gray"
+          height="100%"
+          @click="numberCheck=false; oldPhone = usuario.celular"
+        >
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
     </v-row>
 
-
-  <v-dialog v-model="dialogErro" persistent max-width="350  ">
+    <v-dialog v-model="dialogErro" persistent max-width="350  ">
       <v-card>
         <v-card-title style="color: red">Número Inválido</v-card-title>
         <v-card-text>
@@ -80,7 +91,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-      <v-dialog v-model="dialogErro2" persistent max-width="350  ">
+    <v-dialog v-model="dialogErro2" persistent max-width="350  ">
       <v-card>
         <v-card-title style="color: red">Nome Inválido</v-card-title>
         <v-card-text>
@@ -102,23 +113,27 @@
       </v-col>
     </v-row>
   </v-content>
-
 </template>
 <script>
 import { mask } from "vue-the-mask";
+import config from "../assets/dados/config";
+
+import axios from "axios";
+
 export default {
   directives: {
-      mask
-    },
+    mask
+  },
   data() {
     return {
-     oldPhone : "",
-     oldName : "",
-     dialogErro : false,
-     dialogErro2: false,
-        usuario: 
-        { id: 1, totalRoles: "15", totalPago: "589,88", user: "Ana Banana", tel: "43996150002"}
-        ,  
+      config: config,
+      oldPhone: "",
+      oldName: "",
+      dialogErro: false,
+      dialogErro2: false,
+      totalPago: 0,
+      totalRoles: 0,
+      usuario: JSON.parse(localStorage.getItem("USER")),
       nameCheck: true,
       numberCheck: true,
       mask: "+55 (##) #####-####"
@@ -127,29 +142,85 @@ export default {
   methods: {
     nameFocusOut() {
       this.nameCheck = true;
-     if( this.usuario.user.length < 3){
+      if (this.usuario.perfil.nome.length < 3) {
         this.dialogErro2 = true;
-        this.usuario.user = this.oldName;
+        this.usuario.perfil.nome = this.oldName;
       }
     },
     numberFocusOut() {
       this.numberCheck = true;
-      if( this.usuario.tel.length < 19){
+      if (this.usuario.celular.length < 19) {
         this.dialogErro = true;
-        this.usuario.tel = this.oldPhone;
+        this.usuario.celular = this.oldPhone;
       }
     },
+    atualizaJson() {
+      //Carrega itens da sala
+      let vm = this;
+      axios
+        .get(
+          `http://${config.api.host}:${config.api.port}/usuarios/${this.usuario.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            console.log(response.data);
+            localStorage.setItem("USER", JSON.stringify(response.data));
+          },
+          error => {
+            console.log(error);
+          }
+        );
+
+      axios
+        .get(
+          `http://${config.api.host}:${config.api.port}/historicos/usuarios/${this.usuario.id}`,
+          {
+            auth: config.api.auth
+          }
+        )
+        .then(
+          response => {
+            console.log(response);
+            console.log(response.data);
+            let totalUsuario = 0;
+            response.data.map(historico => {
+              totalUsuario += parseInt(
+                historico.sala.pedido
+                  .map(ped =>
+                    ped.perfil.filter(perf => {
+                      return perf.id == vm.usuario.id;
+                    }).length > 0
+                      ? (ped.item.valor * ped.quantidade) / ped.perfil.length
+                      : 0
+                  )
+                  .reduce((total, valor) => total + valor)
+              );
+            });
+
+            vm.totalPago = totalUsuario.toFixed(2);
+            vm.totalRoles = response.data.length;
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      console.log("Requisição backend para atualizar os itens");
+    }
+  },
+  mounted() {
+    this.atualizaJson();
   }
 };
 </script>
 <style scoped>
-.c-changePic{
+.c-changePic {
   right: -9px;
   top: 86px;
 }
 .c-text-field {
   padding-top: 0;
-} 
+}
 .btn-align {
   text-align: right;
 }
@@ -160,14 +231,14 @@ export default {
   text-align: center;
   padding-bottom: 0;
 }
-#vTotal{
-   font-family: "Centaur" !important;
+#vTotal {
+  font-family: "Centaur" !important;
 
-   font-weight: 1000;
+  font-weight: 1000;
 }
-#rTotal{
-   font-family: "Centaur" !important;
-   font-weight: 1000; 
+#rTotal {
+  font-family: "Centaur" !important;
+  font-weight: 1000;
 }
 .c-col1 {
   text-align: center;

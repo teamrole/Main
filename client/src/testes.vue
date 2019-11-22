@@ -27,21 +27,21 @@
         v-for="pessoa in pessoas"
         :key="pessoa.id"
         :nome="pessoa.nome"
-        avatar="https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/1574163594954-perfil.jpg?alt=media&token=e2041018-9432-442c-aca2-8de11593c8b4"
+        :avatar="pessoa.foto"
       />
     </div>
     <v-container class="c-list-container" fluid>
       <v-list class="c-list">
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
-            <v-img :src="require(`@/assets/Icon/${pedido.item.itemTipo}.png`)"></v-img>
-            <!-- <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img> -->
+            <v-img :src="require(`@/assets/Icon/${item.tipo}.png`)"></v-img>
+            <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img>
           </v-avatar>
 
           <v-list-item-content class="c-list-item-content">
             <v-list-item-title
               class="c-item-lista"
-              v-text="pedido.quantidade + 'x ' + (pedido.item.descricao ? pedido.item.descricao : pedido.item.itemTipo)"
+              v-text="pedido.quantidade + 'x ' + (pedido.item.nome ? pedido.item.nome : pedido.item.tipo)"
             ></v-list-item-title>
             <span class="c-item-lista">
               <b>{{pedido.perfil.length}}</b>
@@ -86,23 +86,15 @@
             <v-container>
               <v-row>
                 <v-col cols="8">
-                  <v-text-field
-                    label="Descrição (Opcional)"
-                    v-model="itemSendoEditado.item.descricao"
-                  ></v-text-field>
+                  <v-text-field label="Descrição (Opcional)" v-model="itemSendoEditado.nome"></v-text-field>
                 </v-col>
                 <v-col cols="4">
-                  <v-text-field
-                    type="number"
-                    label="Qtd"
-                    :error="qtdErro"
-                    v-model="itemSendoEditado.quantidade"
-                  ></v-text-field>
+                  <v-text-field type="number" label="Qtd" v-model="itemSendoEditado.quantidade"></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-select
-                    :items="['BEBIDA', 'COMIDA', 'OUTRO']"
-                    v-model="itemSendoEditado.item.itemTipo"
+                    :items="['bebida', 'comida', 'outros']"
+                    v-model="itemSendoEditado.tipo"
                     label="Tipo"
                     required
                   ></v-select>
@@ -112,7 +104,7 @@
                     :error="precoErro"
                     @change="verificaPreco()"
                     label="Preço"
-                    v-model="itemSendoEditado.item.valor"
+                    v-model="itemSendoEditado.preco"
                     prefix="$"
                   ></v-text-field>
                 </v-col>
@@ -155,11 +147,11 @@
       <v-card>
         <v-card-title
           class="headline"
-        >{{itemSendoEditado.descricao ? itemSendoEditado.descricao : itemSendoEditado.itemTipo}}</v-card-title>
+        >{{itemSendoEditado.nome ? itemSendoEditado.nome : itemSendoEditado.tipo}}</v-card-title>
         <v-card-text>
           Quantidade:{{itemSendoEditado.quantidade}}
           <br />
-          Preço:{{itemSendoEditado.item.valor}}
+          Preço:{{itemSendoEditado.preco}}
           <br />
           Pagantes: {{itemSendoEditado.perfil.length}}
         </v-card-text>
@@ -301,129 +293,91 @@
 
 <script>
 import avatar from "./Templates/avatar-lobby";
-import config from "../assets/dados/config";
+import pessoasJson from "../assets/dados/Lobby-pessoas";
+import itemsJson from "../assets/dados/Lobby-items";
 import axios from "axios";
-
 export default {
   methods: {
     recalculaTotal() {
       //calcula total do role
       let vm = this;
       vm.totalDoRole = 0;
-      this.items.map(a => (vm.totalDoRole += a.valor * a.quantidade));
-
+      this.items.map(a => (vm.totalDoRole += a.preco * a.quantidade));
       //calcula parcial do role
       vm.totalPessoal = 0;
       this.items.map(
         a =>
           (vm.totalPessoal +=
-            a.perfil.id == vm.idPessoa ? a.valor * a.quantidade : 0)
+            a.perfil.id == vm.idPessoa ? a.preco * a.quantidade : 0)
       );
     },
     novoItem() {
-
       this.AcaoItem = "Novo";
       this.itemSendoEditado = {
         id: null,
-        item: {
-          id: null,
-          descricao: null,
-          itemTipo: "OUTRO",
-          valor: null
-        },
-        perfil: [],
-        quantidade: 1
+        tipo: "outros",
+        nome: null,
+        preco: null,
+        perfil: []
       };
       this.dialog.Edit = true;
     },
     salvarItem(item) {
       //valida preco
-      console.log(item);
-      item.item.valor = parseFloat(item.item.valor) || 0;
-      this.precoErro = item.item.valor <= 0;
+      console.log(item);  
+      item.preco = parseFloat(item.preco) || 0;
+      this.precoErro = item.preco <= 0;
+      console.log(this.precoErro);
       //valida pagantes
       this.selectErro = item.perfil.length <= 0;
-      //valdia quantidade
-      this.qtdErro = item.quantidade <= 0;
-
-      if (!this.precoErro && !this.selectErro && !this.qtdErro) {
+      if (!this.precoErro && !this.selectErro) {
         this.precoErro = false;
         this.selectErro = false;
-        this.qtdErro = false;
-
         if (this.AcaoItem == "Novo") {
           console.log("REQUISIÇÃO POST PARA BACKEND");
           //No response Atualizar itens
           this.recalculaTotal();
-          let pagantesJson = [];
-          let pagantes = item.perfil.map(function(pagante) {
-            pagantesJson.push({
-              id: pagante,
-              usuario: {
-                id: pagante
-              }
-            });
-          });
-
-          this.items.push({
-            item: {
-              descricao : item.item.descricao + "",
-              valor : item.item.valor,
-              itemTipo : item.item.itemTipo
-            },
-            quantidade: item.quantidade,
-            perfil: pagantesJson
-          });
-          let pedido = {
-            id: this.idSala,
-            pedido: this.items
-          };
-          console.log(JSON.stringify(pedido));
+          let vm = this.itemSendoEditado.nome + '';
           axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              pedido,
-              {
-                auth: config.api.auth
-              }
-            )
+            .post("http://5localhost:6969/pedidos", 
+            {
+              id: 1,
+              pedido: [
+                {
+                  item: {
+                    nome: this.itemSendoEditado.nome + '',
+                    valor: this.itemSendoEditado.valor
+                  },
+                  quantidade: this.itemSendoEditado.quantidade,
+                  perfil: [
+                    {
+                      id: 1,
+                      usuario: {
+                          id: 1
+                        }
+                    }
+                  ]
+                }
+              ]
+            }
+            ,{
+              auth: { username: "43999032081", password: "admin" }
+            })
             .then(
               response => {
                 this.items = response.data;
-              },
-              error => {  
-                console.log(error);
-                console.log(response);
-              }
-            );
-
-          return true;
-        } else if (this.AcaoItem == "Editar") {
-          let alteraIndex = this.items.findIndex(x => x.id === item.id);
-          this.items[alteraIndex] = item;
-
-          let pedido = {
-            id: this.idSala,
-            pedido: this.items
-          };
-          console.log(pedido);
-          axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              pedido,
-              {
-                auth: config.api.auth
-              }
-            )
-            .then(
-              response => {
-                this.items = response.data;
-                this.recalculaTotal();
               },
               error => {
                 console.log(error);
               }
             );
+          return true;
+        } else if (this.AcaoItem == "Editar") {
+          let alteraIndex = this.items.findIndex(x => x.id === item.id);
+          this.items[alteraIndex] = item;
+          console.log("REQUISIÇÃO EDIT PARA BACKEND");
+          //no response atualizar itens
+          this.recalculaTotal();
           return true;
         }
       } else {
@@ -431,57 +385,26 @@ export default {
       }
     },
     excluirItem(item) {
-      console.log("excluir");
-
-      console.log(item.id);
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
-          this.items.splice(alteraIndex, 1);
-
-          let pedido = {
-            id: this.idSala,
-            pedido: this.items
-          };
-          console.log(pedido);
-          axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              pedido,
-              {
-                auth: config.api.auth
-              }
-            )
-            .then(
-              response => {
-                this.items = response.data;
-                this.recalculaTotal();
-              },
-              error => {
-                console.log(error);
-              }
-            );
-
-      
+      this.items.splice(alteraIndex, 1);
+      console.log("REQUISIÇÃO DELETE PARA BACKEND");
       //no response atualizar itens
-      //this.recalculaTotal();
+      this.recalculaTotal();
     },
     editarItem(item) {
-      console.log(item);
-
       this.AcaoItem = "Editar";
       this.itemSendoEditado = { ...item };
       this.dialog.Edit = true;
     },
     verificaPreco() {
-      console.log("verifica");
-
-      if (this.itemSendoEditado.item.valor.length <= 0) this.precoErro = true;
+      if (this.itemSendoEditado.preco.length <= 0) this.precoErro = true;
       else {
-        let preco = (this.itemSendoEditado.item.valor + "").replace(/\,/g, ".");
+        let preco = (this.itemSendoEditado.preco + "").replace(/\,/g, ".");
         preco = preco.includes(".") ? preco : preco + ".00";
         preco = preco.replace(/[^0-9.]/g, "");
         preco = preco.split(".");
         preco = preco.slice(0, -1).join("") + "." + preco.slice(-1);
-        this.itemSendoEditado.item.valor = parseFloat(preco).toFixed(2);
+        this.itemSendoEditado.preco = parseFloat(preco).toFixed(2);
         this.precoErro = false;
       }
     },
@@ -493,39 +416,29 @@ export default {
     },
     opcoesSala() {},
     toggleSelect() {
-      this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
+      this.itemSendoEditado.pessoas = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
-      console.log("ATUALIZA JSON");
-
       //Carrega itens da sala
       axios
-        .get(
-          `http://${config.api.host}:${config.api.port}/pedidos/salas/${this.idSala}`,
-          {
-            auth: config.api.auth
-          }
-        )
+        .get(`http://localhost:6969/pedidos/salas/${this.idSala}`, {
+          auth: { username: "43999032081", password: "admin" }
+        })
         .then(
           response => {
-            this.items = response.data ? response.data : [];
+            this.items = response.data;
           },
           error => {
             console.log(error.data);
           }
         );
-
       console.log("Requisição backend para atualizar os itens");
-
       this.recalculaTotal();
-
+     
       axios
-        .get(
-          `http://${config.api.host}:${config.api.port}/salas/${this.idSala}/usuarios`,
-          {
-            auth: config.api.auth
-          }
-        )
+        .get(`http://localhost:6969/salas/${this.idSala}/usuarios`, {
+          auth: { username: "43999032081", password: "admin" }
+        })
         .then(
           response => {
             this.pessoas = response.data;
@@ -541,14 +454,12 @@ export default {
   },
   data() {
     return {
-      config: config,
       totalPessoal: 0,
       totalDoRole: 0,
       codigoDaSala: "",
-      idSala: 3,
+      idSala: 1,
       precoErro: false,
       selectErro: false,
-      qtdErro: false,
       dialog: {
         Edit: false,
         Excluir: false,
@@ -561,17 +472,14 @@ export default {
       AcaoItem: "Editar",
       itemSendoEditado: {
         id: null,
-        item: {
-          id: null,
-          descricao: null,
-          itemTipo: null,
-          valor: null
-        },
-        perfil: [1],
-        quantidade: null
+        tipo: null,
+        nome: null,
+        preco: null,
+        quantidade: null,
+        perfil: [1]
       },
       items: [],
-      pessoas: [],
+      pessoas: [...pessoasJson],
       idPessoa: 1,
       intervaloAtualiza: setInterval(() => {
         this.atualizaJson();

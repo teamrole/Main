@@ -26,6 +26,7 @@
 
 <script>
 import tabranking from "./Templates/tab-ranking";
+import config from "../assets/dados/config";
 
 export default {
   components: {
@@ -33,6 +34,7 @@ export default {
   },
   data() {
     return {
+    config : config,
       tab: null,
       items: [
         {
