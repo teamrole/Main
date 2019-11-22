@@ -150,11 +150,10 @@ public class SalaService {
 
 	// TODO trocar para receber pefil id no parametro
 	public BigDecimal contaParcial(Long id, Long idU) {
-		Usuario usuario = usuarioService.buscaUsuario(idU);
 
 		BigDecimal total = BigDecimal.ZERO;
 		BigDecimal totalPedido = BigDecimal.ZERO;
-		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, usuario.getPerfil().getId());
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);
 
 		if (pedidoUsuario.isEmpty())
 			return new BigDecimal(0);
@@ -162,7 +161,6 @@ public class SalaService {
 		Long usuarioPorPedido;
 		for (TotalPedido pedido : pedidoUsuario) {
 			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));
-			// TODO PEgar somente os usuarios ativo
 			usuarioPorPedido = salaRepository.usuariosPorPedido(pedido.getPedido_id());
 			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido));
 			total = total.add(totalPedido);
@@ -191,7 +189,7 @@ public class SalaService {
 		if (!p.isPresent())
 			return false;
 
-		HistoricoSalaUsuario salaUsuario = historicoRepository.findBySalaUsuario(id_sala, p.get().getUsuario().getId());
+		HistoricoSalaUsuario salaUsuario = historicoRepository.findBySalaUsuario(id_sala, p.get().getId());
 
 		if (salaUsuario == null || salaUsuario.getData_saida() != null)
 			return false;

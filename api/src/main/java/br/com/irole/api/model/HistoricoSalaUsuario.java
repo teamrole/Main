@@ -40,7 +40,7 @@ public class HistoricoSalaUsuario {
 	private BigDecimal totalSala; 	
 	
 	@Transient
-	private Boolean ativo; 	
+	private Boolean ativo = true; 	
 	
 	@Transient
 	private Long totalUsuarios; 
