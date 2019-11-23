@@ -51,9 +51,7 @@ public class SalaServiceImpl implements SalaService{
 		List<HistoricoSalaUsuario> usuarios = historicoRepository.findByIDSala(id);
 		for (HistoricoSalaUsuario usuario : usuarios) {
 			if (usuario.getData_saida() == null) {
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-				usuario.setData_saida(timestamp);
-				usuario.setAtivo(false);
+				fecharContaDoUsuario(id, usuario.getId());
 			}
 		}
 		buscaSala.get().setAberta(false);

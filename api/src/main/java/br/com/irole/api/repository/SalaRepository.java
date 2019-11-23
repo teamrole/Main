@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import javax.transaction.Transactional;
 
-import br.com.irole.api.model.Pedido;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import br.com.irole.api.model.Sala;
 
 public interface SalaRepository extends JpaRepository<Sala, Long>{
@@ -22,6 +25,11 @@ public interface SalaRepository extends JpaRepository<Sala, Long>{
 	
 	@Query(value= "SELECT s.aberta FROM sala AS s, pedido_sala AS ps WHERE ps.pedido_id = ?1 AND ps.sala_id = s.id", nativeQuery = true)
 	Boolean salaDoPedidoAberta(Long id);
+	
+	@Transactional
+	@Modifying
+	@Query(value="INSERT INTO pedido_sala (sala_id, pedido_id) values (:idSala, :idPedido)", nativeQuery = true)
+	Integer inserePedidosala(@Param("idSala") Long idSala, @Param("idPedido") Long idPedido);
 	
 	
 	public interface TotalPedido {

@@ -57,7 +57,8 @@ public class PedidoServiceImpl implements PedidoService{
 			
 			if(verificaUsuariosEstaNaSala(sala.getId(), pedido.getPerfil())){
 				Pedido p = persistePedido(pedido);
-				pedidoSala.add(p);							
+				pedidoSala.add(p);	
+				salaRepository.inserePedidosala(s.getId(), p.getId());
 			}else {
 				String nomePedido = (pedido.getItem().getDescricao() != null) ? pedido.getItem().getDescricao() : pedido.getItem().getItemTipo().toString();
 				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {nomePedido},
@@ -67,8 +68,7 @@ public class PedidoServiceImpl implements PedidoService{
 			}
 		}	
 		if(!pedidoSala.isEmpty()) {
-			s.setPedido(pedidoSala);
-			//TODO se falhar por algum motivo: dar rollback na transação, pois pedido persistido ficará solto
+			
 			Sala salaSalva = salaRepository.save(s);
 			
 			return ResponseEntity.ok(salaSalva.getPedido());
