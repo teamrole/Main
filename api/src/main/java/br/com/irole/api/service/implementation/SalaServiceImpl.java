@@ -79,11 +79,13 @@ public class SalaServiceImpl implements SalaService{
 	public ResponseEntity<?> entraSala(Long id, String codigo) {
 
 		Optional<Sala> sala = buscaSalaPeloCodigo(codigo);
+		if (!sala.isPresent())
+			throw new EmptyResultDataAccessException(1);
+		
 		Usuario buscaUsuario = usuarioService.buscaUsuario(id);
 		HistoricoSalaUsuario salaAtual = historicoRepository.findSalaAtual(buscaUsuario.getPerfil().getId());
 		HistoricoSalaUsuario historico = historicoRepository.findBySalaUsuario(sala.get().getId(), buscaUsuario.getId());
-		if (!sala.isPresent())
-			throw new EmptyResultDataAccessException(1);
+		
 		if (historico == null) {
 			if (sala.get().getAberta() && salaAtual == null) {
 				HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();
@@ -196,7 +198,7 @@ public class SalaServiceImpl implements SalaService{
 		if (!p.isPresent())
 			return false;
 
-		HistoricoSalaUsuario salaUsuario = historicoRepository.findBySalaUsuario(id_sala, p.get().getUsuario().getId());
+		HistoricoSalaUsuario salaUsuario = historicoRepository.findBySalaUsuario(id_sala, p.get().getId());
 
 		if (salaUsuario == null || salaUsuario.getData_saida() != null)
 			return false;
