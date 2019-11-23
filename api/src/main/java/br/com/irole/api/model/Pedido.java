@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -20,9 +21,11 @@ public class Pedido {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Valid
 	@ManyToOne
 	private Item item;
 	
+	@Valid
 	@Column(name="pedido_cliente_id")
 	@OneToMany(fetch = FetchType.EAGER)
 	private List<Perfil> perfil;

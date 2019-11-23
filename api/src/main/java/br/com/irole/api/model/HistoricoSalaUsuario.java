@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -25,6 +26,7 @@ public class HistoricoSalaUsuario {
 	private Sala sala;
 	
 	@ManyToOne
+	@Valid
 	private Perfil perfil;
 	
 	@Column(name = "data_hora_entrada")

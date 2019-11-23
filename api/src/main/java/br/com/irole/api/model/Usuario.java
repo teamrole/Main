@@ -19,8 +19,6 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-
-
 @Entity
 @Table(name = "usuario")
 public class Usuario {

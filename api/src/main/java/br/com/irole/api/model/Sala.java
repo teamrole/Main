@@ -2,7 +2,6 @@ package br.com.irole.api.model;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -29,10 +29,10 @@ public class Sala {
 	private String nome;
 
 	@ElementCollection()
-	
 	@JoinTable(name = "pedido_sala", joinColumns = {
 			@JoinColumn(name = "sala_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn( name="pedido_id", referencedColumnName = "id") })	
+						@Valid 
 	private List<Pedido> pedido;
 
 

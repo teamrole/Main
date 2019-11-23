@@ -1,8 +1,8 @@
 package br.com.irole.api.exceptionhandler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -49,14 +48,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler{
 	}
 	
 	private List<Erro> criarListaErro(BindingResult bindingResult){
-		List<Erro> erros = new ArrayList<>();
-		for(FieldError fieldError: bindingResult.getFieldErrors()) {
-			String msgUser = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
-			String msgDev = fieldError.toString();
-			erros.add(new Erro(msgUser, msgDev));
-		}
-		
-		return erros;
+		return bindingResult.getFieldErrors().stream()
+				.map(fieldError -> {
+					String msgUser = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
+					String msgDev = fieldError.toString();
+					return new Erro(msgUser, msgDev);
+				})
+				.collect(Collectors.toList());
 	}	
 	
 	public static class Erro{

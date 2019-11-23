@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,6 +22,8 @@ public class Perfil {
 	private String foto;
 	@Size(min = 2, max = 100)
 	private String nome;
+	
+	@Valid
 	@OneToOne
 	@JoinColumn(name = "id_usuario_fk", referencedColumnName = "id")
 	@JsonProperty(access = Access.WRITE_ONLY)
