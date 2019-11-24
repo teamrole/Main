@@ -2,6 +2,7 @@ package br.com.irole.api.resource;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -19,6 +20,7 @@ import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
+import br.com.irole.api.repository.UsuarioRepository;
 import br.com.irole.api.service.PerfilService;
 import br.com.irole.api.service.UsuarioService;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +37,9 @@ public class PerfilController {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 	
 	@PutMapping("/{id}")
 	@ApiOperation(notes = "Edita dados do perfil, passando um objeto Perfil no corpo e o ID do perfil à ser alterado via URI", value = "Edita Perfil")
@@ -64,17 +69,15 @@ public class PerfilController {
 		return total;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	@GetMapping("/verifica-celular/{celular}")
+	@ApiOperation(notes = "Dado um celular verificar a qual perfil ele percente, se o celular não estiver cadastrado: No Content será retornado ",
+value = "Verifica se celular existe")
+	public ResponseEntity<Perfil> verificaCelularCadastrado(@PathVariable String celular){
+		Optional<Usuario> findByCelular = usuarioRepository.findByCelular(celular);
+		if(!findByCelular.isPresent())
+			return ResponseEntity.noContent().build();
+		
+		return ResponseEntity.ok(findByCelular.get().getPerfil());
+	}
 	
 }

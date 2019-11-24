@@ -103,6 +103,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	public ResponseEntity<?> cadastra(@Valid Usuario usuario) {
 		List<Erro> erros = new ArrayList<>();
+		
+		if(this.verificaCelularExiste(usuario.getCelular())) {
+			String mensagemUsuario = messageSource.getMessage("recurso.usuario.celular-existe", new Object[] {usuario.getCelular()},
+					LocaleContextHolder.getLocale());
+			return ResponseEntity.badRequest().body(new Erro(mensagemUsuario, mensagemUsuario));
+		}
 
 		try {
 			Usuario usuarioCadastrado = cadastraUsuarioEPerfil(usuario);
@@ -132,6 +138,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 			return ResponseEntity.badRequest().body(erros);
 		}
 
+	}
+
+	private Boolean verificaCelularExiste(String celular) {
+		Optional<Usuario> usuario = this.usuarioRepository.findByCelular( celular);
+		if(usuario.isPresent())
+			return true;
+		
+		return false;
 	}
 
 	public void rollbackUsuarioPerfil(@Valid Usuario usuario) {

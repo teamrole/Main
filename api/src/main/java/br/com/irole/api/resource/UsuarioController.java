@@ -99,5 +99,5 @@ public class UsuarioController {
 	@ApiOperation(notes = "Ativa ou desativa a conta do usuário via booleano (true/false) no corpo da requisição ", value = "Ativar/Desativar usuário")
 	public void atualizaAtivo(@PathVariable Long id, @RequestBody Boolean ativo) {
 		usuarioService.atualizarAtivo(id, ativo);
-	}
-}
+	}	
+ }
