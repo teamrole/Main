@@ -22,8 +22,7 @@ public class Perfil {
 	private String foto;
 	@Size(min = 2, max = 100)
 	private String nome;
-	
-	@Valid
+
 	@OneToOne
 	@JoinColumn(name = "id_usuario_fk", referencedColumnName = "id")
 	@JsonProperty(access = Access.WRITE_ONLY)
