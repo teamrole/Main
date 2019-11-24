@@ -48,10 +48,12 @@ public class SalaServiceImpl implements SalaService{
 	@Override
 	public void fecharSala(Long id) {
 		Optional<Sala> buscaSala = salaRepository.findById(id);
-		List<HistoricoSalaUsuario> usuarios = historicoRepository.findByIDSala(id);
-		for (HistoricoSalaUsuario usuario : usuarios) {
-			if (usuario.getData_saida() == null) {
-				fecharContaDoUsuario(id, usuario.getId());
+		List<HistoricoSalaUsuario> historicoUsuariosDaSala = historicoRepository.findByIDSala(id);
+	
+		for (HistoricoSalaUsuario historicoUsuario : historicoUsuariosDaSala) {
+			//TODO controle transactional se remover um usuario falhar	
+			if (historicoUsuario.getData_saida() == null) {
+				fecharContaDoUsuario(id, historicoUsuario.getPerfil().getUsuario().getId());
 			}
 		}
 		buscaSala.get().setAberta(false);
