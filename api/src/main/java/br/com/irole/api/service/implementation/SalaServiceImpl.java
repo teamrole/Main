@@ -1,7 +1,7 @@
 package br.com.irole.api.service.implementation;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -144,7 +144,7 @@ public class SalaServiceImpl implements SalaService{
 			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, idU);
 			
 			if (historicoSalaUsuario.getData_saida() == null) {
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				OffsetDateTime timestamp = OffsetDateTime.now();
 				historicoSalaUsuario.setData_saida(timestamp);
 				historicoSalaUsuario.setTotalParcial(pegaContaDeUmUsuario);
 				historicoSalaUsuario.setAtivo(false);
