@@ -1,7 +1,6 @@
 package br.com.irole.api.model;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 
 import javax.persistence.Column;
@@ -15,6 +14,9 @@ import javax.persistence.Transient;
 import javax.validation.Valid;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name = "historico_sala_usuario")
@@ -39,12 +41,15 @@ public class HistoricoSalaUsuario {
 	
 	private BigDecimal totalParcial = new BigDecimal(0); 
 	
+	@JsonProperty(access = Access.READ_ONLY)
 	@Transient
 	private BigDecimal totalSala; 	
 	
+	@JsonProperty(access = Access.READ_ONLY)
 	@Transient
 	private Boolean ativo = true; 	
 	
+	@JsonProperty(access = Access.READ_ONLY)
 	@Transient
 	private Long totalUsuarios; 
 

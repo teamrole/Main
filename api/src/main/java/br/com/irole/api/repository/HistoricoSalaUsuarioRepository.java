@@ -26,7 +26,7 @@ public interface HistoricoSalaUsuarioRepository extends JpaRepository<HistoricoS
 	@Query(value = "SELECT * FROM historico_sala_usuario WHERE perfil_id = ?1 AND data_hora_saida IS NULL", nativeQuery = true)
 	  HistoricoSalaUsuario findSalaAtual(Long id);
 	
-	@Query(value= "SELECT * FROM historico_sala_usuario WHERE sala_id = ?1 AND data_hora_saida IS NULL)", nativeQuery = true)
+	@Query(value= "SELECT * FROM historico_sala_usuario WHERE sala_id = ?1 AND data_hora_saida IS NULL", nativeQuery = true)
 	  List<HistoricoSalaUsuario> findUsuariosAtivo(Long id);
 	
 	@Query(value = "select count(h.id) as contador, p.id as perfil_id, p.foto as foto, p.nome as nome, p.id_usuario_fk as usuario from historico_sala_usuario h left join perfil p on h.perfil_id = p.id where DATE(h.data_hora_entrada) = :date and h.data_hora_saida is not null GROUP BY h.perfil_id order by count(h.id) DESC", nativeQuery = true)

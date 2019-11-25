@@ -46,19 +46,26 @@ public class SalaServiceImpl implements SalaService{
 	private MessageSource messageSource;
 
 	@Override
-	public void fecharSala(Long id) {
-		Optional<Sala> buscaSala = salaRepository.findById(id);
-		List<HistoricoSalaUsuario> historicoUsuariosDaSala = historicoRepository.findByIDSala(id);
+	public void fecharSala(Long idSala) {
+	
+		List<HistoricoSalaUsuario> historicoUsuariosDaSala = historicoRepository.findByIDSala(idSala);
 	
 		for (HistoricoSalaUsuario historicoUsuario : historicoUsuariosDaSala) {
 			//TODO controle transactional se remover um usuario falhar	
 			if (historicoUsuario.getData_saida() == null) {
-				fecharContaDoUsuario(id, historicoUsuario.getPerfil().getUsuario().getId());
+				fecharContaDoUsuario(idSala, historicoUsuario.getPerfil().getUsuario().getId());
 			}
 		}
-		buscaSala.get().setAberta(false);
-		salaRepository.save(buscaSala.get());
-
+		
+		this.desativaSala(idSala);
+	}
+	
+	private  void desativaSala(Long idSala) {
+		
+		Sala sala = this.buscaSala(idSala);		
+	
+		sala.setAberta(false);
+		salaRepository.save(sala);
 	}
 
 	@Override
@@ -108,7 +115,6 @@ public class SalaServiceImpl implements SalaService{
 			List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 		}
-		
 
 	}
 
@@ -136,9 +142,9 @@ public class SalaServiceImpl implements SalaService{
 		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id,
 				usuario.getPerfil().getId());
 
-		if (historicoSalaUsuario == null) {
-			
+		if (historicoSalaUsuario == null) {			
 			throw new EmptyResultDataAccessException(1);
+			
 		} else {
 			
 			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, idU);
@@ -148,7 +154,13 @@ public class SalaServiceImpl implements SalaService{
 				historicoSalaUsuario.setData_saida(timestamp);
 				historicoSalaUsuario.setTotalParcial(pegaContaDeUmUsuario);
 				historicoSalaUsuario.setAtivo(false);
+				
 				historicoRepository.save(historicoSalaUsuario);
+				
+				if(this.verificaSeEhUltimoDaSala(id)) {
+					this.desativaSala(id);
+				}			
+				
 				return pegaContaDeUmUsuario;
 				
 			}else {
@@ -176,11 +188,8 @@ public class SalaServiceImpl implements SalaService{
 			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido));
 			total = total.add(totalPedido);
 		}
-		return total;
-		/*
-		 * Optional<Usuario> usuario = usuarioRepository.findById(idU); Sala buscaSala =
-		 * buscaSala(id); List<Pedido> pedido = buscaSala.getPedido();
-		 */
+		
+		return total;		
 	}
 
 	public BigDecimal totalSala(Long id) {
@@ -228,5 +237,13 @@ public class SalaServiceImpl implements SalaService{
 		}
 			return ResponseEntity.badRequest().body("Só é possível editar salas abertas");
 	}
-
+	
+	private boolean verificaSeEhUltimoDaSala(Long salaId) {
+	
+		List<HistoricoSalaUsuario> findByIDSala = historicoRepository.findUsuariosAtivo(salaId);
+		if(findByIDSala.isEmpty())
+			return true;
+	
+		return false;
+	}
 }
