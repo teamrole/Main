@@ -1,5 +1,6 @@
 package br.com.irole.api.service.implementation;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,14 @@ public class RankingServiceImpl implements RankingService{
 	private HistoricoSalaUsuarioRepository historicoSalaUsuarioRepository;
 
 	@Override
-	public List<Ranking> rankingDia() {
-		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingDia();
+	public List<Ranking> rankingDia(Date date) {
+		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingDia(date);
 		return historicos;
 	}
 
 	@Override
-	public List<Ranking> rankingMes() {
-		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingMes();		
+	public List<Ranking> rankingMes(Date date) {
+		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingMes(date);		
 		return historicos;
 	}
 
