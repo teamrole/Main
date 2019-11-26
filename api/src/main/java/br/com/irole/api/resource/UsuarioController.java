@@ -76,7 +76,7 @@ public class UsuarioController {
 	@GetMapping("/{id}/perfil")
 	@ApiOperation(notes = "Busca o perfil de um determinado usuário, passando ID do usuário na URI", value = "Retornar perfil do usuário")
 	public ResponseEntity<?> buscaPerfilId(@PathVariable Long id) {
-		return perfilService.buscaPerfil(id);
+		return perfilService.buscaPerfilPeloUsuario(id);
 	}
 	
 	@DeleteMapping("/{id}")

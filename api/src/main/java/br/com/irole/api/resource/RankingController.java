@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository.Ranking;
 import br.com.irole.api.service.RankingService;
 import br.com.irole.api.service.util.ConversorData;
@@ -51,7 +51,7 @@ public class RankingController {
 		}else {			
 			String message = messageSource.getMessage("recurso.ranking.data-invalida", new Object[] {date},
 			LocaleContextHolder.getLocale());
-			Erro erro = new Erro(message, message);
+			AppException erro = new AppException(message, message);
 			return ResponseEntity.badRequest().body(erro);
 		}
 	}
@@ -71,7 +71,7 @@ public class RankingController {
 		}else {
 			String message = messageSource.getMessage("recurso.ranking.data-invalida", new Object[] {date},
 			LocaleContextHolder.getLocale());
-			Erro erro = new Erro(message, message);
+			AppException erro = new AppException(message, message);
 			return ResponseEntity.badRequest().body(erro);
 		}
 	}

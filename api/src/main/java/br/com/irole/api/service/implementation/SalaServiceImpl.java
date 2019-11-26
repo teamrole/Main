@@ -16,15 +16,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.model.HistoricoSalaUsuario;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
-import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.PerfilRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.repository.SalaRepository.TotalPedido;
+import br.com.irole.api.service.PerfilService;
 import br.com.irole.api.service.SalaService;
 
 @Service
@@ -34,9 +34,6 @@ public class SalaServiceImpl implements SalaService{
 	private SalaRepository salaRepository;
 
 	@Autowired
-	private UsuarioServiceImpl usuarioService;
-
-	@Autowired
 	private HistoricoSalaUsuarioRepository historicoRepository;
 
 	@Autowired
@@ -44,6 +41,9 @@ public class SalaServiceImpl implements SalaService{
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private PerfilService perfilService;
 
 	@Override
 	public void fecharSala(Long idSala) {
@@ -85,39 +85,41 @@ public class SalaServiceImpl implements SalaService{
 	}
 
 	@Override
-	public ResponseEntity<?> entraSala(Long id, String codigo) {
+	public ResponseEntity<?> entraSala(Long idPerfil, String codigo) {
 
-		Optional<Sala> sala = buscaSalaPeloCodigo(codigo);
+		Optional<Sala> sala = buscaSalaPeloCodigo(codigo);		
+		Perfil perfilEncontrado = perfilService.buscaPeloId(idPerfil);
+
 		if (!sala.isPresent())
 			throw new EmptyResultDataAccessException(1);
 		
-		Usuario buscaUsuario = usuarioService.buscaUsuario(id);
-		HistoricoSalaUsuario salaAtual = historicoRepository.findSalaAtual(buscaUsuario.getPerfil().getId());
-		HistoricoSalaUsuario historico = historicoRepository.findBySalaUsuario(sala.get().getId(), buscaUsuario.getId());
+		Boolean usuarioJaEstaNumaSala = this.validaUsuarioJaEstaNumaSala(perfilEncontrado);
+		Boolean usuarioNuncaEntroNestaSala = this.validaUsuarioJaEntrouNestaSala(sala.get(), perfilEncontrado);
+		Boolean estaSalaEstaAberta = sala.get().getAberta();
 		
-		if (historico == null) {
-			if (sala.get().getAberta() && salaAtual == null) {
+		if (estaSalaEstaAberta) {
+			if (!usuarioJaEstaNumaSala && !usuarioNuncaEntroNestaSala) {
 				HistoricoSalaUsuario historicoSalaUsuario = new HistoricoSalaUsuario();
 				historicoSalaUsuario.setSala(sala.get());
-				historicoSalaUsuario.setPerfil(buscaUsuario.getPerfil());
+				historicoSalaUsuario.setPerfil(perfilEncontrado);
 				historicoSalaUsuario.setAtivo(true);
 				historicoRepository.save(historicoSalaUsuario);
 				return ResponseEntity.status(HttpStatus.CREATED).body(historicoSalaUsuario);
 			} else {
 				String mensagemUsuario = messageSource.getMessage("recurso.usuario-na-sala", null,
 						LocaleContextHolder.getLocale());
-				List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
+				List<AppException> erros = Arrays.asList(new AppException(mensagemUsuario, null));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 			}
 		}else {
 			String mensagemUsuario = messageSource.getMessage("recurso.usuario.historico", null,
 					LocaleContextHolder.getLocale());
-			List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
+			List<AppException> erros = Arrays.asList(new AppException(mensagemUsuario, null));
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 		}
 
 	}
-
+	
 	@Override
 	public Sala buscaSala(Long id) {
 		Optional<Sala> sala = salaRepository.findById(id);
@@ -135,19 +137,19 @@ public class SalaServiceImpl implements SalaService{
 	}
 
 	@Override
-	public BigDecimal fecharContaDoUsuario(Long id, Long idU) {
+	public BigDecimal fecharContaDoUsuario(Long id, Long idPerfil) {
 
-		Usuario usuario = usuarioService.buscaUsuario(idU);
+		Perfil perfil = perfilService.buscaPeloId(idPerfil);
 
 		HistoricoSalaUsuario historicoSalaUsuario = historicoRepository.findBySalaUsuario(id,
-				usuario.getPerfil().getId());
+				perfil.getId());
 
 		if (historicoSalaUsuario == null) {			
 			throw new EmptyResultDataAccessException(1);
 			
 		} else {
 			
-			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, idU);
+			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, perfil.getUsuario().getId());
 			
 			if (historicoSalaUsuario.getData_saida() == null) {
 				OffsetDateTime timestamp = OffsetDateTime.now();
@@ -218,12 +220,24 @@ public class SalaServiceImpl implements SalaService{
 	}
 
 	@Override
-	public Sala criarSala() {
-		Sala novaSala = new Sala();
-		novaSala.setCodigo(RandomStringUtils.randomAlphanumeric(4));
-		salaRepository.save(novaSala);
+	public Sala criarSala(Perfil perfil) throws Exception {
+
+		Perfil perfilEncontrado = perfilService.buscaPeloId(perfil.getId());
 		
-		return novaSala;
+		if(validaUsuarioJaEstaNumaSala(perfilEncontrado)) {
+			String msg = messageSource.getMessage("recurso.usuario-na-sala", null,
+					LocaleContextHolder.getLocale());
+			throw new Exception(msg);
+		}
+			
+		Sala sala = new Sala();
+		String codigo = RandomStringUtils.randomAlphanumeric(4);
+		sala.setCodigo(codigo);
+		Sala salaSalva = salaRepository.save(sala);
+		
+		this.entraSala(perfilEncontrado.getId(), codigo);
+		
+		return salaSalva;
 	}
 
 	@Override
@@ -242,6 +256,28 @@ public class SalaServiceImpl implements SalaService{
 	
 		List<HistoricoSalaUsuario> findByIDSala = historicoRepository.findUsuariosAtivo(salaId);
 		if(findByIDSala.isEmpty())
+			return true;
+	
+		return false;
+	}
+	
+	/**
+	 * @return true se já participou desta sala antes 
+	 */
+	private Boolean validaUsuarioJaEntrouNestaSala(Sala sala, Perfil perfil) {
+		HistoricoSalaUsuario findBySalaUsuario = historicoRepository.findBySalaUsuario(sala.getId(), perfil.getId());
+		if(findBySalaUsuario != null)
+			return true;
+		
+		return false;
+	}
+	
+	/**
+	 * @return true se já está numa sala atualmente
+	 */
+	private Boolean validaUsuarioJaEstaNumaSala(Perfil perfil) {
+		HistoricoSalaUsuario findSalaAtual = historicoRepository.findSalaAtual(perfil.getId());
+		if(findSalaAtual != null)
 			return true;
 	
 		return false;

@@ -19,10 +19,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.UsuarioRepository;
+import br.com.irole.api.service.PerfilService;
 import br.com.irole.api.service.UsuarioService;
 
 @Service
@@ -38,7 +39,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	private MessageSource messageSource;
 
 	@Autowired
-	private PerfilServiceImpl perfilService;
+	private PerfilService perfilService;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -102,12 +103,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
 	public ResponseEntity<?> cadastra(@Valid Usuario usuario) {
-		List<Erro> erros = new ArrayList<>();
+		List<AppException> erros = new ArrayList<>();
 		
 		if(this.verificaCelularExiste(usuario.getCelular())) {
 			String mensagemUsuario = messageSource.getMessage("recurso.usuario.celular-existe", new Object[] {usuario.getCelular()},
 					LocaleContextHolder.getLocale());
-			return ResponseEntity.badRequest().body(new Erro(mensagemUsuario, mensagemUsuario));
+			return ResponseEntity.badRequest().body(new AppException(mensagemUsuario, mensagemUsuario));
 		}
 
 		try {
@@ -120,19 +121,19 @@ public class UsuarioServiceImpl implements UsuarioService {
 				String mensagemUsuario = messageSource.getMessage("recurso.usuario.usuario", null,
 						LocaleContextHolder.getLocale());
 				String mensagemDev = e.getMessage();
-				Erro erro = new Erro(mensagemUsuario, mensagemDev);
+				AppException erro = new AppException(mensagemUsuario, mensagemDev);
 				erros.add(erro);
 			} else if (e.getMessage().equals("erro perfil")) {
 				String mensagemUsuario = messageSource.getMessage("recurso.usuario.perfil", null,
 						LocaleContextHolder.getLocale());
 				String mensagemDev = e.getMessage();
-				Erro erro = new Erro(mensagemUsuario, mensagemDev);
+				AppException erro = new AppException(mensagemUsuario, mensagemDev);
 				erros.add(erro);
 			} else {
 				String mensagemUsuario = messageSource.getMessage("recurso.usuario.transacao", null,
 						LocaleContextHolder.getLocale());
 				String mensagemDev = e.getMessage();
-				Erro erro = new Erro(mensagemUsuario, mensagemDev);
+				AppException erro = new AppException(mensagemUsuario, mensagemDev);
 				erros.add(erro);
 			}
 			return ResponseEntity.badRequest().body(erros);
@@ -147,12 +148,5 @@ public class UsuarioServiceImpl implements UsuarioService {
 		
 		return false;
 	}
-
-	public void rollbackUsuarioPerfil(@Valid Usuario usuario) {
-		Optional<Usuario> usuariovalidado = usuarioRepository.findById(usuario.getId());
-		if(usuariovalidado.isPresent()) {
-			Long id = usuariovalidado.get().getId();
-			usuarioRepository.deletar(id);
-		}		
-	}
+	
 }

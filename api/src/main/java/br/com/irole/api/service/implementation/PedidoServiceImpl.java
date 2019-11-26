@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.model.Item;
 import br.com.irole.api.model.Pedido;
 import br.com.irole.api.model.Perfil;
@@ -23,6 +23,7 @@ import br.com.irole.api.repository.ItemRepository;
 import br.com.irole.api.repository.PedidoRepository;
 import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.PedidoService;
+import br.com.irole.api.service.SalaService;
 
 @Service
 public class PedidoServiceImpl implements PedidoService{
@@ -34,7 +35,7 @@ public class PedidoServiceImpl implements PedidoService{
 	private PedidoRepository pedidoRepository;
 	
 	@Autowired
-	private SalaServiceImpl salaService;
+	private SalaService salaService;
 	
 	@Autowired
 	private ItemRepository itemRepository;
@@ -47,7 +48,7 @@ public class PedidoServiceImpl implements PedidoService{
 		
 		//salaService.buscaSala() tem tratamento para caso uma sala não exista
 		Sala s = salaService.buscaSala(sala.getId());
-		List<Erro> erros = new ArrayList<>(); 
+		List<AppException> erros = new ArrayList<>(); 
 		
 		List<Pedido> pedidoSala = new ArrayList<Pedido>();
 
@@ -63,7 +64,7 @@ public class PedidoServiceImpl implements PedidoService{
 				String nomePedido = (pedido.getItem().getDescricao() != null) ? pedido.getItem().getDescricao() : pedido.getItem().getItemTipo().toString();
 				String mensagemUsuario = messageSource.getMessage("recurso.pedido.usuario-invalido", new Object[] {nomePedido},
 						LocaleContextHolder.getLocale());
-				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+				AppException erro = new AppException(mensagemUsuario, mensagemUsuario);
 				erros.add(erro);
 			}
 		}	
@@ -75,7 +76,7 @@ public class PedidoServiceImpl implements PedidoService{
 			
 		}else {
 			String mensagemUsuario = messageSource.getMessage("recurso.pedido.nenhum-valido", null, LocaleContextHolder.getLocale());
-			Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+			AppException erro = new AppException(mensagemUsuario, mensagemUsuario);
 			erros.add(erro);
 		
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
@@ -120,7 +121,7 @@ public class PedidoServiceImpl implements PedidoService{
 	
 	@Override
 	public ResponseEntity<?> apagarPedido(Long id) {
-		List<Erro> erros = new ArrayList<>();
+		List<AppException> erros = new ArrayList<>();
 		Optional<Pedido> pedido = pedidoRepository.findById(id);
 		Boolean sala = salaRepository.salaDoPedidoAberta(id);
 		if (pedido.isPresent()) {
@@ -131,13 +132,13 @@ public class PedidoServiceImpl implements PedidoService{
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}else {
 				String mensagemUsuario = messageSource.getMessage("recurso.sala.fechada",null, LocaleContextHolder.getLocale());
-				Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+				AppException erro = new AppException(mensagemUsuario, mensagemUsuario);
 				erros.add(erro);
 				
 			}
 		}else {
 			String mensagemUsuario = messageSource.getMessage("recurso.pedido.nao-encontrado",null, LocaleContextHolder.getLocale());
-			Erro erro = new Erro(mensagemUsuario, mensagemUsuario);
+			AppException erro = new AppException(mensagemUsuario, mensagemUsuario);
 			erros.add(erro);
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);

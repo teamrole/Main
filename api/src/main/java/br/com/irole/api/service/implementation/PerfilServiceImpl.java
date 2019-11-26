@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -13,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import br.com.irole.api.exceptionhandler.ExceptionHandler.Erro;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Usuario;
 import br.com.irole.api.repository.PerfilRepository;
@@ -29,31 +31,24 @@ public class PerfilServiceImpl implements PerfilService{
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 	
-	@Autowired 
-	private UsuarioServiceImpl usuarioService;
-
 	@Autowired
 	private PerfilRepository perfilRepository;
 
 	@Override
 	public Perfil atualizar(Long id, Perfil perfil) {
 
-		Optional<Perfil> buscaPerfil = perfilRepository.findById(id);
-		Perfil p = buscaPerfil.get();
+		Perfil p = this.buscaPeloId(id);
+	
 		perfil.setId(p.getId());
 		perfil.setUsuario(p.getUsuario());
-		if (buscaPerfil.isPresent()) {
-			BeanUtils.copyProperties(perfil, p);
-			perfilRepository.save(p);
-			return p;			
-		}else {
-
-			throw new EmptyResultDataAccessException(1);
-		}
+	
+		BeanUtils.copyProperties(perfil, p);
+		perfilRepository.save(p);
+		return p;			
 	}
 
 	@Override
-	public ResponseEntity<?> buscaPerfil(Long id) {
+	public ResponseEntity<?> buscaPerfilPeloUsuario(Long id) {
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
 		if (usuario.isPresent()) {
 			if (usuario.get().getAtivo()) {
@@ -66,7 +61,7 @@ public class PerfilServiceImpl implements PerfilService{
 			} else {
 				String mensagemUsuario = messageSource.getMessage("recurso.usuario-inativo", null,
 						LocaleContextHolder.getLocale());
-				List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, null));
+				List<AppException> erros = Arrays.asList(new AppException(mensagemUsuario, null));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 			}
 		} else {
@@ -94,9 +89,31 @@ public class PerfilServiceImpl implements PerfilService{
 			
 			return perfilSalvo;
 		}catch (Exception e) {
-			usuarioService.rollbackUsuarioPerfil(usuariovalidado.get());
+			this.rollbackUsuarioPerfil(usuariovalidado.get());
 			throw e;
 		}
+	}
+	
+	private void rollbackUsuarioPerfil(@Valid Usuario usuario) {
+		Optional<Usuario> usuariovalidado = usuarioRepository.findById(usuario.getId());
+		if(usuariovalidado.isPresent()) {
+			Long id = usuariovalidado.get().getId();
+			usuarioRepository.deletar(id);
+		}		
+	}
+
+	@Override
+	public Perfil buscaPeloId(Long id) {
+		Optional<Perfil> findById = perfilRepository.findById(id);
+		
+		if(!findById.isPresent()) {
+
+			String message = messageSource.getMessage("recurso.perfil.nao-encontrado", null,
+					LocaleContextHolder.getLocale());
+			throw new EmptyResultDataAccessException(message, 1);
+		}
+		
+		return findById.get();
 	}
 
 }

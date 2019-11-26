@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 
 import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 
 public interface SalaService {
@@ -27,9 +28,11 @@ public interface SalaService {
 	
 	/**
 	 * Cria uma nova sala e gera um código público para que novos membros possam encontrar a sala
+	 * @param Perfil perfil
+	 * @throws Exception caso o perfil não exista ou o usuário já perteça a uma sala
 	 * @return Sala
 	 */
-	public Sala criarSala();
+	public Sala criarSala(Perfil perfil) throws Exception;
 	
 	/**
 	 * Entra em uma sala usando um código público
@@ -55,10 +58,10 @@ public interface SalaService {
 	/**
 	 * Remove um usuário específico da sala
 	 * @param id o ID da sala
-	 * @param idUsuario o ID do usuario
+	 * @param idPerfil o ID do perfil do usuário
 	 * @return BigDecimal o valor total gasto pelo usuário naquela sala
 	 */
-	public BigDecimal fecharContaDoUsuario(Long id, Long idUsuario);
+	public BigDecimal fecharContaDoUsuario(Long id, Long idPerfil);
 	
 	/**
 	 * Calcula os gastos de um usuário específico da sala
@@ -82,5 +85,13 @@ public interface SalaService {
 	 * @return BigDecimal
 	 */
 	public BigDecimal totalSala(Long id);
+
+	/**
+	 * Retorna true se o usuario pertence a sala
+	 * @param idSala o ID da sala
+	 * @param perfil o Perfil do usuário
+	 * @return BigDecimal
+	 */
+	public Boolean isUsuarioNaSala(Long idSala, Perfil perfil);
 	
 }

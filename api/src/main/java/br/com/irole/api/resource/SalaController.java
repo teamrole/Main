@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.event.RecursoCriadoEvent;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.model.HistoricoSalaUsuario;
+import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.service.SalaService;
@@ -54,29 +56,34 @@ public class SalaController {
 	}
 	
 	@PostMapping
-	@ApiOperation(notes = "Cria uma nova sala e gera um código. Nenhum parâmetro é necessário", value = "Criar Sala")
-	public ResponseEntity<Sala> criarSala(HttpServletResponse response){
-		Sala novaSala = salaService.criarSala();
+	@ApiOperation(notes = "Cria uma nova sala e gera um código", value = "Criar Sala")
+	public ResponseEntity<?> criarSala(@RequestBody  Perfil perfil, HttpServletResponse response){
+		Sala novaSala;
+		try {
+			novaSala = salaService.criarSala(perfil);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new AppException(e.getMessage(), e.getMessage()));
+		}
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novaSala.getId()));
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
 	}
 	
-	@PostMapping("/{codigo}/{idU}")
+	@PostMapping("/{codigo}/{idPerfil}")
 	@ApiOperation(notes = "Entra numa sala usando o código/QR Code como parâmetro URI", value = "Entrar na sala")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "codigo", value = "Código criado quando a sala é gerada", required = true, dataType = "String", paramType="path"),
-		@ApiImplicitParam(name = "idU", value = "ID do usuário", required = true, dataType = "Long", paramType="path")
+		@ApiImplicitParam(name = "idPerfil", value = "ID do Perfil", required = true, dataType = "Long", paramType="path")
 		
 	})	  
-	public ResponseEntity<?> entrarSala(@PathVariable String codigo,@PathVariable Long idU,HttpServletResponse response) {
-		return salaService.entraSala(idU,codigo);
+	public ResponseEntity<?> entrarSala(@PathVariable String codigo,@PathVariable Long idPerfil,HttpServletResponse response) {
+		return salaService.entraSala(idPerfil,codigo);
 	}
 	
-	@DeleteMapping("/{id}/{idU}")
-	@ApiOperation(notes = "Fecha a conta de um usuário específico; ID da sala; ID do usuário na URI", value = "Fechar conta de um usuário")
-	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		 BigDecimal totalParcial = salaService.fecharContaDoUsuario(id, idU);		 
+	@DeleteMapping("/{id}/{idPerfil}")
+	@ApiOperation(notes = "Fecha a conta de um usuário específico; ID da sala; ID do perfil na URI", value = "Fechar conta de um usuário")
+	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idPerfil) {
+		 BigDecimal totalParcial = salaService.fecharContaDoUsuario(id, idPerfil);		 
 		 return totalParcial;
 	}	
 	
