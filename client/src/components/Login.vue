@@ -108,6 +108,7 @@ export default {
         .then(
           response => {
             if (!isLogado) {
+              user.id = response.data.id;
               localStorage.setItem("User", JSON.stringify(user));
               this.$router.push("Perfil");
             } else {
@@ -137,7 +138,8 @@ export default {
               "User",
               JSON.stringify({
                 celular: this.unmaskTel(this.userTel),
-                senha: this.senha
+                senha: this.senha,
+                id:response.data.id
               })
             );
             this.$router.push("Perfil");

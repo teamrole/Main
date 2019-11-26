@@ -133,7 +133,7 @@ export default {
       dialogErro2: false,
       totalPago: 0,
       totalRoles: 0,
-      usuario: JSON.parse(localStorage.getItem("USER")),
+      usuario: JSON.parse(localStorage.getItem("User")),
       nameCheck: true,
       numberCheck: true,
       mask: "+55 (##) #####-####"
@@ -154,12 +154,11 @@ export default {
         this.usuario.celular = this.oldPhone;
       }
     },
-    atualizaJson() {
-      //Carrega itens da sala
+    atualizaUsuario() {
       let vm = this;
       axios
         .get(
-          `http://${config.api.host}:${config.api.port}/usuarios/${this.usuario.id}`,
+          `http://${config.api.host}${config.api.port}/usuarios/${this.usuario.id}`,
           { auth: config.api.auth }
         )
         .then(
@@ -209,10 +208,11 @@ export default {
     }
   },
   mounted() {
-    this.atualizaJson();
+    this.atualizaUsuario();
   }
 };
 </script>
+
 <style scoped>
 .c-changePic {
   right: -9px;
