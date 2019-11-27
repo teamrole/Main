@@ -4,9 +4,12 @@
     <v-row class="c-con-display">
       <v-col cols="12" class="c-margin-auto">
         <v-avatar size="120">
-          <img src="../assets/Perfil/perfil5.jpg" />
+          <img :src="(perfil.foto?perfil.foto:fotoDefault)" />
           <v-btn class="mx-2 c-changePic" fab dark small absolute bottom right color="cyan">
-            <v-icon dark>mdi-pencil</v-icon>
+            <div class="c-label">
+              <v-file-input @change="onFileChange" class="c-input" accept=".png, .jpg, .jpeg" />
+              <v-icon dark id="c-img-selector">mdi-pencil</v-icon>
+            </div>
           </v-btn>
         </v-avatar>
       </v-col>
@@ -31,13 +34,12 @@
     </v-row>
 
     <v-row justify="center">
-      <v-col cols="1"></v-col>
       <v-col cols="9">
         <v-text-field
           label="Nome"
           :disabled="nameCheck"
           @blur="nameFocusOut"
-          v-model="usuario.perfil.nome"
+          v-model="perfil.nome"
           color="#033"
         ></v-text-field>
       </v-col>
@@ -47,7 +49,7 @@
           icon
           color="gray"
           height="100%"
-          @click="nameCheck = false; oldName = usuario.perfil.nome"
+          @click="nameCheck = false; oldName = perfil.nome"
         >
           <v-icon>edit</v-icon>
         </v-btn>
@@ -55,11 +57,10 @@
     </v-row>
 
     <v-row justify="center">
-      <v-col cols="1"></v-col>
       <v-col cols="9">
         <v-text-field
           label="Celular"
-          v-model="usuario.celular"
+          v-model="usuarioLogado.celular"
           class="c-text-field"
           :disabled="numberCheck"
           @blur="numberFocusOut"
@@ -79,7 +80,7 @@
       </v-col>
     </v-row>
 
-    <v-dialog v-model="dialogErro" persistent max-width="350  ">
+    <v-dialog v-model="dialogErro" persistent max-width="350">
       <v-card>
         <v-card-title style="color: red">Número Inválido</v-card-title>
         <v-card-text>
@@ -104,16 +105,18 @@
       </v-card>
     </v-dialog>
 
-    <v-row class="btn-align">
-      <v-col cols="6" class="c-margin-auto">
-        <v-btn color="error" dark large :outlined="true" width="75%">Sair</v-btn>
+    <v-row>
+      <v-col cols="6">
+        <div style="width:10%;display:inline-block"></div>
+        <v-btn color="error" dark :outlined="true" width="90%">Sair</v-btn>
       </v-col>
-      <v-col cols="6" class="c-margin-auto">
-        <v-btn color="error" dark large width="75%">Apagar Conta</v-btn>
+      <v-col cols="6">
+        <v-btn color="error" dark width="90%">Apagar Conta</v-btn>
       </v-col>
     </v-row>
   </v-content>
 </template>
+
 <script>
 import { mask } from "vue-the-mask";
 import config from "../assets/dados/config";
@@ -133,7 +136,16 @@ export default {
       dialogErro2: false,
       totalPago: 0,
       totalRoles: 0,
-      usuario: JSON.parse(localStorage.getItem("User")),
+      fileFoto: null,
+      fotoChanged: false,
+      fotoDefault:
+        "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/foto-padrao.png?alt=media&token=46cbd9b0-a561-4f03-9bf7-f47ff106bc0a",
+      usuarioLogado: JSON.parse(localStorage.getItem("User")),
+      perfil: {
+        foto: null,
+        id: 0,
+        nome: null
+      },
       nameCheck: true,
       numberCheck: true,
       mask: "+55 (##) #####-####"
@@ -154,11 +166,16 @@ export default {
         this.usuario.celular = this.oldPhone;
       }
     },
+    onFileChange(file) {
+      this.fileFoto = file;
+      this.perfil.foto = URL.createObjectURL(this.fileFoto);
+      this.fotoChanged = true;
+    },
     atualizaUsuario() {
       let vm = this;
       axios
         .get(
-          `http://${config.api.host}${config.api.port}/usuarios/${this.usuario.id}`,
+          `http://${config.api.host}${config.api.port}/usuarios/${this.usuarioLogado.id}`,
           { auth: config.api.auth }
         )
         .then(
@@ -173,7 +190,7 @@ export default {
 
       axios
         .get(
-          `http://${config.api.host}:${config.api.port}/historicos/usuarios/${this.usuario.id}`,
+          `http://${config.api.host}:${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
           {
             auth: config.api.auth
           }
@@ -183,20 +200,21 @@ export default {
             console.log(response);
             console.log(response.data);
             let totalUsuario = 0;
-            response.data.map(historico => {
-              totalUsuario += parseInt(
-                historico.sala.pedido
-                  .map(ped =>
-                    ped.perfil.filter(perf => {
-                      return perf.id == vm.usuario.id;
-                    }).length > 0
-                      ? (ped.item.valor * ped.quantidade) / ped.perfil.length
-                      : 0
-                  )
-                  .reduce((total, valor) => total + valor)
-              );
-            });
-
+            if (response.data) {
+              response.data.map(historico => {
+                totalUsuario += parseInt(
+                  historico.sala.pedido
+                    .map(ped =>
+                      ped.perfil.filter(perf => {
+                        return perf.id == vm.usuario.id;
+                      }).length > 0
+                        ? (ped.item.valor * ped.quantidade) / ped.perfil.length
+                        : 0
+                    )
+                    .reduce((total, valor) => total + valor)
+                );
+              });
+            }
             vm.totalPago = totalUsuario.toFixed(2);
             vm.totalRoles = response.data.length;
           },
@@ -251,5 +269,22 @@ export default {
 }
 .c-profileInfo {
   padding-top: 30px;
+}
+.c-label {
+  position: relative;
+  width: 70px;
+  height: 35px;
+  top: 5px;
+  padding-top: 0;
+  cursor: pointer;
+}
+.c-input {
+  position: absolute;
+  z-index: 1;
+  top: -19px;
+  right: 6px;
+  opacity: 0;
+  width: 35px;
+  height: 35px;
 }
 </style>

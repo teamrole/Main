@@ -40,22 +40,22 @@ export default {
     items: [
       {
         nome: "Izzabely Freitas",
-        avatar: require("../../assets/Perfil/Perfil1.jpg"),
+       // avatar: require("../../assets/Perfil/Perfil1.jpg"),
         roles: 8
       },
       {
         nome: "Fernanda Sales",
-        avatar: require("../../assets/Perfil/Perfil2.jpg"),
+       // avatar: require("../../assets/Perfil/Perfil2.jpg"),
         roles: 8
       },
       {
         nome: "Leticia Shikarim",
-        avatar: require("../../assets/Perfil/Perfil3.jpg"),
+       // avatar: require("../../assets/Perfil/Perfil3.jpg"),
         roles: 8
       },
       {
         nome: "Yuri Kann",
-        avatar: require("../../assets/Perfil/Perfil4.jpg"),
+       // avatar: require("../../assets/Perfil/Perfil4.jpg"),
         roles: 8
       }
     ]
