@@ -4,7 +4,7 @@
       <div class="col-7 c-painelHeader">
         <span class="title">
           <v-icon color="#9c27b0">where_to_vote</v-icon>
-          {{historico.sala.nome}}
+          {{historico.sala.nome?historico.sala.nome:"Role S/ Nome"}}
         </span>
       </div>
       <div>
@@ -33,9 +33,13 @@
           </p>
         </div>
         <div class="col-4 text-center c-nopadding">
-          <p class="text-center font-weight-bold">{{historico.totalUsuarios}}</p> 
-          <p class="text-center font-weight-bold">{{(historico.sala.pedido.map((ped) => ped.perfil.filter((perf) => { return perf.id == idUsuario }).length > 0 ?  ped.item.valor * ped.quantidade / ped.perfil.length : 0).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>        
-          <p class="text-center font-weight-bold">{{(historico.sala.pedido.map((ped) => ped.item.valor * ped.quantidade).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>
+          <p class="text-center font-weight-bold">{{historico.totalUsuarios}}</p>
+          <p
+            class="text-center font-weight-bold"
+          >{{(historico.sala.pedido.map((ped) => ped.perfil.filter((perf) => { return perf.id == idUsuario }).length > 0 ? ped.item.valor * ped.quantidade / ped.perfil.length : 0).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>
+          <p
+            class="text-center font-weight-bold"
+          >{{(historico.sala.pedido.map((ped) => ped.item.valor * ped.quantidade).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>
         </div>
       </div>
     </v-expansion-panel-content>
@@ -47,10 +51,10 @@ export default {
   props: {
     historico: Object
   },
-  data(){
+  data() {
     return {
-      idUsuario : 2
-    }
+      idUsuario: 2
+    };
   }
 };
 </script>
@@ -63,12 +67,11 @@ export default {
 .c-painelAtivo > .v-expansion-panel-content {
   background-color: #eee;
 }
-.c-painelHeader{
+.c-painelHeader {
   padding-left: 0;
   padding-right: 0;
 }
-.c-nopadding{
+.c-nopadding {
   padding: 0;
 }
-
 </style>
