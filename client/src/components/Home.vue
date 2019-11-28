@@ -7,8 +7,10 @@
         @click="dialogSala = true; dialogType = 'Novo Role'; classePopup=''"
       >
         <v-card>
-          <v-img class="white--text" height="30vh" src="@/assets/img/novo_role.png">
-            <v-card-title class="fill-height c-right">Novo role</v-card-title>
+          <v-img class="white--text" height="29vh" src="@/assets/img/novo_role.png">
+            <div class="fill-height">
+              <h2 class="c-home-title">Novo role</h2>
+            </div>
           </v-img>
         </v-card>
       </v-list-item>
@@ -18,8 +20,10 @@
         @click="dialogSala = true; dialogType = 'Entrar em um Role'; classePopup='c-login-cod'"
       >
         <v-card>
-          <v-img class="white--text" height="30vh" src="@/assets/img/entrar_role.png">
-            <v-card-title class="fill-height c-right">Entrar em um role</v-card-title>
+          <v-img class="white--text" height="29vh" src="@/assets/img/entrar_role.png">
+            <div class="fill-height">
+              <h2 class="c-home-title">Entrar em um role</h2>
+            </div>
           </v-img>
         </v-card>
       </v-list-item>
@@ -28,7 +32,9 @@
         <v-list-item three-line class="c-nopadding">
           <v-card>
             <v-img class="white--text" height="30vh" src="@/assets/img/ranking_role.png">
-              <v-card-title class="fill-height c-right">Ranking</v-card-title>
+              <div class="fill-height">
+                <h2 class="c-home-title">Ranking</h2>
+              </div>
             </v-img>
           </v-card>
         </v-list-item>
@@ -82,6 +88,7 @@
 
 <script>
 import config from "../assets/dados/config";
+import axios from "axios";
 
 export default {
   methods: {
@@ -111,15 +118,57 @@ export default {
         }
         this.Erros.fieldMsg = "";
 
-        let reqJSON = {
-          usuario: JSON.parse(localStorage.getItem("USER")),
-          nomeDoRole: this.inputDialog
-        };
+        console.log(this.inputDialog + "");
+        let salaNome = this.inputDialog + "";
+        // axios
+        //   .post(
+        //     `http://${config.api.host}${config.api.port}/salas`,
+        //     { id: this.usuarioLogado.id },
+        //     { auth: config.api.auth }
+        //   )
+        //   .then(
+        //     response => {
+        //       console.log(response.data);
+        //       let salaId = response.data.id;
+        axios
+          .put(
+            `http://${config.api.host}${config.api.port}/salas/8/nome`,
+            "salaNome",
+            {
+              auth: config.api.auth
+            }
+          )
+          .then(
+            response => {
+              console.log(response.data);
+            },
+            error => {
+              console.log(error);
+            }
+          );
+        //   },
+        //   error => {
+        //     console.log(error);
+        //   }
+        // );
 
-        console.log("REQUISICAO BACK PARA CRIAR A SALA");
-        console.log("REQJSON: " + JSON.stringify(reqJSON));
-
-        //IF RETORNO É OK, REDIRECIONA PARA A TELA DE ROLE
+        // {
+        //   "foto": "string",
+        //   "id": 0,
+        //   "nome": "string",
+        //   "usuario": {
+        //     "ativo": true,
+        //     "celular": "string",
+        //     "id": 0,
+        //     "permissao": [
+        //       {
+        //         "descricao": "string",
+        //         "id": 0
+        //       }
+        //     ],
+        //     "senha": "string"
+        //   }
+        // }
 
         if (this.inputDialog == "ROLE") {
           this.$router.push("Lobby");
@@ -152,13 +201,14 @@ export default {
   },
   data() {
     return {
-      config : config,
+      config: config,
       dialogSala: false,
       dialogErro: false,
       inputDialog: "",
       dialogType: "",
       alertaErroMsg: "Erro",
       classePopup: "",
+      usuarioLogado: JSON.parse(localStorage.getItem("User")),
       Erros: {
         fieldMsg: ""
       }
@@ -173,9 +223,20 @@ export default {
   padding: 0 !important;
 }
 .c-right {
-  justify-content: right;
+  justify-content: right !important;
 }
 .c-decoration-none {
   text-decoration: none;
+}
+.c-home-title {
+  width: 100%;
+  text-align: right;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  padding-right: 20px;
+  text-shadow: 0 0 5px #000;
 }
 </style>
