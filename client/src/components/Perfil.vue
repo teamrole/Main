@@ -94,7 +94,11 @@
         <v-card-actions>
           <v-btn color="red darken-1" text @click="dialogConfirma=false">Cancelar</v-btn>
           <div class="flex-grow-1"></div>
-          <v-btn color="green darken-3" text @click="confirmaDialog(dialogConfirmaMsg)">{{dialogConfirmaMsg === "exclui"?"Desativar":"Logoff"}}</v-btn>
+          <v-btn
+            color="green darken-3"
+            text
+            @click="confirmaDialog(dialogConfirmaMsg)"
+          >{{dialogConfirmaMsg === "exclui"?"Desativar":"Logoff"}}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -105,7 +109,7 @@
 import { mask } from "vue-the-mask";
 import config from "../assets/dados/config";
 import firebase from "firebase/app";
-import 'firebase/storage';
+import "firebase/storage";
 import axios from "axios";
 
 export default {
@@ -207,31 +211,21 @@ export default {
         )
         .then(
           response => {
-            let totalUsuario = 0;
+            vm.totalPago = 0;
             if (response.data) {
+              vm.totalRoles = response.data.length;
+
               response.data.map(historico => {
-                totalUsuario += parseInt(
-                  historico.sala.pedido
-                    .map(ped =>
-                      ped.perfil.filter(perf => {
-                        return perf.id == vm.usuario.id;
-                      }).length > 0
-                        ? (ped.item.valor * ped.quantidade) / ped.perfil.length
-                        : 0
-                    )
-                    .reduce((total, valor) => total + valor)
-                );
+                vm.totalPago += historico.totalParcial;
               });
             }
-            vm.totalPago = totalUsuario.toFixed(2);
-            vm.totalRoles = response.data.length;
           },
           error => {
             console.log(error);
           }
         );
     },
-    desativaUsuario(){
+    desativaUsuario() {
       axios
         .delete(
           `http://${config.api.host}${config.api.port}/usuarios/${this.usuarioLogado.id}`,
@@ -247,10 +241,10 @@ export default {
           }
         );
     },
-    confirmaDialog(dialogConfirmaMsg){
-      if(dialogConfirmaMsg==="exclui"){
+    confirmaDialog(dialogConfirmaMsg) {
+      if (dialogConfirmaMsg === "exclui") {
         this.desativaUsuario();
-      }else{
+      } else {
         localStorage.clear();
         this.$router.push("/");
       }
