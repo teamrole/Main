@@ -47,6 +47,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	public Usuario atualizar(Long id, Usuario usuario) {
 		Usuario buscaUsuario = buscaUsuario(id);
+		usuario.setSenha(bCryptPasswordEncoder.encode(usuario.getSenha()));
 		BeanUtils.copyProperties(usuario, buscaUsuario, "id");
 		return usuarioRepository.save(buscaUsuario);
 	}
