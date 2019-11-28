@@ -9,7 +9,7 @@
         <v-tab-item v-for="item in items" v-bind:key="item.titulo">
           <v-card flat>
             <v-card-text>
-              <t-tab-ranking :ordenar="item.componente" />
+              <t-tab-ranking :ordenar="item.componente" :apiPath="item.path" />
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -33,21 +33,33 @@ export default {
     "t-tab-ranking": tabranking
   },
   data() {
+    const today = new Date();
+    today.setTime(today.getTime()+(3*60*60*1000))
+    const date =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+    console.log(date);
     return {
-    config : config,
+      config: config,
       tab: null,
       items: [
         {
-          titulo: "Semanal",
-          componente: "Semanal"
+          titulo: "Diário",
+          componente: "Diario",
+          path: "rankings/dia?date=" + date
         },
         {
           titulo: "Mensal",
-          componente: "Mensal"
+          componente: "Mensal",
+          path: "rankings/mes?date=" + date
         },
         {
           titulo: "Total",
-          componente: "Mensal"
+          componente: "Mensal",
+          path: "rankings"
         }
       ]
     };
