@@ -153,11 +153,12 @@ export default {
     },
     onFileChange(file) {
       this.fileFoto = file;
-      this.perfil.foto = URL.createObjectURL(this.fileFoto);
       this.fotoChanged = true;
 
+      this.perfil.foto = URL.createObjectURL(this.fileFoto);
+
       if (file) {
-        const name = this.usuarioLogado.id + "-" + +new Date() + ".jpg";
+        const name = this.usuarioLogado.id + ".jpg";
         const metadata = { contentType: file.type };
         const task = this.storageRef.child(name).put(file, metadata);
 
@@ -204,7 +205,7 @@ export default {
 
       axios
         .get(
-          `http://${config.api.host}:${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
+          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
           {
             auth: config.api.auth
           }
