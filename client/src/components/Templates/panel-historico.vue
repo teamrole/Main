@@ -36,10 +36,10 @@
           <p class="text-center font-weight-bold">{{historico.totalUsuarios}}</p>
           <p
             class="text-center font-weight-bold"
-          >{{(historico.sala.pedido.map((ped) => ped.perfil.filter((perf) => { return perf.id == idUsuario }).length > 0 ? ped.item.valor * ped.quantidade / ped.perfil.length : 0).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>
+          >{{historico.totalParcial.toFixed(2)}} R$</p>
           <p
             class="text-center font-weight-bold"
-          >{{(historico.sala.pedido.map((ped) => ped.item.valor * ped.quantidade).reduce((total, valor) => total + valor)).toFixed(2)}} R$</p>
+          >{{historico.totalSala.toFixed(2)}} R$</p>
         </div>
       </div>
     </v-expansion-panel-content>
