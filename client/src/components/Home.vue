@@ -200,6 +200,7 @@ export default {
       axios
         .post(
           `http://${config.api.host}${config.api.port}/salas/${codSala}/${this.usuarioLogado.id}`,
+          {},
           { auth: config.api.auth }
         )
         .then(
