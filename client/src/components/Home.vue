@@ -76,7 +76,7 @@
       <v-card>
         <v-card-title>Erro!</v-card-title>
         <v-card-text>
-          <span>{{alertaErroMsg}}</span>
+          <span>{{ alertaErroMsg }}</span>
         </v-card-text>
         <v-card-actions>
           <v-btn color="green darken1" text @click="dialogErro = false">Ok</v-btn>
@@ -120,61 +120,48 @@ export default {
 
         console.log(this.inputDialog + "");
         let salaNome = this.inputDialog + "";
-        // axios
-        //   .post(
-        //     `http://${config.api.host}${config.api.port}/salas`,
-        //     { id: this.usuarioLogado.id },
-        //     { auth: config.api.auth }
-        //   )
-        //   .then(
-        //     response => {
-        //       console.log(response.data);
-        //       let salaId = response.data.id;
         axios
-          .put(
-            `http://${config.api.host}${config.api.port}/salas/8/nome`,
-            "salaNome",
-            {
-              auth: config.api.auth
-            }
+          .post(
+            `http://${config.api.host}${config.api.port}/salas`,
+            { id: this.usuarioLogado.id },
+            { auth: config.api.auth }
           )
           .then(
             response => {
               console.log(response.data);
+              let salaId = response.data.id;
+              axios
+                .put(
+                  `http://${config.api.host}${config.api.port}/salas/${salaId}/nome`,
+                  salaNome,
+                  {
+                    headers: { "Content-Type": "text/plain" },
+                    auth: config.api.auth
+                  }
+                )
+                .then(
+                  response => {
+                    this.$router.push("Lobby");
+                  },
+                  error => {
+                    console.log(error);
+                  }
+                );
             },
             error => {
-              console.log(error);
+              if (
+                error.response.status == 400 &&
+                error.response.data.mensagemUsuario.includes(
+                  "em duas salas ao mesmo tempo"
+                )
+              ) {
+                this.buscaSalaAtual();
+              } else {
+                console.log(error);
+                this.alertaErro("Erro Ao criar o Role!", error.response.status);
+              }
             }
           );
-        //   },
-        //   error => {
-        //     console.log(error);
-        //   }
-        // );
-
-        // {
-        //   "foto": "string",
-        //   "id": 0,
-        //   "nome": "string",
-        //   "usuario": {
-        //     "ativo": true,
-        //     "celular": "string",
-        //     "id": 0,
-        //     "permissao": [
-        //       {
-        //         "descricao": "string",
-        //         "id": 0
-        //       }
-        //     ],
-        //     "senha": "string"
-        //   }
-        // }
-
-        if (this.inputDialog == "ROLE") {
-          this.$router.push("Lobby");
-        } else {
-          this.alertaErro("Erro Ao criar o Role");
-        }
       } else if (this.dialogType.includes("Entrar em um Role")) {
         if (this.inputDialog.length != 4) {
           this.Erros.fieldMsg = "O codigo do role deve possuir 4 digitos";
@@ -182,21 +169,47 @@ export default {
         }
         this.Erros.fieldMsg = "";
 
-        let reqJSON = {
-          usuario: JSON.parse(localStorage.getItem("USER")),
-          codigoDoRole: this.inputDialog
-        };
-
-        console.log("REQUISICAO BACK PARA ENTRAR NA SALA");
-        console.log("REQJSON: " + JSON.stringify(reqJSON));
-
-        //IF RETORNO É OK, REDIRECIONA PARA A TELA DE ROLE
-        if (this.inputDialog == "6669") {
-          this.$router.push("Lobby");
-        } else {
-          this.Erros.fieldMsg = "O codigo do role é invalido";
-        }
+        this.entrarSala(this.inputDialog);
       }
+    },
+    buscaSalaAtual() {
+      axios
+        .get(
+          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            if (response.data) {
+              let salaAtual = response.data.filter(obj => {
+                return !obj.data_saida;
+              })[0].sala;
+              console.log(salaAtual);
+              this.alertaErro(
+                "Voce já esta em um role! Nome do role: " + salaAtual.nome
+              );
+            }
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    entrarSala(codSala) {
+      console.log(codSala);
+      axios
+        .post(
+          `http://${config.api.host}${config.api.port}/salas/${codSala}/${this.usuarioLogado.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            console.log(response.data);
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
     }
   },
   data() {
