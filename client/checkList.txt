@@ -1,0 +1,12 @@
+Alterar senha usuario - aguardando backend
+Arrumar entrar na sala - ver com daniel amanha na aula
+
+Criar componente para imagem, com foto padrão
+Alterar autenticação para usuario logado
+Setar popups com focuson
+
+
+-------------------
+Apenas se der tempo
+Axios com url padrão
+pagina home com botao criar sala vira voltar para sala caso usuario ja esteja em uma sala
