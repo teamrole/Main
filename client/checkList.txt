@@ -4,7 +4,8 @@ Arrumar entrar na sala - ver com daniel amanha na aula
 Criar componente para imagem, com foto padrão
 Alterar autenticação para usuario logado
 Setar popups com focuson
-
+Limpar storage e redirecionar para a pagina inicial quando erro for 401
+Tratar senha invalida no login
 
 -------------------
 Apenas se der tempo
