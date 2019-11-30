@@ -41,6 +41,7 @@
       />
     </div>
     <v-container class="c-list-container" fluid>
+      <h1 v-if="items.length == 0" style="color:grey;text-align:center">Ainda não há itens no role</h1>
       <v-list class="c-list">
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
@@ -227,7 +228,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog.FechaItem" persistent max-width="290">
+    <v-dialog v-model="dialog.totalParcial" persistent max-width="290">
       <v-card>
         <v-card-title>Sua conta é:</v-card-title>
         <v-card-text>
@@ -270,13 +271,11 @@
 <style scoped>
 .c-name {
   position: fixed;
-  width: 100%;
+  margin-left: 25px;
   top: 15px;
+  left: 30px;
   color: white;
-  float: left;
-  right: 0;
-  z-index: 30;
-  padding-left: 50px;
+  z-index: 5;
   font-size: 1.2rem;
 }
 .c-options {
@@ -354,15 +353,6 @@ export default {
       vm.totalDoRole = 0;
       console.log(this.items);
       this.items.map(a => (vm.totalDoRole += a.item.valor * a.quantidade));
-
-      //calcula parcial do role
-      vm.totalPessoal = 0;
-      this.items.map(a =>
-        a.perfil.map(perf => {
-          vm.totalPessoal +=
-            perf.id == vm.usuarioLogado.id ? a.item.valor * a.quantidade : 0;
-        })
-      );
     },
     novoItem() {
       this.AcaoItem = "Novo";
@@ -418,7 +408,6 @@ export default {
               }
             ]
           };
-          console.log(data);
           axios
             .post(`http://${config.api.host}${config.api.port}/pedidos`, data, {
               auth: config.api.auth
@@ -426,13 +415,13 @@ export default {
             .then(
               response => {
                 if (response.data) this.items = response.data;
-                console.log(response);
+                this.atualizaJson();
               },
               error => {
                 console.log(error);
               }
             );
-          this.atualizaJson();
+
           return true;
         } else if (this.AcaoItem == "Editar") {
           pagantesJson = pagantesJson.map(a => {
@@ -450,7 +439,6 @@ export default {
             quantidade: item.quantidade
           };
 
-          console.log(data);
           axios
             .put(
               `http://${config.api.host}${config.api.port}/pedidos/${data.id}`,
@@ -459,13 +447,12 @@ export default {
             )
             .then(
               response => {
-                console.log(response.data);
+                this.atualizaJson();
               },
               error => {
                 console.log(error);
               }
             );
-          this.atualizaJson();
           return true;
         }
       } else {
@@ -473,8 +460,6 @@ export default {
       }
     },
     excluirItem(item) {
-      console.log("excluir");
-
       console.log(item.id);
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
       this.items.splice(alteraIndex, 1);
@@ -493,20 +478,13 @@ export default {
             console.log(error);
           }
         );
-
-      //no response atualizar itens
-      //this.recalculaTotal();
     },
     editarItem(item) {
-      console.log(item);
-
       this.AcaoItem = "Editar";
       this.itemSendoEditado = { ...item };
       this.dialog.Edit = true;
     },
     verificaPreco() {
-      console.log("verifica");
-
       if (this.itemSendoEditado.item.valor.length <= 0) this.precoErro = true;
       else {
         let preco = (this.itemSendoEditado.item.valor + "").replace(/\,/g, ".");
@@ -520,26 +498,44 @@ export default {
     },
     fecharRoleParcial() {
       console.log("REQUISIÇÃO POST PARA BACKEND (FECHAR ROLE)");
-      this.dialog.FechaItem = true;
+      this.dialog.totalParcial = true;
       this.dialog.FechaParcial = false;
       //no response exibir o total
     },
     fecharRole() {
-      console.log("a");
-    },
-    gravaNomeSala() {
-      //faz nome sala
       axios
-        .get(
-          `http://${config.api.host}${config.api.port}/pedidos/salas/${this.sala.id}`,
+        .delete(
+          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}`,
           { auth: config.api.auth }
         )
         .then(
           response => {
-            this.items = response.data ? response.data : [];
+            this.dialog.totalParcial = true;
+            this.dialog.fecharRole = false;
+            this.atualizaJson();
           },
           error => {
             console.log(error.data);
+          }
+        );
+    },
+    gravaNomeSala() {
+      axios
+        .put(
+          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}/nome`,
+          this.salaEdtNome,
+          {
+            headers: { "Content-Type": "text/plain" },
+            auth: config.api.auth
+          }
+        )
+        .then(
+          response => {
+            this.dialog.EdtNomeSala = false;
+            this.atualizaJson();
+          },
+          error => {
+            console.log(error);
           }
         );
     },
@@ -547,6 +543,7 @@ export default {
       this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
+      this.localizaSalaUsuario();
       axios
         .get(
           `http://${config.api.host}${config.api.port}/pedidos/salas/${this.sala.id}`,
@@ -578,8 +575,22 @@ export default {
             console.log(error);
           }
         );
+
+      axios
+        .get(
+          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}/${this.usuarioLogado.id}/conta`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            this.totalPessoal = response.data;
+          },
+          error => {
+            console.log(error);
+          }
+        );
     },
-    localizaSalaUsuario() {
+    localizaSalaUsuario(atualiza) {
       axios
         .get(
           `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
@@ -588,10 +599,18 @@ export default {
         .then(
           response => {
             if (response.data) {
-              this.sala = response.data.filter(obj => {
+              let sala = response.data.filter(obj => {
                 return !obj.data_saida;
-              })[0].sala;
-              this.atualizaJson();
+              })[0];
+
+              if (!sala){
+                alert('Voce não está em nenhuma Sala');
+                this.$router.push('Home');
+                return;
+              }else{
+                this.sala = sala.sala;
+              }
+              if (atualiza) this.atualizaJson();
             }
           },
           error => {
@@ -622,7 +641,7 @@ export default {
         FechaParcial: false,
         FechaSala: false,
         CodSala: false,
-        FechaItem: false,
+        totalParcial: false,
         EdtNomeSala: false
       },
       dialogMsg: "",
@@ -651,7 +670,7 @@ export default {
     };
   },
   mounted() {
-    this.localizaSalaUsuario();
+    this.localizaSalaUsuario(true);
   }
 };
 </script>

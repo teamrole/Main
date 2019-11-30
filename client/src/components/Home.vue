@@ -205,7 +205,7 @@ export default {
         )
         .then(
           response => {
-            console.log(response.data);
+            this.$router.push("Lobby");
           },
           error => {
             console.log(error.data);

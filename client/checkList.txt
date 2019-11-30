@@ -1,14 +1,20 @@
 Alterar senha usuario - aguardando backend
-Arrumar entrar na sala - ver com daniel amanha na aula
+
 
 Criar componente para imagem, com foto padrão
 Alterar autenticação para usuario logado
-Alterar nome da sala
 Setar popups com focuson
 Limpar storage e redirecionar para a pagina inicial quando erro for 401
 Tratar senha invalida no login
 
--------------------
-Apenas se der tempo
+-----------------------
+-     Resolvidos      -
+-----------------------
+** Alterar nome da sala
+** Arrumar entrar na sala
+
+-----------------------
+- Apenas se der tempo -
+-----------------------
 Axios com url padrão
 pagina home com botao criar sala vira voltar para sala caso usuario ja esteja em uma sala
