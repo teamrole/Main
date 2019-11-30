@@ -11,7 +11,7 @@
         class="c-no-padding"
       >
         <v-list-item-avatar>
-          <v-img :src="item.foto"></v-img>
+          <v-img :src="item.foto?item.foto:fotoDefault"></v-img>
         </v-list-item-avatar>
 
         <v-list-item-content padding:0>
@@ -38,6 +38,7 @@
 <script>
 import axios from "axios";
 import config from "./../../assets/dados/config";
+
 export default {
   props: {
     apiPath: {
@@ -65,7 +66,9 @@ export default {
   },
   data: () => ({
     items: [],
-    userData: null
+    userData: null,
+    fotoDefault:
+        "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
   })
 };
 </script>
