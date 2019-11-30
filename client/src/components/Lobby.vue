@@ -1,7 +1,11 @@
 <template>
   <v-content>
+    <div class="c-name">
+      <p>{{sala.nome?sala.nome:"Role S/Nome"}}</p>
+    </div>
+
     <div class="c-options">
-      <v-menu bottom left>
+      <v-menu bottom right>
         <template v-slot:activator="{ on }">
           <v-btn dark icon v-on="on">
             <v-icon>mdi-dots-vertical</v-icon>
@@ -9,25 +13,29 @@
         </template>
 
         <v-list>
-          <v-list-item @click="dialog.FechaParcial = true; selectErro=false">
-            <v-list-item-title>Sair do Role</v-list-item-title>
+          <v-list-item>
+            <v-list-item-title @click.prevent="dialog.FechaParcial = true">Sair do Role</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="dialog.FechaSala = true">
-            <v-list-item-title>Fechar Sala</v-list-item-title>
+          <v-list-item>
+            <v-list-item-title @click.prevent="dialog.FechaSala = true">Fechar Sala</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="dialog.CodSala = true">
-            <v-list-item-title>Código da Sala</v-list-item-title>
+          <v-list-item>
+            <v-list-item-title @click.prevent="dialog.CodSala = true">Código da Sala</v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title @click.prevent="salaEdtNome = sala.nome; dialog.EdtNomeSala = true">Editar nome da sala</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
     </div>
+
     <div class="c-participantes">
       <t-avatar
         class="c-participante"
         v-for="pessoa in pessoas"
-        :key="pessoa.id"
-        :nome="pessoa.nome"
-        avatar="https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/1574163594954-perfil.jpg?alt=media&token=e2041018-9432-442c-aca2-8de11593c8b4"
+        :key="pessoa.perfil.id"
+        :nome="pessoa.perfil.nome?pessoa.perfil.nome:'S/Nome'"
+        :avatar="pessoa.perfil.foto?pessoa.perfil.foto:fotoDefault"
       />
     </div>
     <v-container class="c-list-container" fluid>
@@ -119,7 +127,7 @@
                 <v-col cols="12">
                   <v-select
                     :error="selectErro"
-                    :items="this.pessoas"
+                    :items="this.pessoasPerfil"
                     item-text="nome"
                     item-value="id"
                     label="Pagantes"
@@ -192,13 +200,13 @@
 
     <v-dialog v-model="dialog.FechaSala" persistent max-width="290">
       <v-card>
-        <v-card-title>Sair do role</v-card-title>
+        <v-card-title>fechar o role</v-card-title>
         <v-card-text>
           Deseja Realmente fechar o role?
           Isso Finalizará o role para todos.
         </v-card-text>
         <v-card-actions>
-          <v-btn color="red darken-1" text @click="fecharRole()">Finalizar</v-btn>
+          <v-btn color="red darken-1" text @click.prevent="fecharRole()">Finalizar</v-btn>
           <div class="flex-grow-1"></div>
           <v-btn color="red darken-1" text @click="dialog.FechaSala = false">Cancelar</v-btn>
         </v-card-actions>
@@ -209,7 +217,7 @@
       <v-card>
         <v-card-title>Código da sala</v-card-title>
         <v-card-text>
-          <h1 style="text-align: center">{{codigoDaSala}}</h1>
+          <h1 style="text-align: center">{{sala.codigo}}</h1>
         </v-card-text>
         <v-card-actions>
           <div class="flex-grow-1"></div>
@@ -232,11 +240,47 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialog.EdtNomeSala" persistent max-width="290">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Digite o novo nome do role</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  label="Nome do role"
+                  v-model="salaEdtNome"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="red darken-1" text @click="dialog.EdtNomeSala = false;">Cancelar</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="gravaNomeSala()">Confirmar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-content>
 </template> 
 
 
 <style scoped>
+.c-name {
+  position: fixed;
+  width: 100%;
+  top: 15px;
+  color: white;
+  float: left;
+  right: 0;
+  z-index: 30;
+  padding-left: 50px;
+  font-size: 1.2rem;
+}
 .c-options {
   display: inline-block;
   position: fixed;
@@ -321,7 +365,6 @@ export default {
       );
     },
     novoItem() {
-
       this.AcaoItem = "Novo";
       this.itemSendoEditado = {
         id: null,
@@ -337,8 +380,6 @@ export default {
       this.dialog.Edit = true;
     },
     salvarItem(item) {
-      //valida preco
-      console.log(item);
       item.item.valor = parseFloat(item.item.valor) || 0;
       this.precoErro = item.item.valor <= 0;
       //valida pagantes
@@ -351,47 +392,43 @@ export default {
         this.selectErro = false;
         this.qtdErro = false;
 
-        if (this.AcaoItem == "Novo") {
-          console.log("REQUISIÇÃO POST PARA BACKEND");
-          //No response Atualizar itens
-          this.recalculaTotal();
-          let pagantesJson = [];
-          let pagantes = item.perfil.map(function(pagante) {
-            pagantesJson.push({
-              id: pagante,
-              usuario: {
-                id: pagante
-              }
-            });
-          });
+        let pagantesJson = [];
 
-          this.items.push({
-            item: {
-              descricao : item.item.descricao + "",
-              valor : item.item.valor,
-              itemTipo : item.item.itemTipo
-            },
-            quantidade: item.quantidade,
-            perfil: pagantesJson
+        item.perfil.map(function(pagante) {
+          pagantesJson.push({
+            id: pagante
           });
-          let pedido = {
-            id: this.idSala,
-            pedido: this.items
-          };
-          console.log(JSON.stringify(pedido));
-          axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              pedido,
+        });
+
+        pagantesJson = pagantesJson.map(a => {
+          return { id: a.id.id };
+        });
+
+        if (this.AcaoItem == "Novo") {
+          let data = {
+            id: this.sala.id,
+            pedido: [
               {
-                auth: config.api.auth
+                item: {
+                  descricao: item.item.descricao + "",
+                  itemTipo: item.item.itemTipo,
+                  valor: item.item.valor
+                },
+                perfil: pagantesJson,
+                quantidade: item.quantidade
               }
-            )
+            ]
+          };
+          axios
+            .post(`http://${config.api.host}${config.api.port}/pedidos`, data, {
+              auth: config.api.auth
+            })
             .then(
               response => {
-                this.items = response.data;
+                if (response.data) this.items = response.data;
+                console.log(response);
               },
-              error => {  
+              error => {
                 console.log(error);
                 console.log(response);
               }
@@ -399,26 +436,28 @@ export default {
 
           return true;
         } else if (this.AcaoItem == "Editar") {
-          let alteraIndex = this.items.findIndex(x => x.id === item.id);
-          this.items[alteraIndex] = item;
-
-          let pedido = {
-            id: this.idSala,
-            pedido: this.items
+          let data = {
+            id: item.id,
+            item: {
+              id: item.item.id,
+              descricao: item.item.descricao + "",
+              itemTipo: item.item.itemTipo,
+              valor: item.item.valor
+            },
+            perfil: pagantesJson,
+            quantidade: item.quantidade
           };
-          console.log(pedido);
+
+          console.log(data);
           axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              pedido,
-              {
-                auth: config.api.auth
-              }
+            .put(
+              `http://${config.api.host}${config.api.port}/pedidos/${data.id}`,
+              data,
+              { auth: config.api.auth }
             )
             .then(
               response => {
-                this.items = response.data;
-                this.recalculaTotal();
+                console.log(response.data);
               },
               error => {
                 console.log(error);
@@ -435,32 +474,23 @@ export default {
 
       console.log(item.id);
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
-          this.items.splice(alteraIndex, 1);
+      this.items.splice(alteraIndex, 1);
 
-          let pedido = {
-            id: this.idSala,
-            pedido: this.items
-          };
-          console.log(pedido);
-          axios
-            .post(
-              `http://${config.api.host}:${config.api.port}/pedidos`,
-              pedido,
-              {
-                auth: config.api.auth
-              }
-            )
-            .then(
-              response => {
-                this.items = response.data;
-                this.recalculaTotal();
-              },
-              error => {
-                console.log(error);
-              }
-            );
+      axios
+        .delete(
+          `http://${config.api.host}${config.api.port}/pedidos/${item.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            console.log(response.data);
+            this.recalculaTotal();
+          },
+          error => {
+            console.log(error);
+          }
+        );
 
-      
       //no response atualizar itens
       //this.recalculaTotal();
     },
@@ -491,20 +521,36 @@ export default {
       this.dialog.FechaParcial = false;
       //no response exibir o total
     },
-    opcoesSala() {},
+    fecharRole() {
+      console.log("a");
+    },
+    gravaNomeSala(){
+      //faz nome sala
+      axios
+        .get(
+          `http://${config.api.host}${config.api.port}/pedidos/salas/${this.sala.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            this.items = response.data ? response.data : [];
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
+    },
     toggleSelect() {
       this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
       console.log("ATUALIZA JSON");
-
+      console.log(this.sala);
       //Carrega itens da sala
       axios
         .get(
-          `http://${config.api.host}:${config.api.port}/pedidos/salas/${this.idSala}`,
-          {
-            auth: config.api.auth
-          }
+          `http://${config.api.host}${config.api.port}/pedidos/salas/${this.sala.id}`,
+          { auth: config.api.auth }
         )
         .then(
           response => {
@@ -515,20 +561,40 @@ export default {
           }
         );
 
-      console.log("Requisição backend para atualizar os itens");
-
       this.recalculaTotal();
 
       axios
         .get(
-          `http://${config.api.host}:${config.api.port}/salas/${this.idSala}/usuarios`,
-          {
-            auth: config.api.auth
-          }
+          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}/usuarios`,
+          { auth: config.api.auth }
         )
         .then(
           response => {
             this.pessoas = response.data;
+            this.pessoasPerfil = this.pessoas.map(p => {
+              return p.perfil;
+            });
+            console.log(this.pessoasPerfil);
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    localizaSalaUsuario() {
+      axios
+        .get(
+          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            if (response.data) {
+              this.sala = response.data.filter(obj => {
+                return !obj.data_saida;
+              })[0].sala;
+              this.atualizaJson();
+            }
           },
           error => {
             console.log(error);
@@ -544,8 +610,11 @@ export default {
       config: config,
       totalPessoal: 0,
       totalDoRole: 0,
-      codigoDaSala: "",
-      idSala: 3,
+      sala: {
+        codigo: null,
+        id: null,
+        nome: null
+      },
       precoErro: false,
       selectErro: false,
       qtdErro: false,
@@ -555,10 +624,14 @@ export default {
         FechaParcial: false,
         FechaSala: false,
         CodSala: false,
-        FechaItem: false
+        FechaItem: false,
+        EdtNomeSala: false
       },
       dialogMsg: "",
       AcaoItem: "Editar",
+      salaEdtNome: "",
+      fotoDefault:
+        "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
       itemSendoEditado: {
         id: null,
         item: {
@@ -572,14 +645,15 @@ export default {
       },
       items: [],
       pessoas: [],
-      idPessoa: 1,
+      pessoasPerfil: [],
+      usuarioLogado: JSON.parse(localStorage.getItem("User")),
       intervaloAtualiza: setInterval(() => {
         this.atualizaJson();
       }, 100000000000)
     };
   },
   mounted() {
-    this.atualizaJson();
+    this.localizaSalaUsuario();
   }
 };
 </script>
