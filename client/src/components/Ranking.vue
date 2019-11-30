@@ -34,7 +34,7 @@ export default {
   },
   data() {
     const today = new Date();
-    today.setTime(today.getTime()+(3*60*60*1000))
+    today.setTime(today.getTime() + 3 * 60 * 60 * 1000);
     const date =
       today.getFullYear() +
       "-" +

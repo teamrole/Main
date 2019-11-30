@@ -409,7 +409,7 @@ export default {
             ]
           };
           axios
-            .post(`http://${config.api.host}${config.api.port}/pedidos`, data, {
+            .post(`${config.api.url}/pedidos`, data, {
               auth: config.api.auth
             })
             .then(
@@ -441,7 +441,7 @@ export default {
 
           axios
             .put(
-              `http://${config.api.host}${config.api.port}/pedidos/${data.id}`,
+              `${config.api.url}/pedidos/${data.id}`,
               data,
               { auth: config.api.auth }
             )
@@ -466,7 +466,7 @@ export default {
 
       axios
         .delete(
-          `http://${config.api.host}${config.api.port}/pedidos/${item.id}`,
+          `${config.api.url}/pedidos/${item.id}`,
           { auth: config.api.auth }
         )
         .then(
@@ -505,7 +505,7 @@ export default {
     fecharRole() {
       axios
         .delete(
-          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}`,
+          `${config.api.url}/salas/${this.sala.id}`,
           { auth: config.api.auth }
         )
         .then(
@@ -522,7 +522,7 @@ export default {
     gravaNomeSala() {
       axios
         .put(
-          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}/nome`,
+          `${config.api.url}/salas/${this.sala.id}/nome`,
           this.salaEdtNome,
           {
             headers: { "Content-Type": "text/plain" },
@@ -546,7 +546,7 @@ export default {
       this.localizaSalaUsuario();
       axios
         .get(
-          `http://${config.api.host}${config.api.port}/pedidos/salas/${this.sala.id}`,
+          `${config.api.url}/pedidos/salas/${this.sala.id}`,
           { auth: config.api.auth }
         )
         .then(
@@ -561,7 +561,7 @@ export default {
 
       axios
         .get(
-          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}/usuarios`,
+          `${config.api.url}/salas/${this.sala.id}/usuarios`,
           { auth: config.api.auth }
         )
         .then(
@@ -578,7 +578,7 @@ export default {
 
       axios
         .get(
-          `http://${config.api.host}${config.api.port}/salas/${this.sala.id}/${this.usuarioLogado.id}/conta`,
+          `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.id}/conta`,
           { auth: config.api.auth }
         )
         .then(
@@ -593,7 +593,7 @@ export default {
     localizaSalaUsuario(atualiza) {
       axios
         .get(
-          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
+          `${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`,
           { auth: config.api.auth }
         )
         .then(

@@ -3,7 +3,13 @@
   <v-container class="c-no-padding">
     <h1 v-if="!userData" style="text-align:center">Ainda não há Roles neste periodo</h1>
     <v-list v-else>
-      <v-list-item v-for="item in userData " :key="item.id" @click.stop :dense="true" class="c-no-padding">
+      <v-list-item
+        v-for="item in userData "
+        :key="item.id"
+        @click.stop
+        :dense="true"
+        class="c-no-padding"
+      >
         <v-list-item-avatar>
           <v-img :src="item.foto"></v-img>
         </v-list-item-avatar>
@@ -24,49 +30,41 @@
 .c-qtd-role {
   color: var(--v-accent-base);
 }
-.c-no-padding{
+.c-no-padding {
   padding: 0 !important;
 }
 </style>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 import config from "./../../assets/dados/config";
 export default {
-  props:{
+  props: {
     apiPath: {
-      type: String,
+      type: String
     },
     ordenar: {
       type: String,
       default: "Semanal"
     }
   },
-  mounted(){
-      
-      //2019-11-27
-
-      axios.get(`http://${config.api.host}${config.api.port}/${this.apiPath}`, {
-          auth: config.api.auth
-        })
-        .then(
-          response => {
-            console.log(response);
-            this.userData = response.data;
-          },
-          error => {
-            console.log(error);
-          }
+  mounted() {
+    axios
+      .get(`${config.api.url}/${this.apiPath}`, {
+        auth: config.api.auth
+      })
+      .then(
+        response => {
+          console.log(response);
+          this.userData = response.data;
+        },
+        error => {
+          console.log(error);
+        }
       );
-    },
+  },
   data: () => ({
-    items: [
-      {
-        nome: "Izzabely Freitas",
-        avatar: "../../assets/Perfil/Perfil1.jpg",
-        roles: 8
-      }
-    ],
+    items: [],
     userData: null
   })
 };

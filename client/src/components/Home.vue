@@ -122,7 +122,7 @@ export default {
         let salaNome = this.inputDialog + "";
         axios
           .post(
-            `http://${config.api.host}${config.api.port}/salas`,
+            `${config.api.url}/salas`,
             { id: this.usuarioLogado.id },
             { auth: config.api.auth }
           )
@@ -132,7 +132,7 @@ export default {
               let salaId = response.data.id;
               axios
                 .put(
-                  `http://${config.api.host}${config.api.port}/salas/${salaId}/nome`,
+                  `${config.api.url}/salas/${salaId}/nome`,
                   salaNome,
                   {
                     headers: { "Content-Type": "text/plain" },
@@ -175,7 +175,7 @@ export default {
     buscaSalaAtual() {
       axios
         .get(
-          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
+          `${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`,
           { auth: config.api.auth }
         )
         .then(
@@ -199,7 +199,7 @@ export default {
       console.log(codSala);
       axios
         .post(
-          `http://${config.api.host}${config.api.port}/salas/${codSala}/${this.usuarioLogado.id}`,
+          `${config.api.url}/salas/${codSala}/${this.usuarioLogado.id}`,
           {},
           { auth: config.api.auth }
         )

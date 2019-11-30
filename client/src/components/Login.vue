@@ -99,7 +99,7 @@ export default {
     fazLogin(user, isLogado) {
       axios
         .post(
-          `http://${config.api.host}${config.api.port}/usuarios/login`,
+          `${config.api.url}/usuarios/login`,
           user,
           {
             auth: config.api.auth
@@ -123,7 +123,7 @@ export default {
     criaUsuario() {
       axios
         .post(
-          `http://${config.api.host}${config.api.port}/usuarios`,
+          `${config.api.url}/usuarios`,
           {
             celular: this.unmaskTel(this.userTel),
             senha: this.senha
@@ -156,7 +156,7 @@ export default {
       } else {
         this.Erros.fieldTelMsg = "";
         axios
-          .get(`http://${config.api.host}${config.api.port}/usuarios`, {
+          .get(`${config.api.url}/usuarios`, {
             auth: config.api.auth
           })
           .then(

@@ -45,12 +45,9 @@ export default {
   methods: {
     atualizaJson() {
       axios
-        .get(
-          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
-          {
-            auth: config.api.auth
-          }
-        )
+        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             this.historicos = response.data;

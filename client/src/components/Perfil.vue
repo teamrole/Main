@@ -173,11 +173,9 @@ export default {
     },
     salvaLogin() {
       axios
-        .put(
-          `http://${config.api.host}${config.api.port}/perfis/${this.usuarioLogado.id}`,
-          this.perfil,
-          { auth: config.api.auth }
-        )
+        .put(`${config.api.url}/perfis/${this.usuarioLogado.id}`, this.perfil, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             this.perfil = response.data;
@@ -190,10 +188,9 @@ export default {
     atualizaUsuario() {
       let vm = this;
       axios
-        .get(
-          `http://${config.api.host}${config.api.port}/usuarios/${this.usuarioLogado.id}`,
-          { auth: config.api.auth }
-        )
+        .get(`${config.api.url}/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             this.perfil = response.data.perfil;
@@ -204,12 +201,9 @@ export default {
         );
 
       axios
-        .get(
-          `http://${config.api.host}${config.api.port}/historicos/usuarios/${this.usuarioLogado.id}`,
-          {
-            auth: config.api.auth
-          }
-        )
+        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             vm.totalPago = 0;
@@ -228,10 +222,9 @@ export default {
     },
     desativaUsuario() {
       axios
-        .delete(
-          `http://${config.api.host}${config.api.port}/usuarios/${this.usuarioLogado.id}`,
-          { auth: config.api.auth }
-        )
+        .delete(`${config.api.url}/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             localStorage.clear();
