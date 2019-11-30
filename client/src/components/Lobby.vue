@@ -23,7 +23,9 @@
             <v-list-item-title @click.prevent="dialog.CodSala = true">Código da Sala</v-list-item-title>
           </v-list-item>
           <v-list-item>
-            <v-list-item-title @click.prevent="salaEdtNome = sala.nome; dialog.EdtNomeSala = true">Editar nome da sala</v-list-item-title>
+            <v-list-item-title
+              @click.prevent="salaEdtNome = sala.nome; dialog.EdtNomeSala = true"
+            >Editar nome da sala</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -43,7 +45,6 @@
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
             <v-img :src="require(`@/assets/Icon/${pedido.item.itemTipo}.png`)"></v-img>
-            <!-- <v-img :src="require(`@/assets/Icon/bebida.png`)"></v-img> -->
           </v-avatar>
 
           <v-list-item-content class="c-list-item-content">
@@ -250,10 +251,7 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field
-                  label="Nome do role"
-                  v-model="salaEdtNome"
-                ></v-text-field>
+                <v-text-field label="Nome do role" v-model="salaEdtNome"></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -354,14 +352,16 @@ export default {
       //calcula total do role
       let vm = this;
       vm.totalDoRole = 0;
-      this.items.map(a => (vm.totalDoRole += a.valor * a.quantidade));
+      console.log(this.items);
+      this.items.map(a => (vm.totalDoRole += a.item.valor * a.quantidade));
 
       //calcula parcial do role
       vm.totalPessoal = 0;
-      this.items.map(
-        a =>
-          (vm.totalPessoal +=
-            a.perfil.id == vm.idPessoa ? a.valor * a.quantidade : 0)
+      this.items.map(a =>
+        a.perfil.map(perf => {
+          vm.totalPessoal +=
+            perf.id == vm.usuarioLogado.id ? a.item.valor * a.quantidade : 0;
+        })
       );
     },
     novoItem() {
@@ -400,11 +400,10 @@ export default {
           });
         });
 
-        pagantesJson = pagantesJson.map(a => {
-          return { id: a.id.id };
-        });
-
         if (this.AcaoItem == "Novo") {
+          pagantesJson = pagantesJson.map(a => {
+            return { id: a.id };
+          });
           let data = {
             id: this.sala.id,
             pedido: [
@@ -419,6 +418,7 @@ export default {
               }
             ]
           };
+          console.log(data);
           axios
             .post(`http://${config.api.host}${config.api.port}/pedidos`, data, {
               auth: config.api.auth
@@ -430,12 +430,14 @@ export default {
               },
               error => {
                 console.log(error);
-                console.log(response);
               }
             );
-
+          this.atualizaJson();
           return true;
         } else if (this.AcaoItem == "Editar") {
+          pagantesJson = pagantesJson.map(a => {
+            return { id: a.id.id };
+          });
           let data = {
             id: item.id,
             item: {
@@ -463,6 +465,7 @@ export default {
                 console.log(error);
               }
             );
+          this.atualizaJson();
           return true;
         }
       } else {
@@ -524,7 +527,7 @@ export default {
     fecharRole() {
       console.log("a");
     },
-    gravaNomeSala(){
+    gravaNomeSala() {
       //faz nome sala
       axios
         .get(
@@ -544,9 +547,6 @@ export default {
       this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
     },
     atualizaJson() {
-      console.log("ATUALIZA JSON");
-      console.log(this.sala);
-      //Carrega itens da sala
       axios
         .get(
           `http://${config.api.host}${config.api.port}/pedidos/salas/${this.sala.id}`,
@@ -555,13 +555,12 @@ export default {
         .then(
           response => {
             this.items = response.data ? response.data : [];
+            this.recalculaTotal();
           },
           error => {
             console.log(error.data);
           }
         );
-
-      this.recalculaTotal();
 
       axios
         .get(
@@ -574,7 +573,6 @@ export default {
             this.pessoasPerfil = this.pessoas.map(p => {
               return p.perfil;
             });
-            console.log(this.pessoasPerfil);
           },
           error => {
             console.log(error);
