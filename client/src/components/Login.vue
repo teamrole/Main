@@ -116,7 +116,11 @@ export default {
             }
           },
           error => {
-            console.log(error);
+            if(error.response.status == 401){
+              this.Erros.fieldCodMsg = "Senha invalida, tente novamente";
+            }else{
+              console.log(error);
+            }
           }
         );
     },
