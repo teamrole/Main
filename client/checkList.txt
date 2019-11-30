@@ -1,0 +1,19 @@
+Alterar senha usuario - aguardando backend
+
+
+Alterar autenticação para usuario logado
+Limpar storage e redirecionar para a pagina inicial quando erro for 401
+
+-----------------------
+-     Resolvidos      -
+-----------------------
+** Alterar nome da sala
+** Arrumar entrar na sala
+** Tratar senha invalida no login
+
+-----------------------
+- Apenas se der tempo -
+-----------------------
+Setar popups com focuson
+Axios com url padrão
+pagina home com botao criar sala vira voltar para sala caso usuario ja esteja em uma sala

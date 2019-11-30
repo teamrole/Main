@@ -13,11 +13,8 @@
 
 <script>
 export default {
-  
-  props:
-    ['nome', 'avatar']
-}
-
+  props: ["nome", "avatar"]
+};
 </script>
 
 <style scoped>

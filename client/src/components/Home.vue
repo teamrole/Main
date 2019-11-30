@@ -7,8 +7,10 @@
         @click="dialogSala = true; dialogType = 'Novo Role'; classePopup=''"
       >
         <v-card>
-          <v-img class="white--text" height="30vh" src="@/assets/img/novo_role.png">
-            <v-card-title class="fill-height c-right">Novo role</v-card-title>
+          <v-img class="white--text" height="29vh" src="@/assets/img/novo_role.png">
+            <div class="fill-height">
+              <h2 class="c-home-title">Novo role</h2>
+            </div>
           </v-img>
         </v-card>
       </v-list-item>
@@ -18,8 +20,10 @@
         @click="dialogSala = true; dialogType = 'Entrar em um Role'; classePopup='c-login-cod'"
       >
         <v-card>
-          <v-img class="white--text" height="30vh" src="@/assets/img/entrar_role.png">
-            <v-card-title class="fill-height c-right">Entrar em um role</v-card-title>
+          <v-img class="white--text" height="29vh" src="@/assets/img/entrar_role.png">
+            <div class="fill-height">
+              <h2 class="c-home-title">Entrar em um role</h2>
+            </div>
           </v-img>
         </v-card>
       </v-list-item>
@@ -28,7 +32,9 @@
         <v-list-item three-line class="c-nopadding">
           <v-card>
             <v-img class="white--text" height="30vh" src="@/assets/img/ranking_role.png">
-              <v-card-title class="fill-height c-right">Ranking</v-card-title>
+              <div class="fill-height">
+                <h2 class="c-home-title">Ranking</h2>
+              </div>
             </v-img>
           </v-card>
         </v-list-item>
@@ -70,7 +76,7 @@
       <v-card>
         <v-card-title>Erro!</v-card-title>
         <v-card-text>
-          <span>{{alertaErroMsg}}</span>
+          <span>{{ alertaErroMsg }}</span>
         </v-card-text>
         <v-card-actions>
           <v-btn color="green darken1" text @click="dialogErro = false">Ok</v-btn>
@@ -82,6 +88,7 @@
 
 <script>
 import config from "../assets/dados/config";
+import axios from "axios";
 
 export default {
   methods: {
@@ -111,21 +118,50 @@ export default {
         }
         this.Erros.fieldMsg = "";
 
-        let reqJSON = {
-          usuario: JSON.parse(localStorage.getItem("USER")),
-          nomeDoRole: this.inputDialog
-        };
-
-        console.log("REQUISICAO BACK PARA CRIAR A SALA");
-        console.log("REQJSON: " + JSON.stringify(reqJSON));
-
-        //IF RETORNO É OK, REDIRECIONA PARA A TELA DE ROLE
-
-        if (this.inputDialog == "ROLE") {
-          this.$router.push("Lobby");
-        } else {
-          this.alertaErro("Erro Ao criar o Role");
-        }
+        console.log(this.inputDialog + "");
+        let salaNome = this.inputDialog + "";
+        axios
+          .post(
+            `${config.api.url}/salas`,
+            { id: this.usuarioLogado.id },
+            { auth: config.api.auth }
+          )
+          .then(
+            response => {
+              console.log(response.data);
+              let salaId = response.data.id;
+              axios
+                .put(
+                  `${config.api.url}/salas/${salaId}/nome`,
+                  salaNome,
+                  {
+                    headers: { "Content-Type": "text/plain" },
+                    auth: config.api.auth
+                  }
+                )
+                .then(
+                  response => {
+                    this.$router.push("Lobby");
+                  },
+                  error => {
+                    console.log(error);
+                  }
+                );
+            },
+            error => {
+              if (
+                error.response.status == 400 &&
+                error.response.data.mensagemUsuario.includes(
+                  "em duas salas ao mesmo tempo"
+                )
+              ) {
+                this.buscaSalaAtual();
+              } else {
+                console.log(error);
+                this.alertaErro("Erro Ao criar o Role!", error.response.status);
+              }
+            }
+          );
       } else if (this.dialogType.includes("Entrar em um Role")) {
         if (this.inputDialog.length != 4) {
           this.Erros.fieldMsg = "O codigo do role deve possuir 4 digitos";
@@ -133,32 +169,60 @@ export default {
         }
         this.Erros.fieldMsg = "";
 
-        let reqJSON = {
-          usuario: JSON.parse(localStorage.getItem("USER")),
-          codigoDoRole: this.inputDialog
-        };
-
-        console.log("REQUISICAO BACK PARA ENTRAR NA SALA");
-        console.log("REQJSON: " + JSON.stringify(reqJSON));
-
-        //IF RETORNO É OK, REDIRECIONA PARA A TELA DE ROLE
-        if (this.inputDialog == "6669") {
-          this.$router.push("Lobby");
-        } else {
-          this.Erros.fieldMsg = "O codigo do role é invalido";
-        }
+        this.entrarSala(this.inputDialog);
       }
+    },
+    buscaSalaAtual() {
+      axios
+        .get(
+          `${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`,
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            if (response.data) {
+              let salaAtual = response.data.filter(obj => {
+                return !obj.data_saida;
+              })[0].sala;
+              console.log(salaAtual);
+              this.alertaErro(
+                "Voce já esta em um role! Nome do role: " + salaAtual.nome
+              );
+            }
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    entrarSala(codSala) {
+      console.log(codSala);
+      axios
+        .post(
+          `${config.api.url}/salas/${codSala}/${this.usuarioLogado.id}`,
+          {},
+          { auth: config.api.auth }
+        )
+        .then(
+          response => {
+            this.$router.push("Lobby");
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
     }
   },
   data() {
     return {
-      config : config,
+      config: config,
       dialogSala: false,
       dialogErro: false,
       inputDialog: "",
       dialogType: "",
       alertaErroMsg: "Erro",
       classePopup: "",
+      usuarioLogado: JSON.parse(localStorage.getItem("User")),
       Erros: {
         fieldMsg: ""
       }
@@ -173,9 +237,20 @@ export default {
   padding: 0 !important;
 }
 .c-right {
-  justify-content: right;
+  justify-content: right !important;
 }
 .c-decoration-none {
   text-decoration: none;
+}
+.c-home-title {
+  width: 100%;
+  text-align: right;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  padding-right: 20px;
+  text-shadow: 0 0 5px #000;
 }
 </style>

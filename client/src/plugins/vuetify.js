@@ -6,18 +6,18 @@ Vue.use(Vuetify);
 export default new Vuetify({
   icons: {
     iconfont: 'mdi',
-    ico: 'mdiCash' 
+    ico: 'mdiCash'
   },
-  theme:{
-    themes:{
-      light:{
-          primary: '#9c27b0',
-          secondary: '#ff5722',
-          accent: '#00bcd4',
-          error: '#f44336',
-          warning: '#ffc107',
-          info: '#2196f3',
-          success: '#8bc34a'
+  theme: {
+    themes: {
+      light: {
+        primary: '#9c27b0',
+        secondary: '#ff5722',
+        accent: '#00bcd4',
+        error: '#f44336',
+        warning: '#ffc107',
+        info: '#2196f3',
+        success: '#8bc34a'
       }
     },
     options: {

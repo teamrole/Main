@@ -4,9 +4,12 @@
     <v-row class="c-con-display">
       <v-col cols="12" class="c-margin-auto">
         <v-avatar size="120">
-          <img src="../assets/Perfil/perfil5.jpg" />
+          <img :src="(perfil.foto?perfil.foto:fotoDefault)" />
           <v-btn class="mx-2 c-changePic" fab dark small absolute bottom right color="cyan">
-            <v-icon dark>mdi-pencil</v-icon>
+            <div class="c-label">
+              <v-file-input @change="onFileChange" class="c-input" accept=".png, .jpg, .jpeg" />
+              <v-icon dark id="c-img-selector">mdi-pencil</v-icon>
+            </div>
           </v-btn>
         </v-avatar>
       </v-col>
@@ -31,93 +34,82 @@
     </v-row>
 
     <v-row justify="center">
-      <v-col cols="1"></v-col>
       <v-col cols="9">
         <v-text-field
           label="Nome"
           :disabled="nameCheck"
           @blur="nameFocusOut"
-          v-model="usuario.perfil.nome"
+          v-model="perfil.nome"
           color="#033"
+          :error="ErroNome"
+          ref="inputNome"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn
-          text
-          icon
-          color="gray"
-          height="100%"
-          @click="nameCheck = false; oldName = usuario.perfil.nome"
-        >
+        <v-btn text icon color="gray" height="100%" @click="nameCheck = false;">
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
     </v-row>
 
     <v-row justify="center">
-      <v-col cols="1"></v-col>
-      <v-col cols="9">
+      <v-col cols="11">
         <v-text-field
           label="Celular"
-          v-model="usuario.celular"
+          v-model="usuarioLogado.celular"
           class="c-text-field"
-          :disabled="numberCheck"
-          @blur="numberFocusOut"
+          :disabled="true"
           v-mask="mask"
         ></v-text-field>
       </v-col>
-      <v-col cols="2">
+    </v-row>
+
+    <v-row>
+      <v-col cols="6">
+        <div style="width:10%;display:inline-block"></div>
         <v-btn
-          text
-          icon
-          color="gray"
-          height="100%"
-          @click="numberCheck=false; oldPhone = usuario.celular"
-        >
-          <v-icon>edit</v-icon>
-        </v-btn>
+          color="error"
+          dark
+          :outlined="true"
+          width="90%"
+          @click="dialogConfirmaMsg='Deseja mesmo fazer o logoff?';dialogConfirma=true"
+        >Sair</v-btn>
+      </v-col>
+      <v-col cols="6">
+        <v-btn
+          color="error"
+          dark
+          width="90%"
+          @click="dialogConfirmaMsg='exclui';dialogConfirma=true"
+        >Desativar Conta</v-btn>
       </v-col>
     </v-row>
 
-    <v-dialog v-model="dialogErro" persistent max-width="350  ">
+    <v-dialog v-model="dialogConfirma" persistent max-width="290">
       <v-card>
-        <v-card-title style="color: red">Número Inválido</v-card-title>
+        <v-card-title></v-card-title>
         <v-card-text>
-          <h3 style=" color:black">Insira um número de telefone válido!</h3>
+          <h3>{{dialogConfirmaMsg === "exclui"?"Deseja mesmo desativar sua conta?":"Deseja fazer o logoff?"}}</h3>
         </v-card-text>
         <v-card-actions>
+          <v-btn color="red darken-1" text @click="dialogConfirma=false">Cancelar</v-btn>
           <div class="flex-grow-1"></div>
-          <v-btn color="black" text @click="dialogErro = false">Fechar</v-btn>
+          <v-btn
+            color="green darken-3"
+            text
+            @click="confirmaDialog(dialogConfirmaMsg)"
+          >{{dialogConfirmaMsg === "exclui"?"Desativar":"Logoff"}}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogErro2" persistent max-width="350  ">
-      <v-card>
-        <v-card-title style="color: red">Nome Inválido</v-card-title>
-        <v-card-text>
-          <h3 style=" color:black">Insira o nome que será apresentado nos rolês</h3>
-        </v-card-text>
-        <v-card-actions>
-          <div class="flex-grow-1"></div>
-          <v-btn color="black" text @click="dialogErro2 = false">Fechar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-row class="btn-align">
-      <v-col cols="6" class="c-margin-auto">
-        <v-btn color="error" dark large :outlined="true" width="75%">Sair</v-btn>
-      </v-col>
-      <v-col cols="6" class="c-margin-auto">
-        <v-btn color="error" dark large width="75%">Apagar Conta</v-btn>
-      </v-col>
-    </v-row>
   </v-content>
 </template>
+
 <script>
 import { mask } from "vue-the-mask";
 import config from "../assets/dados/config";
-
+import firebase from "firebase/app";
+import "firebase/storage";
 import axios from "axios";
 
 export default {
@@ -127,13 +119,23 @@ export default {
   data() {
     return {
       config: config,
-      oldPhone: "",
       oldName: "",
-      dialogErro: false,
-      dialogErro2: false,
+      dialogConfirmaMsg: "",
+      dialogConfirma: false,
+      ErroNome: false,
       totalPago: 0,
       totalRoles: 0,
-      usuario: JSON.parse(localStorage.getItem("USER")),
+      fileFoto: null,
+      fotoChanged: false,
+      storageRef: null,
+      fotoDefault:
+        "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
+      usuarioLogado: JSON.parse(localStorage.getItem("User")),
+      perfil: {
+        foto: null,
+        id: 0,
+        nome: null
+      },
       nameCheck: true,
       numberCheck: true,
       mask: "+55 (##) #####-####"
@@ -141,31 +143,57 @@ export default {
   },
   methods: {
     nameFocusOut() {
-      this.nameCheck = true;
-      if (this.usuario.perfil.nome.length < 3) {
-        this.dialogErro2 = true;
-        this.usuario.perfil.nome = this.oldName;
+      if (this.perfil.nome.length < 3) {
+        this.ErroNome = true;
+        this.$refs.inputNome.focus();
+      } else {
+        this.nameCheck = true;
+        this.salvaLogin();
       }
     },
-    numberFocusOut() {
-      this.numberCheck = true;
-      if (this.usuario.celular.length < 19) {
-        this.dialogErro = true;
-        this.usuario.celular = this.oldPhone;
+    onFileChange(file) {
+      this.fileFoto = file;
+      this.fotoChanged = true;
+
+      this.perfil.foto = URL.createObjectURL(this.fileFoto);
+
+      if (file) {
+        const name = this.usuarioLogado.id + ".jpg";
+        const metadata = { contentType: file.type };
+        const task = this.storageRef.child(name).put(file, metadata);
+
+        task
+          .then(snapshot => snapshot.ref.getDownloadURL())
+          .then(url => {
+            this.perfil.foto = url;
+            this.salvaLogin();
+          })
+          .catch(console.error);
       }
     },
-    atualizaJson() {
-      //Carrega itens da sala
+    salvaLogin() {
+      axios
+        .put(`${config.api.url}/perfis/${this.usuarioLogado.id}`, this.perfil, {
+          auth: config.api.auth
+        })
+        .then(
+          response => {
+            this.perfil = response.data;
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    atualizaUsuario() {
       let vm = this;
       axios
-        .get(
-          `http://${config.api.host}:${config.api.port}/usuarios/${this.usuario.id}`,
-          { auth: config.api.auth }
-        )
+        .get(`${config.api.url}/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
-            console.log(response.data);
-            localStorage.setItem("USER", JSON.stringify(response.data));
+            this.perfil = response.data.perfil;
           },
           error => {
             console.log(error);
@@ -173,46 +201,67 @@ export default {
         );
 
       axios
-        .get(
-          `http://${config.api.host}:${config.api.port}/historicos/usuarios/${this.usuario.id}`,
-          {
-            auth: config.api.auth
-          }
-        )
+        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
-            console.log(response);
-            console.log(response.data);
-            let totalUsuario = 0;
-            response.data.map(historico => {
-              totalUsuario += parseInt(
-                historico.sala.pedido
-                  .map(ped =>
-                    ped.perfil.filter(perf => {
-                      return perf.id == vm.usuario.id;
-                    }).length > 0
-                      ? (ped.item.valor * ped.quantidade) / ped.perfil.length
-                      : 0
-                  )
-                  .reduce((total, valor) => total + valor)
-              );
-            });
+            vm.totalPago = 0;
+            if (response.data) {
+              vm.totalRoles = response.data.length;
 
-            vm.totalPago = totalUsuario.toFixed(2);
-            vm.totalRoles = response.data.length;
+              response.data.map(historico => {
+                vm.totalPago += historico.totalParcial;
+              });
+            }
           },
           error => {
             console.log(error);
           }
         );
-      console.log("Requisição backend para atualizar os itens");
+    },
+    desativaUsuario() {
+      axios
+        .delete(`${config.api.url}/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
+        .then(
+          response => {
+            localStorage.clear();
+            this.$router.push("/");
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    confirmaDialog(dialogConfirmaMsg) {
+      if (dialogConfirmaMsg === "exclui") {
+        this.desativaUsuario();
+      } else {
+        localStorage.clear();
+        this.$router.push("/");
+      }
     }
   },
   mounted() {
-    this.atualizaJson();
+    this.atualizaUsuario();
+
+    if (!firebase.apps.length)
+      firebase.initializeApp({
+        apiKey: "AIzaSyCviymQ96LuL_1XpmiURwOoXX7igF7Yelk",
+        authDomain: "i-role.firebaseapp.com",
+        databaseURL: "https://i-role.firebaseio.com",
+        projectId: "i-role",
+        storageBucket: "i-role.appspot.com",
+        messagingSenderId: "332147994294",
+        appId: "1:332147994294:web:52791194f69163ff390017"
+      });
+    this.storageRef = firebase.storage().ref();
   }
 };
 </script>
+
 <style scoped>
 .c-changePic {
   right: -9px;
@@ -251,5 +300,22 @@ export default {
 }
 .c-profileInfo {
   padding-top: 30px;
+}
+.c-label {
+  position: relative;
+  width: 70px;
+  height: 35px;
+  top: 5px;
+  padding-top: 0;
+  cursor: pointer;
+}
+.c-input {
+  position: absolute;
+  z-index: 1;
+  top: -19px;
+  right: 6px;
+  opacity: 0;
+  width: 35px;
+  height: 35px;
 }
 </style>

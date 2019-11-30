@@ -13,6 +13,7 @@
             placeholder="+55(99)9 9999-9999"
             v-model="userTel"
             :error-messages="Erros.fieldTelMsg"
+            ref="fieldtelefone"
           ></v-text-field>
           <v-btn
             class="c-btn-margin"
@@ -21,17 +22,19 @@
             elevation="3"
             width="100%"
             :large="true"
-            @click="verificaTel()"
-          >Enviar</v-btn>
+            @click="buscaTel()"
+          >Entrar</v-btn>
         </v-col>
       </v-row>
     </v-container>
 
-    <v-dialog v-model="dialogCod" persistent max-width="600px">
+    <v-dialog v-model="dialogSenha" persistent max-width="600px">
       <v-card>
         <v-card-title>
           <!-- <span class="headline">Insira o codigo recebido por SMS</span> -->
-          <span class="headline">Digite {{statusSenha}} senha:</span>
+          <span
+            class="headline"
+          >{{statusSenha === "sua"? "Digite a sua senha": "Bem Vindo! Digite uma senha para se cadastrar"}}</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -39,20 +42,20 @@
               <v-col cols="12">
                 <v-text-field
                   label="Senha"
-                  v-model="codigoAut"
+                  v-model="senha"
                   :error-messages="Erros.fieldCodMsg"
                   type="password"
                   class="c-login-cod"
-                  @keyup="/*verificaCodKeyUp() Apenas para SMS*/"
+                  ref="fieldsenha"
                 ></v-text-field>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="red darken-1" text @click="dialogCod = false; codigoAut = ''">Cancelar</v-btn>
+          <v-btn color="red darken-1" text @click="dialogSenha = false; senha = ''">Cancelar</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="verificaCod()">Confirmar</v-btn>
+          <v-btn color="green darken-1" text @click="validaUsuario()">Confirmar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -75,108 +78,106 @@ import axios from "axios";
 
 export default {
   methods: {
-    verificaCodKeyUp() {
-      this.codigoAut = this.codigoAut.replace(/ /g, "");
-      if (this.codigoAut.length > 6) {
-        this.codigoAut = this.codigoAut.substr(0, 6);
+    validaUsuario() {
+      if (this.senha.length < 5) {
+        this.Erros.fieldCodMsg = "Sua senha deve possuir no minimo 5 Digitos";
+      } else {
         this.Erros.fieldCodMsg = "";
+        if (this.statusSenha === "sua") {
+          this.fazLogin(
+            {
+              celular: this.unmaskTel(this.userTel),
+              senha: this.senha
+            },
+            false
+          );
+        } else {
+          this.criaUsuario();
+        }
       }
     },
-    verificaCod() {
-      if (this.codigoAut.length < 6) {
-        this.Erros.fieldCodMsg = "Sua senha deve possuir no minimo 6 Digitos";
-      } else {
-        return;
-        this.Erros.fieldCodMsg = "";
-        axios
-          .post(
-            `http://${config.api.host}:${config.api.port}/usuarios`,
-            {
-              celular: this.userTel
-                .replace("+55 (", "")
-                .replace(") ", "")
-                .replace("-", ""),
-              permissao: [],
-              senha: this.codigoAut
-            },
-            {
-              auth: config.api.auth
+    fazLogin(user, isLogado) {
+      axios
+        .post(
+          `${config.api.url}/usuarios/login`,
+          user,
+          {
+            auth: config.api.auth
+          }
+        )
+        .then(
+          response => {
+            if (!isLogado) {
+              user.id = response.data.id;
+              localStorage.setItem("User", JSON.stringify(user));
+              this.$router.push("Perfil");
+            } else {
+              this.$router.push("Home");
             }
-          )
-          .then(
-            response => {
-              axios
-                .post(
-                  `http://${config.api.host}:${config.api.port}/perfis`,
-                  {
-                    usuario: {
-                      id: response.data.id
-                    }
-                  },
-                  {
-                    auth: config.api.auth
-                  }
-                )
-                .then(
-                  response => {
-                    axios
-                      .get(
-                        `http://${config.api.host}:${config.api.port}/usuarios/${response.data.id}`,
-
-                        {
-                          auth: config.api.auth
-                        }
-                      )
-                      .then(
-                        response => {
-                          console.log(response.data);
-                          localStorage.setItem(
-                            "USER",
-                            JSON.stringify(response.data)
-                          );
-                          this.$router.push("Perfil");
-                        },
-                        error => {
-                          console.log(error);
-                        }
-                      );
-                  },
-                  error => {
-                    console.log(error);
-                  }
-                );
-            },
-            error => {
+          },
+          error => {
+            if(error.response.status == 401){
+              this.Erros.fieldCodMsg = "Senha invalida, tente novamente";
+            }else{
               console.log(error);
             }
-          );
-      }
+          }
+        );
     },
-    verificaTel() {
+    criaUsuario() {
+      axios
+        .post(
+          `${config.api.url}/usuarios`,
+          {
+            celular: this.unmaskTel(this.userTel),
+            senha: this.senha
+          },
+          {
+            auth: config.api.auth
+          }
+        )
+        .then(
+          response => {
+            localStorage.setItem(
+              "User",
+              JSON.stringify({
+                celular: this.unmaskTel(this.userTel),
+                senha: this.senha,
+                id:response.data.id
+              })
+            );
+            this.$router.push("Perfil");
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    buscaTel() {
       let telSemMask = this.unmaskTel(this.userTel);
-      console.log(telSemMask);
       if (telSemMask.length < 10) {
         this.Erros.fieldTelMsg = "O Telefone deve possuir 10 ou 11 Digitos";
       } else {
         this.Erros.fieldTelMsg = "";
-
         axios
-          .get(`http://${config.api.host}:${config.api.port}/usuarios`, {
+          .get(`${config.api.url}/usuarios`, {
             auth: config.api.auth
           })
           .then(
             response => {
-              let flag = false;
-              response.data.some(function(a) {
-                if (a.celular == telSemMask) {
-                  flag = true;
-                  return;
-                }
-              });
-              this.statusSenha = flag ? "sua" : "uma nova";
-              this.dialogCod = true;
+              this.statusSenha = response.data
+                .map(a => a.celular)
+                .includes(telSemMask)
+                ? "sua"
+                : "uma nova";
+              this.dialogSenha = true;
+              setTimeout(() => {
+                this.$refs.fieldsenha.focus();
+              }, 500);              
             },
-            error => {}
+            error => {
+              console.error(error);
+            }
           );
       }
     },
@@ -194,25 +195,26 @@ export default {
     config: config,
     mask: "+55 (##) #####-####",
     userTel: "",
-    codigoAut: "",
-    dialogCod: false,
+    senha: "",
+    dialogSenha: false,
     statusSenha: "sua",
     Erros: {
       fieldTelMsg: "",
       fieldCodMsg: ""
     }
   }),
-  created() {
-    if (localStorage.getItem("USER")) {
-      let user = JSON.parse(localStorage.getItem("USER"));
-      console.log(
-        user.telefone + " É O USUARIO LOGADO, GET PARA VALIDAR BACKEND"
-      );
-      //Revalida autenticação com backend
-      //Caso revalidação OK redireciona para Home
-      //Caso não, segue fluxo como novo usuario
+  mounted() {
+    if (localStorage.getItem("User")) {
+      let JSONuser = JSON.parse(localStorage.getItem("User"));
+      let user = {
+        celular: JSONuser.celular,
+        senha: JSONuser.senha
+      };
+      console.log(JSONuser);
+      this.fazLogin(user, true);
     } else {
       console.log("NOVO USUARIO");
+      this.$refs.fieldtelefone.focus();
     }
   }
 };
