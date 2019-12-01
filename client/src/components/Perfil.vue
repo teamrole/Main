@@ -183,7 +183,7 @@ export default {
     salvaLogin() {
       this.dialogLoading = true;
       axios
-        .put(`${config.api.url}/perfis/${this.usuarioLogado.id}`, this.perfil, {
+        .put(`${config.api.url}/perfis/${this.usuarioLogado.perfil.id}`, this.perfil, {
           auth: config.api.auth
         })
         .then(

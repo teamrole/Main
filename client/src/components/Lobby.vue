@@ -635,8 +635,8 @@ export default {
         this.isAtualizando.salaUsuario = true;
         this.localizaSalaUsuario(false);
       }
-
-      if (!this.sala.id) {
+      console.log(this.sala);
+      if (!this.sala) {
         return;
       }
 
@@ -720,35 +720,38 @@ export default {
     },
     localizaSalaUsuario(atualiza) {
       axios
-        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
-          auth: config.api.auth
-        })
+        .get(
+          `${config.api.url}/perfis/${this.usuarioLogado.id}/sala-atual`,
+          {
+            auth: config.api.auth
+          }
+        )
         .then(
           response => {
             if (response.data) {
-              let sala = response.data.filter(obj => {
-                return !obj.data_saida;
-              })[0];
+              let sala = response.data;
 
-              if (atualiza && !sala) {
-                this.dialog.naoEstaEmSala = true;
-                return;
-              } else if (!sala) {
-                this.dialog.totalParcial = true;
-              } else {
-                this.isAtualizando.salaUsuario = false;
-                this.sala = sala.sala;
-              }
+              this.isAtualizando.salaUsuario = false;
+              this.sala = sala;
+
               if (atualiza) {
                 this.intervaloAtualiza = setInterval(() => {
                   if (this.$route.name == "Lobby") this.atualizaJson();
                   else clearInterval(this.intervaloAtualiza);
-                }, 1000);
+                }, 2000);
               }
             }
           },
           error => {
             console.log(error);
+            if (error.response.status == 500) {
+              if (atualiza && !sala) {
+                this.dialog.naoEstaEmSala = true;
+                return;
+              } else if (!sala) {
+                this.dialog.totalParcial = true;
+              }
+            }
           }
         );
     }

@@ -115,6 +115,9 @@ export default {
             this.dialogLoading = false;
             if (!isLogado) {
               user.id = response.data.id;
+              user.perfil = {
+                   id: response.data.perfil.id
+                }
               localStorage.setItem("User", JSON.stringify(user));
               this.$router.push("Perfil");
             } else {
@@ -147,12 +150,16 @@ export default {
         .then(
           response => {
             this.dialogLoading = false;
+            console.log(response.data);
             localStorage.setItem(
               "User",
               JSON.stringify({
                 celular: this.unmaskTel(this.userTel),
                 senha: this.senha,
-                id: response.data.id
+                id: response.data.id,
+                perfil: {
+                   id: response.data.perfil.id
+                }
               })
             );
             this.$router.push("Perfil");

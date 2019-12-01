@@ -55,7 +55,7 @@ export default {
     atualizaJson() {
       this.dialogLoading = true;
       axios
-        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
+        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.perfil.id}`, {
           auth: config.api.auth
         })
         .then(

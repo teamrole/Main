@@ -148,7 +148,7 @@ export default {
         axios
           .post(
             `${config.api.url}/salas`,
-            { id: this.usuarioLogado.id },
+            { id: this.usuarioLogado.perfil.id },
             { auth: config.api.auth }
           )
           .then(
@@ -228,7 +228,7 @@ export default {
       this.dialogLoading = true;
       axios
         .post(
-          `${config.api.url}/salas/${codSala}/${this.usuarioLogado.id}`,
+          `${config.api.url}/salas/${codSala}/${this.usuarioLogado.perfil.id}`,
           {},
           { auth: config.api.auth }
         )
