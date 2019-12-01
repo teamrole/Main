@@ -33,8 +33,8 @@
       </v-col>
     </v-row>
 
-    <v-row justify="center" class="c-row-marg">
-      <v-col cols="9">
+    <v-row justify="center" class="c-row-marg" style="padding-left:25px">
+      <v-col cols="10">
         <v-text-field
           label="Nome"
           :disabled="nameCheck"
@@ -43,10 +43,11 @@
           color="#033"
           :error="ErroNome"
           ref="inputNome"
+          id="inputNome"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="nameCheck = false;">
+        <v-btn text icon color="gray" height="100%" @click="nameCheck = false; applyFocus()" >
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
@@ -63,7 +64,19 @@
         ></v-text-field>
       </v-col>
     </v-row>
-
+  <v-row class="c-row-marg" style="text-align: center">
+    <v-col>
+    <v-btn
+        class="c-btn-pass"
+          color="primary"
+          dark
+          :outlined="true"
+          width="90%"
+          @click="dialogConfirmaMsg='Deseja mesmo fazer o logoff?';dialogConfirma=true"
+        >Mudar Senha
+    </v-btn>
+    </v-col>
+  </v-row>      
     <v-row class="c-row-marg">
       <v-col cols="6">
         <div style="width:10%;display:inline-block"></div>
@@ -159,6 +172,11 @@ export default {
         this.nameCheck = true;
         this.salvaLogin();
       }
+    },
+    applyFocus(){
+      setTimeout(() => {
+        this.$refs.inputNome.focus();
+      }, 500);
     },
     onFileChange(file) {
       this.fileFoto = file;
@@ -346,7 +364,7 @@ export default {
   margin-right: 0px !important;
 }
 
-.v-dialog__content{
-  position: absolute;  
+.c-btn-pass{
+  justify-content: center;
 }
 </style>
