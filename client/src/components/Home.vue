@@ -79,9 +79,30 @@
           <span>{{ alertaErroMsg }}</span>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="green darken1" text @click="dialogErro = false">Ok</v-btn>
+          <v-btn color="green darken1" text @click="goLobby()">Ok</v-btn>
         </v-card-actions>
       </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogRole" persistent max-width="290">
+      <v-card>
+        <v-card-title>Código do role</v-card-title>
+        <v-card-text>
+          <h1 style="text-align: center">{{codSala}}</h1>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="black" text @click="goLobby()">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogLoading" fullscreen full-width>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-layout>
+      </v-container>
     </v-dialog>
   </v-content>
 </template>
@@ -92,6 +113,9 @@ import axios from "axios";
 
 export default {
   methods: {
+    goLobby() {
+      this.$router.push("Lobby");
+    },
     alertaErro(msg) {
       this.alertaErroMsg = msg;
       this.dialogErro = true;
@@ -120,6 +144,7 @@ export default {
 
         console.log(this.inputDialog + "");
         let salaNome = this.inputDialog + "";
+        this.dialogLoading = true;
         axios
           .post(
             `${config.api.url}/salas`,
@@ -128,20 +153,18 @@ export default {
           )
           .then(
             response => {
+              this.dialogLoading = false;
               console.log(response.data);
               let salaId = response.data.id;
               axios
-                .put(
-                  `${config.api.url}/salas/${salaId}/nome`,
-                  salaNome,
-                  {
-                    headers: { "Content-Type": "text/plain" },
-                    auth: config.api.auth
-                  }
-                )
+                .put(`${config.api.url}/salas/${salaId}/nome`, salaNome, {
+                  headers: { "Content-Type": "text/plain" },
+                  auth: config.api.auth
+                })
                 .then(
                   response => {
-                    this.$router.push("Lobby");
+                    this.codSala = response.data.codigo;
+                    this.dialogRole = true;
                   },
                   error => {
                     console.log(error);
@@ -149,6 +172,7 @@ export default {
                 );
             },
             error => {
+              this.dialogLoading = false;
               if (
                 error.response.status == 400 &&
                 error.response.data.mensagemUsuario.includes(
@@ -173,30 +197,35 @@ export default {
       }
     },
     buscaSalaAtual() {
+      this.dialogLoading = true;
+
       axios
-        .get(
-          `${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`,
-          { auth: config.api.auth }
-        )
+        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
+            this.dialogLoading = false;
+
             if (response.data) {
               let salaAtual = response.data.filter(obj => {
                 return !obj.data_saida;
               })[0].sala;
-              console.log(salaAtual);
               this.alertaErro(
                 "Voce já esta em um role! Nome do role: " + salaAtual.nome
               );
             }
           },
           error => {
+            this.dialogLoading = false;
+
             console.log(error);
           }
         );
     },
     entrarSala(codSala) {
       console.log(codSala);
+      this.dialogLoading = true;
       axios
         .post(
           `${config.api.url}/salas/${codSala}/${this.usuarioLogado.id}`,
@@ -205,10 +234,17 @@ export default {
         )
         .then(
           response => {
-            this.$router.push("Lobby");
+            this.dialogLoading = false;
+            this.goLobby();
           },
           error => {
-            console.log(error.data);
+            this.dialogLoading = false;
+
+            if (error.response.status == 404) {
+              this.Erros.fieldMsg = "Codigo nao encontrado!";
+            } else if (error.response.status == 400) {
+              this.buscaSalaAtual();
+            }
           }
         );
     }
@@ -218,8 +254,11 @@ export default {
       config: config,
       dialogSala: false,
       dialogErro: false,
+      dialogRole: false,
+      dialogLoading: false,
       inputDialog: "",
       dialogType: "",
+      codSala: "",
       alertaErroMsg: "Erro",
       classePopup: "",
       usuarioLogado: JSON.parse(localStorage.getItem("User")),

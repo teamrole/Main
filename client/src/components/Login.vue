@@ -59,6 +59,14 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogLoading" fullscreen full-width>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-layout>
+      </v-container>
+    </v-dialog>
   </v-content>
 </template>
 
@@ -97,16 +105,14 @@ export default {
       }
     },
     fazLogin(user, isLogado) {
+      this.dialogLoading = true;
       axios
-        .post(
-          `${config.api.url}/usuarios/login`,
-          user,
-          {
-            auth: config.api.auth
-          }
-        )
+        .post(`${config.api.url}/usuarios/login`, user, {
+          auth: config.api.auth
+        })
         .then(
           response => {
+            this.dialogLoading = false;
             if (!isLogado) {
               user.id = response.data.id;
               localStorage.setItem("User", JSON.stringify(user));
@@ -116,15 +122,17 @@ export default {
             }
           },
           error => {
-            if(error.response.status == 401){
+            this.dialogLoading = false;
+            if (error.response.status == 401) {
               this.Erros.fieldCodMsg = "Senha invalida, tente novamente";
-            }else{
+            } else {
               console.log(error);
             }
           }
         );
     },
     criaUsuario() {
+      this.dialogLoading = true;
       axios
         .post(
           `${config.api.url}/usuarios`,
@@ -138,12 +146,13 @@ export default {
         )
         .then(
           response => {
+            this.dialogLoading = false;
             localStorage.setItem(
               "User",
               JSON.stringify({
                 celular: this.unmaskTel(this.userTel),
                 senha: this.senha,
-                id:response.data.id
+                id: response.data.id
               })
             );
             this.$router.push("Perfil");
@@ -159,12 +168,14 @@ export default {
         this.Erros.fieldTelMsg = "O Telefone deve possuir 10 ou 11 Digitos";
       } else {
         this.Erros.fieldTelMsg = "";
+        this.dialogLoading = true;
         axios
           .get(`${config.api.url}/usuarios`, {
             auth: config.api.auth
           })
           .then(
             response => {
+              this.dialogLoading = false;
               this.statusSenha = response.data
                 .map(a => a.celular)
                 .includes(telSemMask)
@@ -173,7 +184,7 @@ export default {
               this.dialogSenha = true;
               setTimeout(() => {
                 this.$refs.fieldsenha.focus();
-              }, 500);              
+              }, 500);
             },
             error => {
               console.error(error);
@@ -197,6 +208,7 @@ export default {
     userTel: "",
     senha: "",
     dialogSenha: false,
+    dialogLoading: true,
     statusSenha: "sua",
     Erros: {
       fieldTelMsg: "",
@@ -214,6 +226,7 @@ export default {
       this.fazLogin(user, true);
     } else {
       console.log("NOVO USUARIO");
+      this.dialogLoading = false;
       this.$refs.fieldtelefone.focus();
     }
   }
