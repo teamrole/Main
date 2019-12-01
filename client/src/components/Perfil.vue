@@ -1,6 +1,6 @@
 
 <template>
-  <v-content>
+  <v-content class="c-content">
     <v-row class="c-con-display">
       <v-col cols="12" class="c-margin-auto">
         <v-avatar size="120">
@@ -33,7 +33,7 @@
       </v-col>
     </v-row>
 
-    <v-row justify="center">
+    <v-row justify="center" class="c-row-marg">
       <v-col cols="9">
         <v-text-field
           label="Nome"
@@ -52,7 +52,7 @@
       </v-col>
     </v-row>
 
-    <v-row justify="center">
+    <v-row justify="center" class="c-row-marg">
       <v-col cols="11">
         <v-text-field
           label="Celular"
@@ -64,7 +64,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="c-row-marg">
       <v-col cols="6">
         <div style="width:10%;display:inline-block"></div>
         <v-btn
@@ -296,6 +296,8 @@ export default {
 }
 .c-con-display {
   background: var(--v-primary-lighten3);
+  padding: 0 !important;
+  margin: 0px;
 }
 .c-margin-auto {
   text-align: center;
@@ -338,5 +340,13 @@ export default {
   opacity: 0;
   width: 35px;
   height: 35px;
+}
+
+.c-row-marg{
+  margin-right: 0px !important;
+}
+
+.v-dialog__content{
+  position: absolute;  
 }
 </style>
