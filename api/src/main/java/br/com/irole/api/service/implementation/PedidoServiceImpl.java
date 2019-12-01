@@ -1,6 +1,8 @@
 package br.com.irole.api.service.implementation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,41 +86,27 @@ public class PedidoServiceImpl implements PedidoService{
 				
 	}
 	
-	public Pedido persistePedido(Pedido pedido) {
-		
-		Item itemSalvo = itemRepository.save(pedido.getItem());
-		pedido.setItem(itemSalvo);
-		Pedido pedidoSave = pedidoRepository.save(pedido);		
-		return pedidoSave;
-	}
-	
-	public Boolean verificaUsuariosEstaNaSala(Long sala_id, List<Perfil> perfil) {
-		
-		for (Perfil p : perfil) {
-			if(!salaService.isUsuarioNaSala(sala_id, p))
-				return false;
-		}
-		return true;
-	}
-	
-	public List<Perfil> listaDePerfilSemRepeticao(List<Perfil> perfis){
-		return  perfis.stream() 
-		        .distinct()    
-		        .collect(Collectors.toList());
-	}
-	
 	@Override
-	public Pedido atualizarPedido(Long id, Pedido pedido) {
+	public Pedido atualizarPedido(Long id, Pedido pedidoNovo) {
 		Optional<Pedido> buscaPedido = pedidoRepository.findById(id);
-		if (buscaPedido.isPresent()) {
-			BeanUtils.copyProperties(pedido, buscaPedido.get(), "id");
-			pedidoRepository.save(buscaPedido.get());
-			return buscaPedido.get();			
-		}else {
-			throw new EmptyResultDataAccessException(1);
+		if(!buscaPedido.isPresent())
+			throw new EmptyResultDataAccessException(1); 
+		
+		Pedido pedidoEncontrado = buscaPedido.get();
+		
+		//Atualiza itens do pedido		
+		this.atualizarItemPedido(pedidoEncontrado.getId(), pedidoNovo.getItem());
+		
+		//Atualiza usuarios do pedido
+		if(!isListaUsuarioPedidoIguais(pedidoEncontrado.getId(), pedidoNovo.getPerfil())) {
+			pedidoEncontrado.setPerfil(pedidoNovo.getPerfil());
 		}
+		pedidoEncontrado.setQuantidade(pedidoNovo.getQuantidade());
+		Pedido pedidoAlterado = pedidoRepository.save(pedidoEncontrado);
+		
+		return pedidoAlterado;
 	} 
-	
+
 	@Override
 	public ResponseEntity<?> apagarPedido(Long id) {
 		List<AppException> erros = new ArrayList<>();
@@ -143,4 +131,56 @@ public class PedidoServiceImpl implements PedidoService{
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
 	}
+	
+	private Boolean isListaUsuarioPedidoIguais(Long idPedido, List<Perfil> usuariosRecebidosNoPut) {
+		List<Perfil> listaUsuariosPedido = pedidoRepository.listaUsuariosDoPedido(idPedido);
+		if(listaUsuariosPedido.size() != usuariosRecebidosNoPut.size())
+			return false;		
+		
+		//Ordena lista de usuários em ordem crescente de ID
+		Collections.sort(usuariosRecebidosNoPut, new Comparator<Perfil>() {
+			@Override
+			public int compare(Perfil o1, Perfil o2) {
+				return o1.getId().compareTo(o2.getId());
+			}
+		});		
+		//Lista de usuários antigos já vem ordenados do banco
+		if(!listaUsuariosPedido.equals(usuariosRecebidosNoPut)) 
+			return false;
+			
+		return true;
+	}
+	
+	private void atualizarItemPedido(Long idPedido, Item itemNovo) {
+		Optional<Item> buscaItem = itemRepository.findById(idPedido);
+		if(!buscaItem.isPresent())
+			throw new EmptyResultDataAccessException(1); 
+		
+		BeanUtils.copyProperties(itemNovo, buscaItem.get());
+		itemRepository.save(buscaItem.get());
+	}
+	
+	public Pedido persistePedido(Pedido pedido) {
+		
+		Item itemSalvo = itemRepository.save(pedido.getItem());
+		pedido.setItem(itemSalvo);
+		Pedido pedidoSave = pedidoRepository.save(pedido);		
+		return pedidoSave;
+	}
+	
+	public Boolean verificaUsuariosEstaNaSala(Long sala_id, List<Perfil> perfil) {
+		
+		for (Perfil p : perfil) {
+			if(!salaService.isUsuarioNaSala(sala_id, p))
+				return false;
+		}
+		return true;
+	}
+	
+	public List<Perfil> listaDePerfilSemRepeticao(List<Perfil> perfis){
+		return  perfis.stream() 
+		        .distinct()    
+		        .collect(Collectors.toList());
+	}
+		
 }
