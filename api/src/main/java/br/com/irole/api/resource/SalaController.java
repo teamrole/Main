@@ -95,10 +95,11 @@ public class SalaController {
 		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
 	}
 	
-	@GetMapping("/{id}/{idU}/conta")
-	@ApiOperation(notes = "Retorna os gastos de um usuário específico dentro de uma sala", value = "Retorna Conta do usuário")
-	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		BigDecimal totalParcial = salaService.pegaContaDeUmUsuario(id, idU);
+	@GetMapping("/{id}/{idP}/conta")
+	@ApiOperation(notes = "Retorna os gastos de um usuário específico dentro de uma sala, como parâmetro é esperado o id da Sala e o ID do perfil do usuário",
+	value = "Retorna Conta do usuário")
+	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idP) {
+		BigDecimal totalParcial = salaService.pegaContaDeUmUsuario(id, idP);
 		return totalParcial;
 	}	
 		

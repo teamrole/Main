@@ -1,6 +1,7 @@
 package br.com.irole.api.service.implementation;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -149,7 +150,7 @@ public class SalaServiceImpl implements SalaService{
 			
 		} else {
 			
-			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, perfil.getUsuario().getId());
+			BigDecimal pegaContaDeUmUsuario = pegaContaDeUmUsuario(id, perfil.getId());
 			
 			if (historicoSalaUsuario.getData_saida() == null) {
 				OffsetDateTime timestamp = OffsetDateTime.now();
@@ -174,11 +175,11 @@ public class SalaServiceImpl implements SalaService{
 
 	// TODO trocar para receber pefil id no parametro
 	@Override
-	public BigDecimal pegaContaDeUmUsuario(Long id, Long idU) {
+	public BigDecimal pegaContaDeUmUsuario(Long id, Long idP) {
 
 		BigDecimal total = BigDecimal.ZERO;
 		BigDecimal totalPedido = BigDecimal.ZERO;
-		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idU);
+		List<TotalPedido> pedidoUsuario = salaRepository.pedidosSalaPorUsuario(id, idP);
 
 		if (pedidoUsuario.isEmpty())
 			return new BigDecimal(0);
@@ -187,7 +188,7 @@ public class SalaServiceImpl implements SalaService{
 		for (TotalPedido pedido : pedidoUsuario) {
 			totalPedido = pedido.getValor().multiply(new BigDecimal(pedido.getQuantidade()));
 			usuarioPorPedido = salaRepository.usuariosPorPedido(pedido.getPedido_id());
-			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido));
+			totalPedido = totalPedido.divide(new BigDecimal(usuarioPorPedido),2, RoundingMode.HALF_UP);
 			total = total.add(totalPedido);
 		}
 		
