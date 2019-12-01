@@ -573,7 +573,7 @@ export default {
       this.dialog.Loading = true;
       axios
         .delete(
-          `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.id}`,
+          `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.perfil.id}`,
           {
             auth: config.api.auth
           }
@@ -745,10 +745,10 @@ export default {
           error => {
             console.log(error);
             if (error.response.status == 500) {
-              if (atualiza && !sala) {
+              if (atualiza) {
                 this.dialog.naoEstaEmSala = true;
                 return;
-              } else if (!sala) {
+              } else {
                 this.dialog.totalParcial = true;
               }
             }
