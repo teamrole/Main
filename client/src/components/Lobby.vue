@@ -305,6 +305,14 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialog.Loading" fullscreen full-width>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-layout>
+      </v-container>
+    </v-dialog>
   </v-content>
 </template> 
 
@@ -470,16 +478,19 @@ export default {
             id: this.sala.id,
             pedido: [this.itemSendoEditado]
           };
+          this.dialog.Loading = true;
           axios
             .post(`${config.api.url}/pedidos`, data, {
               auth: config.api.auth
             })
             .then(
               response => {
+                this.dialog.Loading = false;
                 if (response.data) this.items = response.data;
                 this.atualizaJson();
               },
               error => {
+                this.dialog.Loading = false;
                 console.log(error);
               }
             );
@@ -498,15 +509,18 @@ export default {
             quantidade: item.quantidade
           };
 
+          this.dialog.Loading = true;
           axios
             .put(`${config.api.url}/pedidos/${data.id}`, data, {
               auth: config.api.auth
             })
             .then(
               response => {
+                this.dialog.Loading = false;
                 this.atualizaJson();
               },
               error => {
+                this.dialog.Loading = false;
                 console.log(error);
               }
             );
@@ -520,15 +534,18 @@ export default {
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
       this.items.splice(alteraIndex, 1);
 
+      this.dialog.Loading = true;
       axios
         .delete(`${config.api.url}/pedidos/${item.id}`, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialog.Loading = false;
             this.recalculaTotal();
           },
           error => {
+            this.dialog.Loading = false;
             console.log(error);
           }
         );
@@ -553,6 +570,7 @@ export default {
       }
     },
     fecharRoleParcial() {
+      this.dialog.Loading = true;
       axios
         .delete(
           `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.id}`,
@@ -562,31 +580,36 @@ export default {
         )
         .then(
           response => {
+            this.dialog.Loading = false;
             this.dialog.totalParcial = true;
             this.dialog.fecharRoleParcial = false;
           },
           error => {
+            this.dialog.Loading = false;
             console.log(error.data);
           }
         );
     },
     fecharRole() {
+      this.dialog.Loading = true;
       axios
         .delete(`${config.api.url}/salas/${this.sala.id}`, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialog.Loading = false;
             this.dialog.totalParcial = true;
             this.dialog.fecharRole = false;
-            this.atualizaJson();
           },
           error => {
+            this.dialog.Loading = false;
             console.log(error.data);
           }
         );
     },
     gravaNomeSala() {
+      this.dialog.Loading = true;
       axios
         .put(`${config.api.url}/salas/${this.sala.id}/nome`, this.salaEdtNome, {
           headers: { "Content-Type": "text/plain" },
@@ -594,10 +617,12 @@ export default {
         })
         .then(
           response => {
+            this.dialog.Loading = false;
             this.dialog.EdtNomeSala = false;
-            this.atualizaJson();
+            this.sala = response.data;
           },
           error => {
+            this.dialog.Loading = false;
             console.log(error);
           }
         );
@@ -714,15 +739,15 @@ export default {
                 this.isAtualizando.salaUsuario = false;
                 this.sala = sala.sala;
               }
-              if (atualiza)
+              if (atualiza) {
                 this.intervaloAtualiza = setInterval(() => {
                   if (this.$route.name == "Lobby") this.atualizaJson();
                   else clearInterval(this.intervaloAtualiza);
                 }, 1000);
+              }
             }
           },
           error => {
-            this.isAtualizando.salaUsuario = false;
             console.log(error);
           }
         );
@@ -755,7 +780,8 @@ export default {
         FechaSala: false,
         CodSala: false,
         totalParcial: false,
-        EdtNomeSala: false
+        EdtNomeSala: false,
+        Loading: false
       },
       dialogMsg: "",
       AcaoItem: "Editar",

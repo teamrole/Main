@@ -9,6 +9,14 @@
         </v-expansion-panels>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="dialogLoading" fullscreen full-width>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-layout>
+      </v-container>
+    </v-dialog>
   </v-content>
 </template>
 
@@ -28,6 +36,7 @@ export default {
     return {
       config: config,
       historicos: [],
+      dialogLoading: false,
       usuarioLogado: JSON.parse(localStorage.getItem("User"))
     };
   },
@@ -44,15 +53,18 @@ export default {
   },
   methods: {
     atualizaJson() {
+      this.dialogLoading = true;
       axios
         .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialogLoading = false;
             this.historicos = response.data;
           },
           error => {
+            this.dialogLoading = false;
             console.log(error);
           }
         );

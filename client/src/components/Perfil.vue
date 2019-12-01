@@ -102,6 +102,14 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogLoading" fullscreen full-width>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-layout>
+      </v-container>
+    </v-dialog>
   </v-content>
 </template>
 
@@ -123,6 +131,7 @@ export default {
       dialogConfirmaMsg: "",
       dialogConfirma: false,
       ErroNome: false,
+      dialogLoading: false,
       totalPago: 0,
       totalRoles: 0,
       fileFoto: null,
@@ -172,40 +181,48 @@ export default {
       }
     },
     salvaLogin() {
+      this.dialogLoading = true;
       axios
         .put(`${config.api.url}/perfis/${this.usuarioLogado.id}`, this.perfil, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialogLoading = false;
             this.perfil = response.data;
           },
           error => {
+            this.dialogLoading = false;
             console.log(error);
           }
         );
     },
     atualizaUsuario() {
       let vm = this;
+      this.dialogLoading = true;
       axios
         .get(`${config.api.url}/usuarios/${this.usuarioLogado.id}`, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialogLoading = false;
             this.perfil = response.data.perfil;
           },
           error => {
+            this.dialogLoading = false;
             console.log(error);
           }
         );
 
+      this.dialogLoading = true;
       axios
         .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialogLoading = false;
             vm.totalPago = 0;
             if (response.data) {
               vm.totalRoles = response.data.length;
@@ -216,21 +233,25 @@ export default {
             }
           },
           error => {
+            this.dialogLoading = false;
             console.log(error);
           }
         );
     },
     desativaUsuario() {
+      this.dialogLoading = true;
       axios
         .delete(`${config.api.url}/usuarios/${this.usuarioLogado.id}`, {
           auth: config.api.auth
         })
         .then(
           response => {
+            this.dialogLoading = false;
             localStorage.clear();
             this.$router.push("/");
           },
           error => {
+            this.dialogLoading = false;
             console.log(error);
           }
         );

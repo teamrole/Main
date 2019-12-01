@@ -23,6 +23,14 @@
         </v-list-item-icon>
       </v-list-item>
     </v-list>
+
+    <v-dialog v-model="dialogLoading" fullscreen full-width>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-layout>
+      </v-container>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -50,27 +58,31 @@ export default {
     }
   },
   mounted() {
+    this.dialogLoading = true;
     axios
       .get(`${config.api.url}/${this.apiPath}`, {
         auth: config.api.auth
       })
       .then(
         response => {
+          this.dialogLoading = false;
           console.log(response);
           this.userData = response.data;
           this.mensagemVazio = "Ainda não há Roles neste periodo";
         },
         error => {
+          this.dialogLoading = false;
           console.log(error);
         }
       );
   },
   data: () => ({
+    dialogLoading: false,
     items: [],
     userData: null,
     mensagemVazio: "Carregando...",
     fotoDefault:
-        "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
+      "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067"
   })
 };
 </script>
