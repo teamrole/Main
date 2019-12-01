@@ -66,7 +66,14 @@
               class="c-secundary c-item-preco"
             >{{parseFloat(pedido.item.valor * pedido.quantidade).toFixed(2)}}</span>
 
-            <v-btn class="c-nopadding" :ripple="false" icon small text @click="editarItem(pedido)">
+            <v-btn
+              class="c-nopadding"
+              :ripple="false"
+              icon
+              small
+              text
+              @click="editarItem(pedido); classBtn = false"
+            >
               <v-icon class="c-secundary">edit</v-icon>
             </v-btn>
           </v-list-item-icon>
@@ -82,7 +89,13 @@
         <span class="c-valor">{{totalPessoal.toFixed(2)}} R$</span>
       </div>
       <div class="flex-grow-1"></div>
-      <v-btn text icon x-large class="c-nopadding c-btn-add" @click="novoItem(); selectErro=false">
+      <v-btn
+        text
+        icon
+        x-large
+        class="c-nopadding c-btn-add"
+        @click="novoItem(); selectErro='', classBtn = true"
+      >
         <v-icon color="white" class="c-btn-add-icon">add</v-icon>
       </v-btn>
     </v-footer>
@@ -129,8 +142,8 @@
                 </v-col>
                 <v-col cols="12">
                   <v-select
-                    :error="selectErro"
-                    :items="this.pessoasPerfil"
+                    :error-messages="selectErro"
+                    :items="perfisSelect"
                     item-text="nome"
                     item-value="id"
                     label="Pagantes"
@@ -138,7 +151,7 @@
                     small-chips
                     multiple
                     required
-                    @blur="selectErro = itemSendoEditado.perfil.length <= 0"
+                    @blur="verificaSelect()"
                   >
                     <v-btn slot="prepend-item" color="primary" block @click="toggleSelect">Todos</v-btn>
                   </v-select>
@@ -147,7 +160,12 @@
             </v-container>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="blue darken-1" text @click="dialog.Excluir = true; dialog.Edit = false">
+            <v-btn
+              v-if="itemSendoEditado.id != null"
+              color="blue darken-1"
+              text
+              @click="dialog.Excluir = true; dialog.Edit = false"
+            >
               <v-icon color="red">delete</v-icon>
             </v-btn>
             <div class="flex-grow-1"></div>
@@ -265,6 +283,28 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialog.naoEstaEmSala" persistent max-width="290">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Erro!</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <h3>Voce não está em um role!</h3>
+                <h4>Entre ou crie um role na tela inicial</h4>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="goHome()">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-content>
 </template> 
 
@@ -348,6 +388,46 @@ import axios from "axios";
 
 export default {
   methods: {
+    goHome() {
+      this.$router.push("Home");
+    },
+    verificaSelect() {
+      this.selectErro =
+        this.itemSendoEditado.perfil.length <= 0
+          ? "Deve-se ter no minimo um pagante!"
+          : "";
+
+      if (this.selectErro) return;
+
+      let Pagantes = this.perfisSelect.map(a => a.id);
+      let inativosPagantes = [];
+
+      Pagantes.map(pagante => {
+        if (this.usuariosInativos.includes(pagante)) {
+          inativosPagantes.push(pagante);
+        }
+        console.log(
+          "Usuario inativo " + pagante + this.usuariosInativos.includes(pagante)
+        );
+      });
+
+      console.log(inativosPagantes);
+
+      let PagantesEditado = [];
+
+      if (this.itemSendoEditado.perfil[0].id)
+        PagantesEditado = this.itemSendoEditado.perfil.map(a => a.id);
+      else PagantesEditado = this.itemSendoEditado.perfil;
+
+      console.log(PagantesEditado);
+      console.log(this.itemSendoEditado);
+
+      inativosPagantes.map(pagante => {
+        if (!PagantesEditado.includes(pagante))
+          this.selectErro =
+            "Não é possivel desvincular item de usuarios que ja sairam do role";
+      });
+    },
     recalculaTotal() {
       //calcula total do role
       let vm = this;
@@ -355,6 +435,7 @@ export default {
       this.items.map(a => (vm.totalDoRole += a.item.valor * a.quantidade));
     },
     novoItem() {
+      this.perfisSelect = this.pessoasPerfil;
       this.AcaoItem = "Novo";
       this.itemSendoEditado = {
         id: null,
@@ -364,7 +445,7 @@ export default {
           itemTipo: "OUTRO",
           valor: null
         },
-        perfil: [],
+        perfil: this.pessoasPerfil,
         quantidade: 1
       };
       this.dialog.Edit = true;
@@ -373,40 +454,21 @@ export default {
       item.item.valor = parseFloat(item.item.valor) || 0;
       this.precoErro = item.item.valor <= 0;
       //valida pagantes
-      this.selectErro = item.perfil.length <= 0;
+      if (this.selectErro.length == 0)
+        this.selectErro =
+          item.perfil.length <= 0 ? "Deve-se ter Pelo menos um pagante!" : "";
       //valdia quantidade
       this.qtdErro = item.quantidade <= 0;
 
-      if (!this.precoErro && !this.selectErro && !this.qtdErro) {
+      if (!this.precoErro && this.selectErro.length == 0 && !this.qtdErro) {
         this.precoErro = false;
-        this.selectErro = false;
+        this.selectErro = "";
         this.qtdErro = false;
 
-        let pagantesJson = [];
-
-        item.perfil.map(function(pagante) {
-          pagantesJson.push({
-            id: pagante
-          });
-        });
-
         if (this.AcaoItem == "Novo") {
-          pagantesJson = pagantesJson.map(a => {
-            return { id: a.id };
-          });
           let data = {
             id: this.sala.id,
-            pedido: [
-              {
-                item: {
-                  descricao: item.item.descricao + "",
-                  itemTipo: item.item.itemTipo,
-                  valor: item.item.valor
-                },
-                perfil: pagantesJson,
-                quantidade: item.quantidade
-              }
-            ]
+            pedido: [this.itemSendoEditado]
           };
           axios
             .post(`${config.api.url}/pedidos`, data, {
@@ -424,9 +486,6 @@ export default {
 
           return true;
         } else if (this.AcaoItem == "Editar") {
-          pagantesJson = pagantesJson.map(a => {
-            return { id: a.id.id };
-          });
           let data = {
             id: item.id,
             item: {
@@ -435,7 +494,7 @@ export default {
               itemTipo: item.item.itemTipo,
               valor: item.item.valor
             },
-            perfil: pagantesJson,
+            perfil: item.perfil,
             quantidade: item.quantidade
           };
 
@@ -476,7 +535,9 @@ export default {
     },
     editarItem(item) {
       this.AcaoItem = "Editar";
+      this.classBtn = true;
       this.itemSendoEditado = { ...item };
+      this.perfisSelect = this.itemSendoEditado.perfil;
       this.dialog.Edit = true;
     },
     verificaPreco() {
@@ -547,8 +608,7 @@ export default {
     atualizaJson() {
       if (!this.isAtualizando.salaUsuario) {
         this.isAtualizando.salaUsuario = true;
-        console.log("SALA");
-        this.localizaSalaUsuario();
+        this.localizaSalaUsuario(false);
       }
 
       if (!this.sala.id) {
@@ -556,8 +616,6 @@ export default {
       }
 
       if (!this.isAtualizando.pedidosSala) {
-        console.log("PEDIDOS");
-
         this.isAtualizando.pedidosSala = true;
         axios
           .get(`${config.api.url}/pedidos/salas/${this.sala.id}`, {
@@ -578,7 +636,6 @@ export default {
       }
       if (!this.isAtualizando.usuariosSala) {
         this.isAtualizando.usuariosSala = true;
-        console.log("USUARIOS");
 
         axios
           .get(`${config.api.url}/salas/${this.sala.id}/usuarios`, {
@@ -586,11 +643,29 @@ export default {
           })
           .then(
             response => {
+              this.isAtualizando.usuariosSala = false;
               this.pessoas = response.data;
               this.pessoasPerfil = this.pessoas.map(p => {
                 return p.perfil;
-                this.isAtualizando.usuariosSala = false;
               });
+
+              let usuPagaram = [];
+
+              this.items.map(a => {
+                a.perfil.map(b => {
+                  usuPagaram.push(b.id);
+                });
+              });
+
+              let idPagaram = [...new Set(usuPagaram)];
+              let idInativo = [];
+              idPagaram.map(a => {
+                if (this.pessoasPerfil.findIndex(x => x.id === a) < 0) {
+                  idInativo.push(a);
+                }
+              });
+
+              this.usuariosInativos = idInativo;
             },
             error => {
               this.isAtualizando.usuariosSala = false;
@@ -600,7 +675,6 @@ export default {
       }
       if (!this.isAtualizando.contaUsuario) {
         this.isAtualizando.contaUsuario = true;
-        console.log("CONTA");
 
         axios
           .get(
@@ -627,22 +701,24 @@ export default {
         .then(
           response => {
             if (response.data) {
-              this.isAtualizando.salaUsuario = false;
               let sala = response.data.filter(obj => {
                 return !obj.data_saida;
               })[0];
 
-              if (!sala) {
-                this.dialog.totalParcial = true;
-              }
-              if (false) {
-                alert("Voce não está em nenhuma Sala");
-                this.$router.push("Home");
+              if (atualiza && !sala) {
+                this.dialog.naoEstaEmSala = true;
                 return;
+              } else if (!sala) {
+                this.dialog.totalParcial = true;
               } else {
+                this.isAtualizando.salaUsuario = false;
                 this.sala = sala.sala;
               }
-              if (atualiza) this.atualizaJson();
+              if (atualiza)
+                this.intervaloAtualiza = setInterval(() => {
+                  if (this.$route.name == "Lobby") this.atualizaJson();
+                  else clearInterval(this.intervaloAtualiza);
+                }, 1000);
             }
           },
           error => {
@@ -657,6 +733,8 @@ export default {
   },
   data() {
     return {
+      perfisSelect: null,
+      usuariosInativos: [],
       config: config,
       totalPessoal: 0,
       totalDoRole: 0,
@@ -666,9 +744,11 @@ export default {
         nome: null
       },
       precoErro: false,
-      selectErro: false,
+      selectErro: "",
       qtdErro: false,
+      classBtn: true,
       dialog: {
+        naoEstaEmSala: false,
         Edit: false,
         Excluir: false,
         FechaParcial: false,
@@ -709,11 +789,6 @@ export default {
   },
   mounted() {
     this.localizaSalaUsuario(true);
-    console.log("Lobby");
-    this.intervaloAtualiza = setInterval(() => {
-      if (this.$route.name == "Lobby") this.atualizaJson();
-      else clearInterval(this.intervaloAtualiza);
-    }, 1000);
   }
 };
 </script>
