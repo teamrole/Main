@@ -1,7 +1,7 @@
   
 <template>
   <v-container class="c-no-padding">
-    <h1 v-if="!userData" style="text-align:center">Ainda não há Roles neste periodo</h1>
+    <h1 v-if="!userData" style="text-align:center">{{mensagemVazio}}</h1>
     <v-list v-else>
       <v-list-item
         v-for="item in userData "
@@ -15,7 +15,7 @@
         </v-list-item-avatar>
 
         <v-list-item-content padding:0>
-          <v-list-item-title v-text="item.nome"></v-list-item-title>
+          <v-list-item-title v-text="item.nome?item.nome:'Usuario S/ Nome'"></v-list-item-title>
         </v-list-item-content>
 
         <v-list-item-icon>
@@ -58,6 +58,7 @@ export default {
         response => {
           console.log(response);
           this.userData = response.data;
+          this.mensagemVazio = "Ainda não há Roles neste periodo";
         },
         error => {
           console.log(error);
@@ -67,6 +68,7 @@ export default {
   data: () => ({
     items: [],
     userData: null,
+    mensagemVazio: "Carregando...",
     fotoDefault:
         "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
   })

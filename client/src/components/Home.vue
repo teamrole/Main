@@ -83,6 +83,20 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogRole" persistent max-width="290">
+      <v-card>
+        <v-card-title>Código do role</v-card-title>
+        <v-card-text>
+          <h1 style="text-align: center">{{codSala}}</h1>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="black" text @click="goLobby()">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-content>
 </template>
 
@@ -92,6 +106,9 @@ import axios from "axios";
 
 export default {
   methods: {
+    goLobby(){
+      this.$router.push("Lobby")
+    },
     alertaErro(msg) {
       this.alertaErroMsg = msg;
       this.dialogErro = true;
@@ -141,7 +158,9 @@ export default {
                 )
                 .then(
                   response => {
-                    this.$router.push("Lobby");
+
+                    this.codSala = response.data.codigo;
+                    this.dialogRole = true;
                   },
                   error => {
                     console.log(error);
@@ -205,10 +224,12 @@ export default {
         )
         .then(
           response => {
-            this.$router.push("Lobby");
+            this.goLobby();
           },
           error => {
-            console.log(error.data);
+            if (error.response.status == 404){
+              this.Erros.fieldMsg = "Codigo nao encontrado!"
+            }
           }
         );
     }
@@ -218,8 +239,10 @@ export default {
       config: config,
       dialogSala: false,
       dialogErro: false,
+      dialogRole: false,
       inputDialog: "",
       dialogType: "",
+      codSala: "", 
       alertaErroMsg: "Erro",
       classePopup: "",
       usuarioLogado: JSON.parse(localStorage.getItem("User")),

@@ -38,10 +38,11 @@
         :key="pessoa.perfil.id"
         :nome="pessoa.perfil.nome?pessoa.perfil.nome:'S/Nome'"
         :avatar="pessoa.perfil.foto?pessoa.perfil.foto:fotoDefault"
+        :style="pessoa.ativo?'':'filter: grayscale(1)'"
       />
     </div>
     <v-container class="c-list-container" fluid>
-      <h1 v-if="items.length == 0" style="color:grey;text-align:center">Ainda não há itens no role</h1>
+      <h1 v-if="items.length == 0" style="color:grey;text-align:center">{{this.mensagemVazio}}</h1>
       <v-list class="c-list">
         <v-list-item v-for="pedido in items" :key="pedido.id" :dense="true" class="c-list-item">
           <v-avatar tile size="20px">
@@ -217,7 +218,7 @@
 
     <v-dialog v-model="dialog.CodSala" persistent max-width="290">
       <v-card>
-        <v-card-title>Código da sala</v-card-title>
+        <v-card-title>Código do role</v-card-title>
         <v-card-text>
           <h1 style="text-align: center">{{sala.codigo}}</h1>
         </v-card-text>
@@ -351,7 +352,6 @@ export default {
       //calcula total do role
       let vm = this;
       vm.totalDoRole = 0;
-      console.log(this.items);
       this.items.map(a => (vm.totalDoRole += a.item.valor * a.quantidade));
     },
     novoItem() {
@@ -440,11 +440,9 @@ export default {
           };
 
           axios
-            .put(
-              `${config.api.url}/pedidos/${data.id}`,
-              data,
-              { auth: config.api.auth }
-            )
+            .put(`${config.api.url}/pedidos/${data.id}`, data, {
+              auth: config.api.auth
+            })
             .then(
               response => {
                 this.atualizaJson();
@@ -460,18 +458,15 @@ export default {
       }
     },
     excluirItem(item) {
-      console.log(item.id);
       let alteraIndex = this.items.findIndex(x => x.id === item.id);
       this.items.splice(alteraIndex, 1);
 
       axios
-        .delete(
-          `${config.api.url}/pedidos/${item.id}`,
-          { auth: config.api.auth }
-        )
+        .delete(`${config.api.url}/pedidos/${item.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
-            console.log(response.data);
             this.recalculaTotal();
           },
           error => {
@@ -497,17 +492,28 @@ export default {
       }
     },
     fecharRoleParcial() {
-      console.log("REQUISIÇÃO POST PARA BACKEND (FECHAR ROLE)");
-      this.dialog.totalParcial = true;
-      this.dialog.FechaParcial = false;
-      //no response exibir o total
+      axios
+        .delete(
+          `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.id}`,
+          {
+            auth: config.api.auth
+          }
+        )
+        .then(
+          response => {
+            this.dialog.totalParcial = true;
+            this.dialog.fecharRoleParcial = false;
+          },
+          error => {
+            console.log(error.data);
+          }
+        );
     },
     fecharRole() {
       axios
-        .delete(
-          `${config.api.url}/salas/${this.sala.id}`,
-          { auth: config.api.auth }
-        )
+        .delete(`${config.api.url}/salas/${this.sala.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             this.dialog.totalParcial = true;
@@ -521,14 +527,10 @@ export default {
     },
     gravaNomeSala() {
       axios
-        .put(
-          `${config.api.url}/salas/${this.sala.id}/nome`,
-          this.salaEdtNome,
-          {
-            headers: { "Content-Type": "text/plain" },
-            auth: config.api.auth
-          }
-        )
+        .put(`${config.api.url}/salas/${this.sala.id}/nome`, this.salaEdtNome, {
+          headers: { "Content-Type": "text/plain" },
+          auth: config.api.auth
+        })
         .then(
           response => {
             this.dialog.EdtNomeSala = false;
@@ -540,80 +542,111 @@ export default {
         );
     },
     toggleSelect() {
-      this.itemSendoEditado.perfil = this.pessoas.map(a => a.id);
+      this.itemSendoEditado.perfil = this.pessoasPerfil.map(a => a.id);
     },
     atualizaJson() {
-      this.localizaSalaUsuario();
-      axios
-        .get(
-          `${config.api.url}/pedidos/salas/${this.sala.id}`,
-          { auth: config.api.auth }
-        )
-        .then(
-          response => {
-            this.items = response.data ? response.data : [];
-            this.recalculaTotal();
-          },
-          error => {
-            console.log(error.data);
-          }
-        );
+      if (!this.isAtualizando.salaUsuario) {
+        this.isAtualizando.salaUsuario = true;
+        console.log("SALA");
+        this.localizaSalaUsuario();
+      }
 
-      axios
-        .get(
-          `${config.api.url}/salas/${this.sala.id}/usuarios`,
-          { auth: config.api.auth }
-        )
-        .then(
-          response => {
-            this.pessoas = response.data;
-            this.pessoasPerfil = this.pessoas.map(p => {
-              return p.perfil;
-            });
-          },
-          error => {
-            console.log(error);
-          }
-        );
+      if (!this.sala.id) {
+        return;
+      }
 
-      axios
-        .get(
-          `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.id}/conta`,
-          { auth: config.api.auth }
-        )
-        .then(
-          response => {
-            this.totalPessoal = response.data;
-          },
-          error => {
-            console.log(error);
-          }
-        );
+      if (!this.isAtualizando.pedidosSala) {
+        console.log("PEDIDOS");
+
+        this.isAtualizando.pedidosSala = true;
+        axios
+          .get(`${config.api.url}/pedidos/salas/${this.sala.id}`, {
+            auth: config.api.auth
+          })
+          .then(
+            response => {
+              this.items = response.data ? response.data : [];
+              this.mensagemVazio = "Ainda não há itens no role";
+              this.recalculaTotal();
+              this.isAtualizando.pedidosSala = false;
+            },
+            error => {
+              this.isAtualizando.pedidosSala = false;
+              console.log(error.data);
+            }
+          );
+      }
+      if (!this.isAtualizando.usuariosSala) {
+        this.isAtualizando.usuariosSala = true;
+        console.log("USUARIOS");
+
+        axios
+          .get(`${config.api.url}/salas/${this.sala.id}/usuarios`, {
+            auth: config.api.auth
+          })
+          .then(
+            response => {
+              this.pessoas = response.data;
+              this.pessoasPerfil = this.pessoas.map(p => {
+                return p.perfil;
+                this.isAtualizando.usuariosSala = false;
+              });
+            },
+            error => {
+              this.isAtualizando.usuariosSala = false;
+              console.log(error);
+            }
+          );
+      }
+      if (!this.isAtualizando.contaUsuario) {
+        this.isAtualizando.contaUsuario = true;
+        console.log("CONTA");
+
+        axios
+          .get(
+            `${config.api.url}/salas/${this.sala.id}/${this.usuarioLogado.id}/conta`,
+            { auth: config.api.auth }
+          )
+          .then(
+            response => {
+              this.totalPessoal = response.data;
+              this.isAtualizando.contaUsuario = false;
+            },
+            error => {
+              this.isAtualizando.contaUsuario = false;
+              console.log(error);
+            }
+          );
+      }
     },
     localizaSalaUsuario(atualiza) {
       axios
-        .get(
-          `${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`,
-          { auth: config.api.auth }
-        )
+        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.id}`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             if (response.data) {
+              this.isAtualizando.salaUsuario = false;
               let sala = response.data.filter(obj => {
                 return !obj.data_saida;
               })[0];
 
-              if (!sala){
-                alert('Voce não está em nenhuma Sala');
-                this.$router.push('Home');
+              if (!sala) {
+                this.dialog.totalParcial = true;
+              }
+              if (false) {
+                alert("Voce não está em nenhuma Sala");
+                this.$router.push("Home");
                 return;
-              }else{
+              } else {
                 this.sala = sala.sala;
               }
               if (atualiza) this.atualizaJson();
             }
           },
           error => {
+            this.isAtualizando.salaUsuario = false;
             console.log(error);
           }
         );
@@ -664,13 +697,23 @@ export default {
       pessoas: [],
       pessoasPerfil: [],
       usuarioLogado: JSON.parse(localStorage.getItem("User")),
-      intervaloAtualiza: setInterval(() => {
-        this.atualizaJson();
-      }, 100000000000)
+      intervaloAtualiza: null,
+      mensagemVazio: "Carregando...",
+      isAtualizando: {
+        salaUsuario: false,
+        pedidosSala: false,
+        usuariosSala: false,
+        contaUsuario: false
+      }
     };
   },
   mounted() {
     this.localizaSalaUsuario(true);
+    console.log("Lobby");
+    this.intervaloAtualiza = setInterval(() => {
+      if (this.$route.name == "Lobby") this.atualizaJson();
+      else clearInterval(this.intervaloAtualiza);
+    }, 1000);
   }
 };
 </script>
