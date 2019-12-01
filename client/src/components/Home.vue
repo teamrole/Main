@@ -7,7 +7,7 @@
         @click="dialogSala = true; dialogType = 'Novo Role'; classePopup=''"
       >
         <v-card>
-          <v-img class="white--text" height="29vh" src="@/assets/img/novo_role.png">
+          <v-img class="white--text" height="28vh" src="@/assets/img/novo_role.png">
             <div class="fill-height">
               <h2 class="c-home-title">Novo role</h2>
             </div>
@@ -20,7 +20,7 @@
         @click="dialogSala = true; dialogType = 'Entrar em um Role'; classePopup='c-login-cod'"
       >
         <v-card>
-          <v-img class="white--text" height="29vh" src="@/assets/img/entrar_role.png">
+          <v-img class="white--text" height="27.9vh" src="@/assets/img/entrar_role.png">
             <div class="fill-height">
               <h2 class="c-home-title">Entrar em um role</h2>
             </div>
@@ -31,7 +31,7 @@
       <router-link to="Ranking" class="c-decoration-none">
         <v-list-item three-line class="c-nopadding">
           <v-card>
-            <v-img class="white--text" height="30vh" src="@/assets/img/ranking_role.png">
+            <v-img class="white--text" height="28vh" src="@/assets/img/ranking_role.png">
               <div class="fill-height">
                 <h2 class="c-home-title">Ranking</h2>
               </div>
