@@ -21,7 +21,7 @@
             <span class="headline" id="rTotal">{{totalRoles}}</span>
           </v-col>
           <v-col cols="col-6" class="c-col1">
-            <span class="headline" id="vTotal">R$ {{totalPago}}</span>
+            <span class="headline" id="vTotal">R$ {{(totalPago).toFixed(2)}}</span>
           </v-col>
         </v-row>
         <v-row>
