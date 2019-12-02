@@ -1,6 +1,6 @@
 
 <template>
-  <v-content>
+  <v-content class="c-content">
     <v-row class="c-con-display">
       <v-col cols="12" class="c-margin-auto">
         <v-avatar size="120">
@@ -35,8 +35,8 @@
       </v-col>
     </v-row>
 
-    <v-row justify="center">
-      <v-col cols="9">
+    <v-row justify="center" class="c-row-marg" style="padding-left:25px">
+      <v-col cols="10">
         <v-text-field
           label="Nome"
           :disabled="nameCheck"
@@ -45,16 +45,17 @@
           color="#033"
           :error="ErroNome"
           ref="inputNome"
+          id="inputNome"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="nameCheck = false;">
+        <v-btn text icon color="gray" height="100%" @click="nameCheck = false; applyFocus()">
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
     </v-row>
 
-    <v-row justify="center">
+    <v-row justify="center" class="c-row-marg">
       <v-col cols="11">
         <v-text-field
           label="Celular"
@@ -72,7 +73,20 @@
         <v-btn color="green" width="80%" @click="validaNome()?goHome():null;">Continuar</v-btn>
       </v-col>
     </v-row>
-    <v-row v-else>
+
+    <v-row v-else class="c-row-marg" style="text-align: center">
+      <v-col>
+        <v-btn
+          class="c-btn-pass"
+          color="primary"
+          dark
+          :outlined="true"
+          width="90%"
+          @click="dialogSenha = true"
+        >Mudar Senha</v-btn>
+      </v-col>
+    </v-row>
+    <v-row v-if="!primeiroLogin" class="c-row-marg">
       <v-col cols="6">
         <div style="width:10%;display:inline-block"></div>
         <v-btn
@@ -118,6 +132,28 @@
         </v-layout>
       </v-container>
     </v-dialog>
+
+    <v-dialog v-model="dialogSenha" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Digite a nova senha</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field type="password" label="Senha" v-model="senha"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="red darken-1" text @click="dialogSenha = false; senha = ''">Cancelar</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="dialogSenha = false; senha = ''">Confirmar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-content>
 </template>
 
@@ -150,6 +186,8 @@ export default {
       fileFoto: null,
       fotoChanged: false,
       storageRef: null,
+      senha: "",
+      dialogSenha: false,
       fotoDefault:
         "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
       usuarioLogado: JSON.parse(localStorage.getItem("User")),
@@ -188,6 +226,11 @@ export default {
         this.nameCheck = true;
         this.salvaLogin();
       }
+    },
+    applyFocus() {
+      setTimeout(() => {
+        this.$refs.inputNome.focus();
+      }, 500);
     },
     onFileChange(file) {
       this.fileFoto = file;
@@ -345,6 +388,8 @@ export default {
 }
 .c-con-display {
   background: var(--v-primary-lighten3);
+  padding: 0 !important;
+  margin: 0px;
 }
 .c-margin-auto {
   text-align: center;
@@ -388,5 +433,13 @@ export default {
   opacity: 0;
   width: 35px;
   height: 35px;
+}
+
+.c-row-marg {
+  margin-right: 0px !important;
+}
+
+.c-btn-pass {
+  justify-content: center;
 }
 </style>

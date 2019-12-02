@@ -1,7 +1,7 @@
 
 <template>
   <v-content>
-    <v-row>
+    <v-row class="c-crow">
       <v-col class="c-painelHeader">
         <p class="text-center headline">Histórico de Rolês</p>
         <v-expansion-panels mobile-breakpoint="400" active-class="c-painelAtivo">
@@ -23,6 +23,10 @@
 <style scoped>
 .c-painelHeader {
   padding: 1px;
+}
+.c-crow{
+  padding-right: 0px;
+  margin-right: 0px;
 }
 </style>
 
