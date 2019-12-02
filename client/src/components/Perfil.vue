@@ -47,7 +47,7 @@
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon color="gray" height="100%" @click="nameCheck = false; applyFocus()" >
+        <v-btn text icon color="gray" height="100%" @click="nameCheck = false; applyFocus()">
           <v-icon>edit</v-icon>
         </v-btn>
       </v-col>
@@ -64,19 +64,18 @@
         ></v-text-field>
       </v-col>
     </v-row>
-  <v-row class="c-row-marg" style="text-align: center">
-    <v-col>
-    <v-btn
-        class="c-btn-pass"
+    <v-row class="c-row-marg" style="text-align: center">
+      <v-col>
+        <v-btn
+          class="c-btn-pass"
           color="primary"
           dark
           :outlined="true"
           width="90%"
-          @click="dialogConfirmaMsg='Deseja mesmo fazer o logoff?';dialogConfirma=true"
-        >Mudar Senha
-    </v-btn>
-    </v-col>
-  </v-row>      
+          @click="dialogSenha = true"
+        >Mudar Senha</v-btn>
+      </v-col>
+    </v-row>
     <v-row class="c-row-marg">
       <v-col cols="6">
         <div style="width:10%;display:inline-block"></div>
@@ -123,6 +122,28 @@
         </v-layout>
       </v-container>
     </v-dialog>
+
+    <v-dialog v-model="dialogSenha" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Digite a nova senha</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field type="password" label="Senha" v-model="senha"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="red darken-1" text @click="dialogSenha = false; senha = ''">Cancelar</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="dialogSenha = false; senha = ''">Confirmar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-content>
 </template>
 
@@ -150,6 +171,8 @@ export default {
       fileFoto: null,
       fotoChanged: false,
       storageRef: null,
+      senha: "",
+      dialogSenha: false,
       fotoDefault:
         "https://firebasestorage.googleapis.com/v0/b/i-role.appspot.com/o/src%2Ffoto-padrao.png?alt=media&token=7899e09b-3157-4c49-a18c-66ab3f20d067",
       usuarioLogado: JSON.parse(localStorage.getItem("User")),
@@ -173,7 +196,7 @@ export default {
         this.salvaLogin();
       }
     },
-    applyFocus(){
+    applyFocus() {
       setTimeout(() => {
         this.$refs.inputNome.focus();
       }, 500);
@@ -201,9 +224,13 @@ export default {
     salvaLogin() {
       this.dialogLoading = true;
       axios
-        .put(`${config.api.url}/perfis/${this.usuarioLogado.perfil.id}`, this.perfil, {
-          auth: config.api.auth
-        })
+        .put(
+          `${config.api.url}/perfis/${this.usuarioLogado.perfil.id}`,
+          this.perfil,
+          {
+            auth: config.api.auth
+          }
+        )
         .then(
           response => {
             this.dialogLoading = false;
@@ -360,11 +387,11 @@ export default {
   height: 35px;
 }
 
-.c-row-marg{
+.c-row-marg {
   margin-right: 0px !important;
 }
 
-.c-btn-pass{
+.c-btn-pass {
   justify-content: center;
 }
 </style>
