@@ -14,13 +14,14 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name = "perfil")
-public class Perfil {
+public class Perfil{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String foto;
 	@Size(min = 2, max = 100)
 	private String nome;
+
 	@OneToOne
 	@JoinColumn(name = "id_usuario_fk", referencedColumnName = "id")
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -72,9 +73,5 @@ public class Perfil {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
-	}
-	
-	
-	
-	
+	}	
 }

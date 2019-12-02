@@ -1,7 +1,7 @@
 package br.com.irole.api.model;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +11,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name = "historico_sala_usuario")
@@ -25,23 +29,27 @@ public class HistoricoSalaUsuario {
 	private Sala sala;
 	
 	@ManyToOne
+	@Valid
 	private Perfil perfil;
 	
 	@Column(name = "data_hora_entrada")
 	@CreationTimestamp
-	private Timestamp data_entrada; 
+	private OffsetDateTime data_entrada; 
 	
 	@Column(name = "data_hora_saida")
-	private Timestamp data_saida;
+	private OffsetDateTime data_saida;
 	
 	private BigDecimal totalParcial = new BigDecimal(0); 
 	
+	@JsonProperty(access = Access.READ_ONLY)
 	@Transient
 	private BigDecimal totalSala; 	
 	
+	@JsonProperty(access = Access.READ_ONLY)
 	@Transient
-	private Boolean ativo; 	
+	private Boolean ativo = true; 	
 	
+	@JsonProperty(access = Access.READ_ONLY)
 	@Transient
 	private Long totalUsuarios; 
 
@@ -101,19 +109,19 @@ public class HistoricoSalaUsuario {
 		this.perfil = perfil;
 	}
 
-	public Timestamp getData_entrada() {
+	public OffsetDateTime getData_entrada() {
 		return data_entrada;
 	}
 
-	public void setData_entrada(Timestamp data_entrada) {
+	public void setData_entrada(OffsetDateTime data_entrada) {
 		this.data_entrada = data_entrada;
 	}
 
-	public Timestamp getData_saida() {
+	public OffsetDateTime getData_saida() {
 		return data_saida;
 	}
 
-	public void setData_saida(Timestamp data_saida) {
+	public void setData_saida(OffsetDateTime data_saida) {
 		this.data_saida = data_saida;
 	}
 

@@ -1,34 +1,29 @@
 package br.com.irole.api.service;
 
+import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository.Ranking;
 
-@Service
-public class RankingService {
+public interface RankingService {
 	
-	//TODO Cachear rankings, principalmente mês, ou usar batchs ao inves recurso
-		
-	@Autowired
-	private HistoricoSalaUsuarioRepository historicoSalaUsuarioRepository;
-
-	public List<Ranking> rankingDia() {
-		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingDia();
-		return historicos;
-	}
-
-	public List<Ranking> rankingMes() {
-		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingMes();		
-		return historicos;
-	}
-
-	public List<Ranking> rankingTodos() {
-		List<Ranking> historicos  = historicoSalaUsuarioRepository.rankingTodos();		
-		return historicos;
-	}
+	/**
+	 * Monta um ranking onde mostra os usuários mais ativos do dia especificado
+	 * @param date uma data no padrão americano
+	 * @return List of Ranking
+	 */
+	public List<Ranking> rankingDia(Date date);
 	
+	/**
+	 * Monta um ranking onde mostra os usuários mais ativos do mês (na data especificada)
+	 * @param date uma data no padrão americano
+	 * @return List of Ranking
+	 */
+	public List<Ranking> rankingMes(Date date); 
+	
+	/**
+	 * Monta um ranking onde mostra os usuários mais ativos (de todo tempo de uso da aplicação)
+	 * @return List of Ranking
+	 */
+	public List<Ranking> rankingTodos();
 }

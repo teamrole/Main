@@ -1,12 +1,10 @@
 package br.com.irole.api.resource;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -22,11 +20,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.irole.api.event.RecursoCriadoEvent;
+import br.com.irole.api.exceptionhandler.AppException;
 import br.com.irole.api.model.HistoricoSalaUsuario;
 import br.com.irole.api.model.Perfil;
 import br.com.irole.api.model.Sala;
 import br.com.irole.api.repository.HistoricoSalaUsuarioRepository;
-import br.com.irole.api.repository.SalaRepository;
 import br.com.irole.api.service.SalaService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,10 +33,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/salas")
 public class SalaController {
-	
-	@Autowired
-	private SalaRepository salaRepository;
-	
+		
 	@Autowired
 	private HistoricoSalaUsuarioRepository historicoRepository;
 	
@@ -61,49 +56,50 @@ public class SalaController {
 	}
 	
 	@PostMapping
-	@ApiOperation(notes = "Cria uma nova sala e gera um código. Nenhum parâmetro é necessário", value = "Criar Sala")
-	public ResponseEntity<Sala> criarSala(HttpServletResponse response){
-		Sala novaSala = new Sala();
-		novaSala.setCodigo(RandomStringUtils.randomAlphanumeric(4));
-		salaRepository.save(novaSala);
+	@ApiOperation(notes = "Cria uma nova sala e gera um código", value = "Criar Sala")
+	public ResponseEntity<?> criarSala(@RequestBody  Perfil perfil, HttpServletResponse response){
+		Sala novaSala;
+		try {
+			novaSala = salaService.criarSala(perfil);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new AppException(e.getMessage(), e.getMessage()));
+		}
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, novaSala.getId()));
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(novaSala);
 	}
 	
-	@PostMapping("/{codigo}/{idU}")
+	@PostMapping("/{codigo}/{idPerfil}")
 	@ApiOperation(notes = "Entra numa sala usando o código/QR Code como parâmetro URI", value = "Entrar na sala")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "codigo", value = "Código criado quando a sala é gerada", required = true, dataType = "String", paramType="path"),
-		@ApiImplicitParam(name = "idU", value = "ID do usuário", required = true, dataType = "Long", paramType="path")
+		@ApiImplicitParam(name = "idPerfil", value = "ID do Perfil", required = true, dataType = "Long", paramType="path")
 		
 	})	  
-	public ResponseEntity<?> entrarSala(@PathVariable String codigo,@PathVariable Long idU,HttpServletResponse response) {
-		return salaService.entraSala(idU,codigo);
+	public ResponseEntity<?> entrarSala(@PathVariable String codigo,@PathVariable Long idPerfil,HttpServletResponse response) {
+		return salaService.entraSala(idPerfil,codigo);
 	}
 	
-	@PostMapping("/{id}/{idU}/fecharConta")
-	@ApiOperation(notes = "Fecha a conta de um usuário específico; ID da sala; ID do usuário na URI", value = "Fechar conta de um usuário")
-	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		 BigDecimal totalParcial = salaService.fecharParcial(id, idU);		 
+	@DeleteMapping("/{id}/{idPerfil}")
+	@ApiOperation(notes = "Fecha a conta de um usuário específico; ID da sala; ID do perfil na URI", value = "Fechar conta de um usuário")
+	public BigDecimal fecharUsuario(@PathVariable Long id, @PathVariable Long idPerfil) {
+		 BigDecimal totalParcial = salaService.fecharContaDoUsuario(id, idPerfil);		 
 		 return totalParcial;
 	}	
 	
 	@GetMapping("/{id}/usuarios")
-	@ApiOperation(notes = "Mostra todos os usários cadastrados numa sala, ID da Sala na URI", value = "Lista usuários da sala")
-	public ResponseEntity<List<Perfil>> usuariosSala(@PathVariable Long id){
-		List<HistoricoSalaUsuario> salas = historicoRepository.findByIDSala(id);
-		List<Perfil> usuarios = new ArrayList<Perfil>();
-		for(HistoricoSalaUsuario historico : salas ) {
-			usuarios.add(historico.getPerfil());
-		}
+	@ApiOperation(notes = "Mostra todos os usários ATIVOS numa sala, passar o ID da Sala na URI", value = "Lista usuários da sala")
+	public ResponseEntity<List<HistoricoSalaUsuario>> usuariosSala(@PathVariable Long id){
+		List<HistoricoSalaUsuario> usuarios = historicoRepository.findUsuariosAtivo(id);
+		
 		return !usuarios.isEmpty() ? ResponseEntity.ok(usuarios) : ResponseEntity.noContent().build();
 	}
-		
 	
-	@GetMapping("/{id}/{idU}/contaUsuario")
-	@ApiOperation(notes = "Retorna os gastos de um usuário específico dentro de uma sala", value = "Retorna Conta do usuário")
-	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idU) {
-		BigDecimal totalParcial = salaService.contaParcial(id, idU);
+	@GetMapping("/{id}/{idP}/conta")
+	@ApiOperation(notes = "Retorna os gastos de um usuário específico dentro de uma sala, como parâmetro é esperado o id da Sala e o ID do perfil do usuário",
+	value = "Retorna Conta do usuário")
+	public BigDecimal contaUsuario(@PathVariable Long id, @PathVariable Long idP) {
+		BigDecimal totalParcial = salaService.pegaContaDeUmUsuario(id, idP);
 		return totalParcial;
 	}	
 		
@@ -117,13 +113,6 @@ public class SalaController {
 	@PutMapping("/{id}/nome")
 	@ApiOperation(notes = "Editar o nome da sala passando o ID da sala como parãmetro e o nome no corpo; *Sem aspas", value = "Trocar nome da Sala")
 	public ResponseEntity<?> editarNomeSala(@PathVariable Long id, @RequestBody String nome){
-		nome = nome.replaceAll("\"", "");
-		Sala buscaSala = salaService.buscaSala(id);
-		if(buscaSala.getAberta()) {
-			buscaSala.setNome(nome);
-			Sala salaSalva = salaRepository.save(buscaSala);
-			return ResponseEntity.ok(salaSalva);
-		}
-			return ResponseEntity.badRequest().body("Só é possível editar salas abertas");
+		return salaService.editarNomeSala(id, nome);
 	}
 }
