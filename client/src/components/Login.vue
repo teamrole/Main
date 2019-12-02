@@ -116,9 +116,10 @@ export default {
             if (!isLogado) {
               user.id = response.data.id;
               user.perfil = {
-                   id: response.data.perfil.id
-                }
+                id: response.data.perfil.id
+              };
               localStorage.setItem("User", JSON.stringify(user));
+              localStorage.setItem("firstLogin", true);
               this.$router.push("Perfil");
             } else {
               this.$router.push("Home");
@@ -158,10 +159,11 @@ export default {
                 senha: this.senha,
                 id: response.data.id,
                 perfil: {
-                   id: response.data.perfil.id
+                  id: response.data.perfil.id
                 }
               })
             );
+            localStorage.setItem("firstLogin", true);
             this.$router.push("Perfil");
           },
           error => {

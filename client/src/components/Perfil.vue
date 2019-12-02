@@ -5,12 +5,14 @@
       <v-col cols="12" class="c-margin-auto">
         <v-avatar size="120">
           <img :src="(perfil.foto?perfil.foto:fotoDefault)" />
-          <v-btn class="mx-2 c-changePic" fab dark small absolute bottom right color="cyan">
-            <div class="c-label">
-              <v-file-input @change="onFileChange" class="c-input" accept=".png, .jpg, .jpeg" />
-              <v-icon dark id="c-img-selector">mdi-pencil</v-icon>
-            </div>
-          </v-btn>
+
+          <div class="c-label c-changePic">
+            <upload-btn title @file-update="onFileChange" class="c-label">
+              <template slot="icon">
+                <v-icon>edit</v-icon>
+              </template>
+            </upload-btn>
+          </div>
         </v-avatar>
       </v-col>
       <v-col col="12" class="c-col">
@@ -64,7 +66,13 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-if="primeiroLogin">
+      <v-col cols="12">
+        <div style="width:10%;display:inline-block"></div>
+        <v-btn color="green" width="80%" @click="validaNome()?goHome():null;">Continuar</v-btn>
+      </v-col>
+    </v-row>
+    <v-row v-else>
       <v-col cols="6">
         <div style="width:10%;display:inline-block"></div>
         <v-btn
@@ -119,14 +127,19 @@ import config from "../assets/dados/config";
 import firebase from "firebase/app";
 import "firebase/storage";
 import axios from "axios";
+import UploadButton from "vuetify-upload-button";
 
 export default {
+  components: {
+    "upload-btn": UploadButton
+  },
   directives: {
     mask
   },
   data() {
     return {
       config: config,
+      primeiroLogin: localStorage.getItem("firstLogin"),
       oldName: "",
       dialogConfirmaMsg: "",
       dialogConfirma: false,
@@ -151,8 +164,24 @@ export default {
     };
   },
   methods: {
+    validaNome(e) {
+      if (
+        this.perfil.nome ? (this.perfil.nome.length >= 3 ? true : false) : false
+      ) {
+        return true;
+      } else {
+        this.nameCheck = false;
+        setTimeout(() => this.$refs.inputNome.focus(), 500);
+      }
+    },
+    goHome() {
+      localStorage.removeItem("firstLogin");
+      this.$router.push("Home");
+    },
     nameFocusOut() {
-      if (this.perfil.nome.length < 3) {
+      if (
+        this.perfil.nome ? (this.perfil.nome.length >= 3 ? false : true) : true
+      ) {
         this.ErroNome = true;
         this.$refs.inputNome.focus();
       } else {
@@ -163,6 +192,18 @@ export default {
     onFileChange(file) {
       this.fileFoto = file;
       this.fotoChanged = true;
+
+      let ext = getExtension(filename);
+      let flag = false;
+      switch (ext.toLowerCase()) {
+        case "jpg":
+        case "gif":
+        case "bmp":
+        case "png":
+          flag = true;
+      }
+
+      if (!flag) return;
 
       this.perfil.foto = URL.createObjectURL(this.fileFoto);
 
@@ -183,9 +224,13 @@ export default {
     salvaLogin() {
       this.dialogLoading = true;
       axios
-        .put(`${config.api.url}/perfis/${this.usuarioLogado.perfil.id}`, this.perfil, {
-          auth: config.api.auth
-        })
+        .put(
+          `${config.api.url}/perfis/${this.usuarioLogado.perfil.id}`,
+          this.perfil,
+          {
+            auth: config.api.auth
+          }
+        )
         .then(
           response => {
             this.dialogLoading = false;
@@ -217,9 +262,12 @@ export default {
 
       this.dialogLoading = true;
       axios
-        .get(`${config.api.url}/historicos/usuarios/${this.usuarioLogado.perfil.id}`, {
-          auth: config.api.auth
-        })
+        .get(
+          `${config.api.url}/historicos/usuarios/${this.usuarioLogado.perfil.id}`,
+          {
+            auth: config.api.auth
+          }
+        )
         .then(
           response => {
             this.dialogLoading = false;
@@ -266,6 +314,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.primeiroLogin);
     this.atualizaUsuario();
 
     if (!firebase.apps.length)
@@ -285,8 +334,8 @@ export default {
 
 <style scoped>
 .c-changePic {
-  right: -9px;
-  top: 86px;
+  position: relative;
+  position: absolute;
 }
 .c-text-field {
   padding-top: 0;
@@ -323,12 +372,13 @@ export default {
   padding-top: 30px;
 }
 .c-label {
-  position: relative;
+  position: absolute;
   width: 70px;
   height: 35px;
-  top: 5px;
   padding-top: 0;
   cursor: pointer;
+  left: 35px;
+  top: 45px;
 }
 .c-input {
   position: absolute;
