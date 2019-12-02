@@ -414,21 +414,13 @@ export default {
         if (this.usuariosInativos.includes(pagante)) {
           inativosPagantes.push(pagante);
         }
-        console.log(
-          "Usuario inativo " + pagante + this.usuariosInativos.includes(pagante)
-        );
       });
-
-      console.log(inativosPagantes);
 
       let PagantesEditado = [];
 
       if (this.itemSendoEditado.perfil[0].id)
         PagantesEditado = this.itemSendoEditado.perfil.map(a => a.id);
       else PagantesEditado = this.itemSendoEditado.perfil;
-
-      console.log(PagantesEditado);
-      console.log(this.itemSendoEditado);
 
       inativosPagantes.map(pagante => {
         if (!PagantesEditado.includes(pagante))
@@ -591,6 +583,21 @@ export default {
         );
     },
     fecharRole() {
+      this.pessoasPerfil.map(a =>
+        axios
+          .delete(`${config.api.url}/salas/${this.sala.id}/${a.id}`, {
+            auth: config.api.auth
+          })
+          .then(
+            response => {},
+            error => {
+              console.log(error.data);
+            }
+          )
+      );
+
+      return;
+
       this.dialog.Loading = true;
       axios
         .delete(`${config.api.url}/salas/${this.sala.id}`, {
@@ -635,7 +642,6 @@ export default {
         this.isAtualizando.salaUsuario = true;
         this.localizaSalaUsuario(false);
       }
-      console.log(this.sala);
       if (!this.sala) {
         return;
       }
@@ -720,12 +726,9 @@ export default {
     },
     localizaSalaUsuario(atualiza) {
       axios
-        .get(
-          `${config.api.url}/perfis/${this.usuarioLogado.id}/sala-atual`,
-          {
-            auth: config.api.auth
-          }
-        )
+        .get(`${config.api.url}/perfis/${this.usuarioLogado.id}/sala-atual`, {
+          auth: config.api.auth
+        })
         .then(
           response => {
             if (response.data) {

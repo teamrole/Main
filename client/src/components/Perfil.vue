@@ -236,18 +236,6 @@ export default {
       this.fileFoto = file;
       this.fotoChanged = true;
 
-      let ext = getExtension(filename);
-      let flag = false;
-      switch (ext.toLowerCase()) {
-        case "jpg":
-        case "gif":
-        case "bmp":
-        case "png":
-          flag = true;
-      }
-
-      if (!flag) return;
-
       this.perfil.foto = URL.createObjectURL(this.fileFoto);
 
       if (file) {
@@ -255,13 +243,18 @@ export default {
         const metadata = { contentType: file.type };
         const task = this.storageRef.child(name).put(file, metadata);
 
+        this.dialogLoading = true;
         task
           .then(snapshot => snapshot.ref.getDownloadURL())
           .then(url => {
             this.perfil.foto = url;
+            this.dialogLoading = false;
             this.salvaLogin();
           })
-          .catch(console.error);
+
+          .catch(e => {
+            this.dialogLoading = false;
+          });
       }
     },
     salvaLogin() {
